@@ -193,7 +193,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 
 /* TAG MULTI SELECT */
 .tag-select-grid{display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:var(--bg3);border:1px solid var(--b2);border-radius:5px;min-height:52px}
-.ts-pill{font-size:10px;padding:3px 8px;border-radius:10px;border:1px solid var(--b2);cursor:pointer;color:var(--t2);transition:all .12s}
+.ts-pill{font-size:10px;padding:3px 8px;border-radius:10px;border:1px solid var(--b2);cursor:pointer;color:var(--t2);transition:all .12px}
 .ts-pill:hover{border-color:var(--t3);color:var(--t1)}
 .ts-pill.on{border-color:var(--gold);color:var(--gold2);background:rgba(196,144,32,.12)}
 
@@ -410,23 +410,44 @@ const S = {
 // GITHUB API
 // ════════════════════════════════════════════════════
 const GH_BASE = 'https://api.github.com';
-const gh = () => ({ 'Authorization':'token '+S.cfg.token, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' });
+const gh = () => ({
+  'Authorization':'token ' + S.cfg.token,
+  'Accept':'application/vnd.github.v3+json',
+  'Content-Type':'application/json'
+});
+
+// FIX 1: UTF-8 safe base64 decode — mirrors the encodeURIComponent encoding used in ghWrite
+function b64DecodeUtf8(str) {
+  return decodeURIComponent(escape(atob(str)));
+}
+
+// FIX 2: UTF-8 safe base64 encode
+function b64EncodeUtf8(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
 
 async function ghRead() {
-  const r = await fetch(`${GH_BASE}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`, { headers: gh() });
-  if (r.status === 404) return { data:[], sha:null };
+  const r = await fetch(
+    `${GH_BASE}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`,
+    { headers: gh() }
+  );
+  if (r.status === 404) return { data: [], sha: null };
   const f = await r.json();
-  if (f.message) return { data:[], sha:null };
-  return { data: JSON.parse(atob(f.content.replace(/\n/g,''))), sha: f.sha };
+  if (f.message) return { data: [], sha: null };
+  // FIX 1 applied: use UTF-8-aware decode
+  const decoded = b64DecodeUtf8(f.content.replace(/\n/g, ''));
+  return { data: JSON.parse(decoded), sha: f.sha };
 }
 
 async function ghWrite() {
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(S.data, null, 2))));
-  const body = { message:'sia: update data.json', content };
+  // FIX 2 applied: use UTF-8-aware encode
+  const content = b64EncodeUtf8(JSON.stringify(S.data, null, 2));
+  const body = { message: 'sia: update data.json', content };
   if (S.sha) body.sha = S.sha;
-  const r = await fetch(`${GH_BASE}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`, {
-    method:'PUT', headers:gh(), body:JSON.stringify(body)
-  });
+  const r = await fetch(
+    `${GH_BASE}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`,
+    { method: 'PUT', headers: gh(), body: JSON.stringify(body) }
+  );
   const j = await r.json();
   if (!r.ok) throw new Error(j.message || 'Write failed');
   S.sha = j.content?.sha;
@@ -439,13 +460,15 @@ async function connectGH() {
   const token = q('#s-tok').value.trim();
   const owner = q('#s-own').value.trim();
   const repo  = q('#s-rep').value.trim();
-  if (!token||!owner||!repo) { serr('All fields required.'); return; }
+  if (!token || !owner || !repo) { serr('All fields required.'); return; }
+
   q('#s-btn').innerHTML = '<span class="spin"></span>Connecting…';
   q('#s-btn').disabled = true;
   q('#s-err').style.display = 'none';
+
   try {
     const r = await fetch(`${GH_BASE}/repos/${owner}/${repo}`, {
-      headers: { 'Authorization':'token '+token, 'Accept':'application/vnd.github.v3+json' }
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (!r.ok) throw new Error('Repo not found or token has insufficient permissions (needs repo scope).');
     S.cfg = { token, owner, repo };
@@ -473,14 +496,28 @@ function showSetup() {
   }
 }
 
+// FIX 3: boot() now has full error handling and won't crash silently
 async function boot() {
   q('#setup').style.display = 'none';
   q('#app').style.display = 'flex';
   q('#rlabel').textContent = S.cfg.owner + '/' + S.cfg.repo;
-  const { data, sha } = await ghRead();
-  S.data = data;
-  S.sha  = sha;
-  if (S.data.length === 0) { S.data = SEED; await ghWrite(); }
+
+  try {
+    const { data, sha } = await ghRead();
+    S.data = data;
+    S.sha  = sha;
+    // FIX 4: only seed when file truly didn't exist (sha === null), not when user has 0 entries
+    if (S.data.length === 0 && S.sha === null) {
+      S.data = SEED;
+      await ghWrite();
+    }
+  } catch(e) {
+    toast('Failed to load data: ' + e.message, 'er');
+    // Fall back to seed so the app is still usable
+    S.data = JSON.parse(JSON.stringify(SEED));
+    S.sha  = null;
+  }
+
   buildTagFilter();
   setView('graph');
 }
@@ -529,8 +566,11 @@ function applyFilters() {
   const matches = id => {
     const e = S.data.find(x => x.id === id);
     if (!e) return false;
-    const textMatch = !sq || (e.name||'').toLowerCase().includes(sq) || (e.description||'').toLowerCase().includes(sq) || (e.summary||'').toLowerCase().includes(sq);
-    const tagMatch  = active.length === 0 || active.every(t => (e.tags||[]).includes(t));
+    const textMatch = !sq
+      || (e.name        || '').toLowerCase().includes(sq)
+      || (e.description || '').toLowerCase().includes(sq)
+      || (e.summary     || '').toLowerCase().includes(sq);
+    const tagMatch = active.length === 0 || active.every(t => (e.tags || []).includes(t));
     return textMatch && tagMatch;
   };
   if (S.view === 'graph')   highlightGraph(matches);
@@ -554,18 +594,16 @@ function renderGraph() {
 
   const W = container.clientWidth, H = container.clientHeight;
 
-  // Build graph data
-  const nodes = S.data.map(e => ({ ...e, _deg:0 }));
+  const nodes = S.data.map(e => ({ ...e, _deg: 0 }));
   const links = [];
   S.data.forEach(e => {
     (e.links || []).forEach(l => {
       if (S.data.find(x => x.id === l.targetId)) {
-        links.push({ source:e.id, target:l.targetId, rel:l.rel });
+        links.push({ source: e.id, target: l.targetId, rel: l.rel });
       }
     });
   });
 
-  // Compute degree
   links.forEach(l => {
     const s = nodes.find(n => n.id === l.source);
     const t = nodes.find(n => n.id === l.target);
@@ -579,7 +617,6 @@ function renderGraph() {
   gZoom = d3.zoom().scaleExtent([.15, 4]).on('zoom', e => g.attr('transform', e.transform));
   svg.call(gZoom);
 
-  // Defs: arrowhead
   svg.append('defs').append('marker')
     .attr('id', 'arr').attr('viewBox', '0 -5 10 10').attr('refX', 18)
     .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto')
@@ -588,8 +625,10 @@ function renderGraph() {
   const g = svg.append('g');
 
   const linkColors = {
-    'uses_framework':'#c49020', 'involves':'#4888f8',
-    'illustrates':'#28c870',    'related_to':'#e84060'
+    'uses_framework': '#c49020',
+    'involves':       '#4888f8',
+    'illustrates':    '#28c870',
+    'related_to':     '#e84060'
   };
 
   gLink = g.append('g').selectAll('line').data(links).join('line')
@@ -608,11 +647,11 @@ function renderGraph() {
     .on('mouseout',  ()      => hideTip());
 
   nodeG.append('circle')
-    .attr('r',            d => nodeR(d))
-    .attr('fill',         d => typeC(d.type))
-    .attr('fill-opacity', .85)
-    .attr('stroke',       d => typeC(d.type))
-    .attr('stroke-width', 2)
+    .attr('r',              d => nodeR(d))
+    .attr('fill',           d => typeC(d.type))
+    .attr('fill-opacity',  .85)
+    .attr('stroke',         d => typeC(d.type))
+    .attr('stroke-width',   2)
     .attr('stroke-opacity', .5);
 
   gLabel = nodeG.append('text')
@@ -623,7 +662,6 @@ function renderGraph() {
     .text(d => d.name.length > 18 ? d.name.slice(0, 16) + '…' : d.name)
     .style('display', showLab ? null : 'none');
 
-  // Force simulation
   gSim = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
       .distance(d => d.rel === 'uses_framework' ? 120 : d.rel === 'involves' ? 100 : 90)
@@ -657,20 +695,20 @@ function renderGraph() {
 function showTip(ev, d) {
   const tip = q('#graph-tooltip');
   tip.innerHTML = `
-    <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:${TYPE_CFG[d.type]?.color||'#888'};margin-bottom:3px">
+    <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:${TYPE_CFG[d.type]?.color || '#888'};margin-bottom:3px">
       ${TYPE_CFG[d.type]?.label || d.type}
     </div>
     <div style="font-size:12px;color:var(--t1);font-weight:500">${esc(d.name)}</div>
-    ${d.tags?.length ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">${d.tags.slice(0,3).join(' · ')}</div>` : ''}`;
+    ${d.tags?.length ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">${d.tags.slice(0, 3).join(' · ')}</div>` : ''}`;
   tip.style.opacity = '1';
   tip.style.left = (ev.offsetX + 12) + 'px';
   tip.style.top  = (ev.offsetY - 10) + 'px';
 }
+
 function hideTip() { q('#graph-tooltip').style.opacity = '0'; }
 
 function selectNode(d) {
   S.sel = d;
-  // Highlight connected nodes
   const connIds = new Set([
     ...(d.links || []).map(l => l.targetId),
     ...S.data.filter(e => (e.links || []).some(l => l.targetId === d.id)).map(e => e.id),
@@ -705,7 +743,7 @@ function resetZoom() {
   const el = q('#graph-view');
   gSvg.transition().duration(600).call(
     gZoom.transform,
-    d3.zoomIdentity.translate(el.clientWidth/2, el.clientHeight/2).scale(.8).translate(-el.clientWidth/2, -el.clientHeight/2)
+    d3.zoomIdentity.translate(el.clientWidth / 2, el.clientHeight / 2).scale(.8).translate(-el.clientWidth / 2, -el.clientHeight / 2)
   );
 }
 
@@ -723,14 +761,14 @@ function openDetail(e) {
   const tc = TYPE_CFG[e.type] || TYPE_CFG['concept'];
 
   const dpType = q('#dp-type');
-  dpType.textContent     = tc.label;
-  dpType.style.color     = tc.color;
-  dpType.style.fontSize  = '9px';
-  dpType.style.letterSpacing = '.12em';
-  dpType.style.textTransform = 'uppercase';
+  dpType.textContent          = tc.label;
+  dpType.style.color          = tc.color;
+  dpType.style.fontSize       = '9px';
+  dpType.style.letterSpacing  = '.12em';
+  dpType.style.textTransform  = 'uppercase';
 
   const connectedTo = (e.links || [])
-    .map(l => { const t = S.data.find(x => x.id === l.targetId); return t ? { ...t, rel:l.rel } : null; })
+    .map(l => { const t = S.data.find(x => x.id === l.targetId); return t ? { ...t, rel: l.rel } : null; })
     .filter(Boolean);
   const backlinks = S.data
     .filter(x => x.id !== e.id && (x.links || []).some(l => l.targetId === e.id))
@@ -771,19 +809,19 @@ function getDetailFields(e) {
   switch (e.type) {
     case 'company':
       return `<div class="dp-section"><div class="dp-section-title">Profile</div>
-        ${df('Sector',e.sector)}${df('Description',e.description)}${df('Revenue Engine',e.revenueEngine)}
-        ${df('Flywheel',e.flywheel)}${df('Switching Costs',e.switchingCosts)}${df('Failure Points',e.failurePoints)}</div>`;
+        ${df('Sector', e.sector)}${df('Description', e.description)}${df('Revenue Engine', e.revenueEngine)}
+        ${df('Flywheel', e.flywheel)}${df('Switching Costs', e.switchingCosts)}${df('Failure Points', e.failurePoints)}</div>`;
     case 'framework':
       return `<div class="dp-section"><div class="dp-section-title">Framework</div>
-        ${df('Author / Source',e.author)}${df('Year',e.year)}${df('Description',e.description)}
-        ${df('Key Components',e.keyComponents)}${df('Use Cases',e.useCases)}</div>`;
+        ${df('Author / Source', e.author)}${df('Year', e.year)}${df('Description', e.description)}
+        ${df('Key Components', e.keyComponents)}${df('Use Cases', e.useCases)}</div>`;
     case 'case-study':
       return `<div class="dp-section"><div class="dp-section-title">Case</div>
-        ${df('Industry',e.industry)}${df('Year',e.year)}${df('Outcome',e.outcome)}${df('Summary',e.summary)}
-        ${df('Root Cause',e.rootCause)}${df('Warning Signs',e.warningSignsIgnored)}${df('Lessons',e.lessons)}</div>`;
+        ${df('Industry', e.industry)}${df('Year', e.year)}${df('Outcome', e.outcome)}${df('Summary', e.summary)}
+        ${df('Root Cause', e.rootCause)}${df('Warning Signs', e.warningSignsIgnored)}${df('Lessons', e.lessons)}</div>`;
     case 'concept':
       return `<div class="dp-section"><div class="dp-section-title">Concept</div>
-        ${df('Description',e.description)}${df('Examples',e.examples)}${df('Counter-examples',e.counterExamples)}</div>`;
+        ${df('Description', e.description)}${df('Examples', e.examples)}${df('Counter-examples', e.counterExamples)}</div>`;
     default:
       return df('Description', e.description);
   }
@@ -813,10 +851,10 @@ function renderLibrary() {
   const sq = S.searchQ.toLowerCase();
   const items = S.data.filter(e => {
     const textMatch = !sq
-      || (e.name||'').toLowerCase().includes(sq)
-      || (e.description||'').toLowerCase().includes(sq)
-      || (e.summary||'').toLowerCase().includes(sq);
-    const tagMatch = active.length === 0 || active.every(t => (e.tags||[]).includes(t));
+      || (e.name        || '').toLowerCase().includes(sq)
+      || (e.description || '').toLowerCase().includes(sq)
+      || (e.summary     || '').toLowerCase().includes(sq);
+    const tagMatch = active.length === 0 || active.every(t => (e.tags || []).includes(t));
     return textMatch && tagMatch;
   });
   const g = q('#lib-grid');
@@ -826,14 +864,14 @@ function renderLibrary() {
   }
   g.innerHTML = items.map(e => {
     const tc = TYPE_CFG[e.type] || TYPE_CFG['concept'];
-    const connCount = (e.links||[]).length +
-      S.data.filter(x => x.id !== e.id && (x.links||[]).some(l => l.targetId === e.id)).length;
+    const connCount = (e.links || []).length +
+      S.data.filter(x => x.id !== e.id && (x.links || []).some(l => l.targetId === e.id)).length;
     return `<div class="lib-card t-${e.type}${S.sel?.id === e.id ? ' selected' : ''}" data-id="${escAttr(e.id)}" onclick="selectLibCard('${escAttr(e.id)}')">
       <div class="lc-type t-${e.type}">${tc.label}</div>
       <div class="lc-name">${esc(e.name)}</div>
-      <div class="lc-desc">${esc((e.description || e.summary || '').substring(0,120))}</div>
+      <div class="lc-desc">${esc((e.description || e.summary || '').substring(0, 120))}</div>
       <div class="lc-tags">
-        ${(e.tags||[]).slice(0,4).map(t => `<span class="lc-tag">${esc(t)}</span>`).join('')}
+        ${(e.tags || []).slice(0, 4).map(t => `<span class="lc-tag">${esc(t)}</span>`).join('')}
         ${connCount ? `<span class="lc-tag" style="border-color:var(--b3)">⬡ ${connCount}</span>` : ''}
       </div>
     </div>`;
@@ -856,13 +894,13 @@ const CH_OPT = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      labels: { color:'#7880a0', font:{ family:"'IBM Plex Mono',monospace", size:11 }, boxWidth:12, padding:10 }
+      labels: { color: '#7880a0', font: { family: "'IBM Plex Mono',monospace", size: 11 }, boxWidth: 12, padding: 10 }
     }
   }
 };
 const AXIS_OPT = {
-  ticks: { color:'#404870', font:{ family:"'IBM Plex Mono',monospace", size:10 } },
-  grid:  { color:'#141828' }
+  ticks: { color: '#404870', font: { family: "'IBM Plex Mono',monospace", size: 10 } },
+  grid:  { color: '#141828' }
 };
 
 function renderAnalytics() {
@@ -881,45 +919,41 @@ function renderAnalytics() {
   const totalLinks = S.data.reduce((a, e) => a + (e.links || []).length, 0);
 
   q('#an-stats').innerHTML = [
-    { n: S.data.length,            l: 'Total Entries',  c: 'var(--gold2)' },
-    { n: byType['case-study'] || 0, l: 'Case Studies',  c: 'var(--cs2)'   },
-    { n: byType['framework']  || 0, l: 'Frameworks',    c: 'var(--fw2)'   },
-    { n: totalLinks,                l: 'Connections',   c: 'var(--cn2)'   }
+    { n: S.data.length,             l: 'Total Entries', c: 'var(--gold2)' },
+    { n: byType['case-study'] || 0, l: 'Case Studies',  c: 'var(--cs2)'  },
+    { n: byType['framework']  || 0, l: 'Frameworks',    c: 'var(--fw2)'  },
+    { n: totalLinks,                l: 'Connections',   c: 'var(--cn2)'  }
   ].map(s => `<div class="an-stat"><div class="asn" style="color:${s.c}">${s.n}</div><div class="asl">${s.l}</div></div>`).join('');
 
   const mkChart = (id, type, data, opts = {}) => {
     if (S.charts[id]) S.charts[id].destroy();
-    S.charts[id] = new Chart(q('#'+id), { type, data, options:{ ...CH_OPT, ...opts } });
+    S.charts[id] = new Chart(q('#' + id), { type, data, options: { ...CH_OPT, ...opts } });
   };
 
-  // Type doughnut
   const typeKeys = Object.keys(byType);
   mkChart('ch-types', 'doughnut', {
     labels: typeKeys.map(k => TYPE_CFG[k]?.label || k),
-    datasets: [{ data: typeKeys.map(k => byType[k]), backgroundColor: typeKeys.map(k => TYPE_CFG[k]?.color || '#888'), borderWidth:0 }]
+    datasets: [{ data: typeKeys.map(k => byType[k]), backgroundColor: typeKeys.map(k => TYPE_CFG[k]?.color || '#888'), borderWidth: 0 }]
   });
 
-  // Outcome bar
   const outKeys = Object.keys(byOutcome);
-  const outColors = { 'Success':'#28c870', 'Failure':'#e84060', 'Ongoing':'#4888f8', 'Ambiguous':'#e8701a' };
+  const outColors = { 'Success': '#28c870', 'Failure': '#e84060', 'Ongoing': '#4888f8', 'Ambiguous': '#e8701a' };
   mkChart('ch-outcomes', 'bar', {
     labels: outKeys,
-    datasets: [{ data: outKeys.map(k => byOutcome[k]), backgroundColor: outKeys.map(k => outColors[k] || '#888'), borderRadius:4, borderWidth:0 }]
-  }, { scales:{ x:{...AXIS_OPT}, y:{...AXIS_OPT, ticks:{...AXIS_OPT.ticks, stepSize:1}} }, plugins:{legend:{display:false}} });
+    datasets: [{ data: outKeys.map(k => byOutcome[k]), backgroundColor: outKeys.map(k => outColors[k] || '#888'), borderRadius: 4, borderWidth: 0 }]
+  }, { scales: { x: { ...AXIS_OPT }, y: { ...AXIS_OPT, ticks: { ...AXIS_OPT.ticks, stepSize: 1 } } }, plugins: { legend: { display: false } } });
 
-  // Industries (horizontal bar)
-  const topInd = Object.entries(indCount).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const topInd = Object.entries(indCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
   mkChart('ch-industries', 'bar', {
     labels: topInd.map(x => x[0]),
-    datasets: [{ data: topInd.map(x => x[1]), backgroundColor:'#3d78d4', borderRadius:3, borderWidth:0 }]
-  }, { indexAxis:'y', scales:{ x:{...AXIS_OPT}, y:{...AXIS_OPT} }, plugins:{legend:{display:false}} });
+    datasets: [{ data: topInd.map(x => x[1]), backgroundColor: '#3d78d4', borderRadius: 3, borderWidth: 0 }]
+  }, { indexAxis: 'y', scales: { x: { ...AXIS_OPT }, y: { ...AXIS_OPT } }, plugins: { legend: { display: false } } });
 
-  // Top tags (horizontal bar)
-  const topTags = Object.entries(tagCount).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const topTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
   mkChart('ch-tags', 'bar', {
     labels: topTags.map(x => x[0]),
-    datasets: [{ data: topTags.map(x => x[1]), backgroundColor:'#c49020', borderRadius:3, borderWidth:0 }]
-  }, { indexAxis:'y', scales:{ x:{...AXIS_OPT}, y:{...AXIS_OPT} }, plugins:{legend:{display:false}} });
+    datasets: [{ data: topTags.map(x => x[1]), backgroundColor: '#c49020', borderRadius: 3, borderWidth: 0 }]
+  }, { indexAxis: 'y', scales: { x: { ...AXIS_OPT }, y: { ...AXIS_OPT } }, plugins: { legend: { display: false } } });
 }
 
 // ════════════════════════════════════════════════════
@@ -931,7 +965,9 @@ let formData = {};
 let _taQueue = [];
 
 function openForm(entry) {
-  formData = entry ? { ...entry, tags:[...(entry.tags||[])], links:[...(entry.links||[])] } : { type:'case-study', tags:[], links:[] };
+  formData = entry
+    ? { ...entry, tags: [...(entry.tags || [])], links: [...(entry.links || [])] }
+    : { type: 'case-study', tags: [], links: [] };
   formType = formData.type || 'case-study';
   q('#form-panel').style.display = 'flex';
   q('#fp-title').textContent = entry ? 'Edit Entry' : 'New Entry';
@@ -946,7 +982,7 @@ function renderFormBody() {
   _taQueue = [];
   const fb = q('#fp-body');
 
-  const typeSel = ['company','framework','case-study','concept'].map(t => `
+  const typeSel = ['company', 'framework', 'case-study', 'concept'].map(t => `
     <div class="ts-opt t-${t}${formType === t ? ' on' : ''}" onclick="setFormType('${t}')">
       <div class="to-icon">${TYPE_CFG[t].icon}</div>
       <div class="to-label">${TYPE_CFG[t].label}</div>
@@ -954,7 +990,7 @@ function renderFormBody() {
 
   const allTagsFlat = [...new Set(Object.values(TAG_CATS).flat())];
   const tagSel = allTagsFlat.map(t =>
-    `<span class="ts-pill${(formData.tags||[]).includes(t) ? ' on' : ''}" onclick="toggleFormTag('${escAttr(t)}')" id="ft-${CSS.escape(t)}">${esc(t)}</span>`
+    `<span class="ts-pill${(formData.tags || []).includes(t) ? ' on' : ''}" onclick="toggleFormTag('${escAttr(t)}')" id="ft-${CSS.escape(t)}">${esc(t)}</span>`
   ).join('');
 
   const otherEntities = S.data.filter(e => e.id !== formData.id);
@@ -966,49 +1002,48 @@ function renderFormBody() {
       <span style="color:var(--t3);font-size:9px;margin-left:auto">${TYPE_CFG[e.type]?.label || e.type}</span>
     </div>`).join('');
 
-  // Type-specific fields — textareas use placeholder content rendered safely via _taQueue
   const typeFields = {
     'company': `
-      <div class="frow">${fi('sector','Sector',formData.sector||'')}${fi('founded','Founded',formData.founded||'')}</div>
-      ${fta('description','Description',formData.description||'')}
-      ${fta('revenueEngine','Revenue Engine',formData.revenueEngine||'')}
-      ${fta('flywheel','Flywheel / Virtuous Cycle',formData.flywheel||'')}
-      ${fta('switchingCosts','Switching Costs',formData.switchingCosts||'')}
-      ${fta('failurePoints','Failure Points',formData.failurePoints||'')}`,
+      <div class="frow">${fi('sector', 'Sector', formData.sector || '')}${fi('founded', 'Founded', formData.founded || '')}</div>
+      ${fta('description', 'Description', formData.description || '')}
+      ${fta('revenueEngine', 'Revenue Engine', formData.revenueEngine || '')}
+      ${fta('flywheel', 'Flywheel / Virtuous Cycle', formData.flywheel || '')}
+      ${fta('switchingCosts', 'Switching Costs', formData.switchingCosts || '')}
+      ${fta('failurePoints', 'Failure Points', formData.failurePoints || '')}`,
     'framework': `
-      <div class="frow">${fi('author','Author / Source',formData.author||'')}${fi('year','Year',formData.year||'')}</div>
-      ${fta('description','Description',formData.description||'')}
-      ${fta('keyComponents','Key Components',formData.keyComponents||'')}
-      ${fta('useCases','Typical Use Cases',formData.useCases||'')}`,
+      <div class="frow">${fi('author', 'Author / Source', formData.author || '')}${fi('year', 'Year', formData.year || '')}</div>
+      ${fta('description', 'Description', formData.description || '')}
+      ${fta('keyComponents', 'Key Components', formData.keyComponents || '')}
+      ${fta('useCases', 'Typical Use Cases', formData.useCases || '')}`,
     'case-study': `
-      <div class="frow">${fi('industry','Industry',formData.industry||'')}${fi('year','Year',formData.year||'')}</div>
+      <div class="frow">${fi('industry', 'Industry', formData.industry || '')}${fi('year', 'Year', formData.year || '')}</div>
       <div class="f"><label>Outcome</label><select id="ff-outcome" onchange="formData.outcome=this.value">
         <option value="">Select…</option>
-        ${['Success','Failure','Ongoing','Ambiguous'].map(o =>
-          `<option value="${o}"${formData.outcome===o?' selected':''}>${o}</option>`
+        ${['Success', 'Failure', 'Ongoing', 'Ambiguous'].map(o =>
+          `<option value="${o}"${formData.outcome === o ? ' selected' : ''}>${o}</option>`
         ).join('')}
       </select></div>
-      ${fta('summary','Summary',formData.summary||'')}
-      ${fta('rootCause','Root Cause',formData.rootCause||'')}
-      ${fta('warningSignsIgnored','Warning Signs Ignored',formData.warningSignsIgnored||'')}
-      ${fta('lessons','Lessons',formData.lessons||'')}`,
+      ${fta('summary', 'Summary', formData.summary || '')}
+      ${fta('rootCause', 'Root Cause', formData.rootCause || '')}
+      ${fta('warningSignsIgnored', 'Warning Signs Ignored', formData.warningSignsIgnored || '')}
+      ${fta('lessons', 'Lessons', formData.lessons || '')}`,
     'concept': `
-      ${fta('description','Description',formData.description||'')}
-      ${fta('examples','Examples',formData.examples||'')}
-      ${fta('counterExamples','Counter-examples',formData.counterExamples||'')}`
+      ${fta('description', 'Description', formData.description || '')}
+      ${fta('examples', 'Examples', formData.examples || '')}
+      ${fta('counterExamples', 'Counter-examples', formData.counterExamples || '')}`
   };
 
   fb.innerHTML = `
     <div class="fs"><div class="fst">Entry Type</div><div class="type-selector">${typeSel}</div></div>
-    <div class="fs"><div class="fst">Core Identity</div>${fi('name','Name *',formData.name||'')}</div>
-    <div class="fs"><div class="fst">Type-Specific Fields</div>${typeFields[formType]||''}</div>
+    <div class="fs"><div class="fst">Core Identity</div>${fi('name', 'Name *', formData.name || '')}</div>
+    <div class="fs"><div class="fst">Type-Specific Fields</div>${typeFields[formType] || ''}</div>
     <div class="fs"><div class="fst">Tags</div><div class="tag-select-grid">${tagSel}</div></div>
     <div class="fs"><div class="fst">Connections to Other Entries</div>
       <input type="text" class="rel-search" placeholder="Search entries…" oninput="filterRelPicker(this.value)">
       <div class="rel-picker" id="rel-picker">${relItems}</div>
     </div>`;
 
-  // FIX: Set textarea values via JS to avoid HTML-encoding issues
+  // FIX 5: Set textarea values via JS after render to avoid HTML-encoding corruption
   _taQueue.forEach(({ id, value }) => {
     const el = q('#ff-' + id);
     if (el) el.value = value;
@@ -1016,9 +1051,9 @@ function renderFormBody() {
 }
 
 function filterRelPicker(searchQ) {
-  const items = qAll('#rel-picker .rel-item');
-  items.forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(searchQ.toLowerCase()) ? 'flex' : 'none';
+  const sq = searchQ.toLowerCase();
+  qAll('#rel-picker .rel-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(sq) ? 'flex' : 'none';
   });
 }
 
@@ -1037,8 +1072,8 @@ function toggleLink(id) {
   if (i > -1) {
     formData.links.splice(i, 1);
   } else {
-    const relMap = { 'company':'involves', 'framework':'uses_framework', 'concept':'illustrates', 'case-study':'related_to' };
-    formData.links.push({ targetId:id, rel: relMap[target?.type] || 'related_to' });
+    const relMap = { 'company': 'involves', 'framework': 'uses_framework', 'concept': 'illustrates', 'case-study': 'related_to' };
+    formData.links.push({ targetId: id, rel: relMap[target?.type] || 'related_to' });
   }
   const el = q('#ri-' + CSS.escape(id));
   if (el) el.classList.toggle('picked', formData.links.some(l => l.targetId === id));
@@ -1046,7 +1081,7 @@ function toggleLink(id) {
 
 // ════════════════════════════════════════════════════
 // FORM HELPERS
-// Note: fta() registers value in _taQueue for post-render JS assignment (avoids HTML encoding bugs)
+// fta() queues textarea value for post-render JS assignment
 // ════════════════════════════════════════════════════
 function fi(id, lbl, v = '') {
   return `<div class="f"><label>${lbl}</label><input id="ff-${id}" value="${escAttr(v)}" oninput="formData.${id}=this.value"></div>`;
@@ -1061,15 +1096,17 @@ function fta(id, lbl, v = '') {
 // CRUD
 // ════════════════════════════════════════════════════
 async function saveEntry() {
-  // Collect all current field values from the DOM
-  const fields = ['name','sector','founded','author','year','industry','summary','description',
-    'revenueEngine','flywheel','switchingCosts','failurePoints','keyComponents','useCases',
-    'rootCause','warningSignsIgnored','lessons','examples','counterExamples'];
+  // Collect all field values from DOM at save time
+  const fields = [
+    'name', 'sector', 'founded', 'author', 'year', 'industry',
+    'summary', 'description', 'revenueEngine', 'flywheel', 'switchingCosts',
+    'failurePoints', 'keyComponents', 'useCases', 'rootCause',
+    'warningSignsIgnored', 'lessons', 'examples', 'counterExamples'
+  ];
   fields.forEach(f => {
     const el = q(`#ff-${f}`);
     if (el) formData[f] = el.value.trim();
   });
-  // outcome from select
   const selEl = q('#ff-outcome');
   if (selEl) formData.outcome = selEl.value;
 
@@ -1084,12 +1121,10 @@ async function saveEntry() {
   try {
     let savedId;
     if (formData.id) {
-      // Update existing
       const i = S.data.findIndex(x => x.id === formData.id);
       if (i > -1) S.data[i] = { ...S.data[i], ...formData };
       savedId = formData.id;
     } else {
-      // New entry
       formData.id = 'e' + Date.now();
       S.data.push(formData);
       savedId = formData.id;
@@ -1102,7 +1137,6 @@ async function saveEntry() {
     if (S.view === 'library')   renderLibrary();
     if (S.view === 'analytics') renderAnalytics();
 
-    // Open detail for saved entry
     const saved = S.data.find(x => x.id === savedId);
     if (saved) openDetail(saved);
 
@@ -1123,7 +1157,7 @@ async function doDelete() {
   if (!S.sel) return;
   const delId = S.sel.id;
   S.data = S.data.filter(x => x.id !== delId);
-  // Remove all links pointing to deleted entry
+  // Clean up all links pointing to the deleted entry
   S.data.forEach(e => { e.links = (e.links || []).filter(l => l.targetId !== delId); });
   try {
     await ghWrite();
@@ -1144,13 +1178,14 @@ async function doDelete() {
 const q    = s => document.querySelector(s);
 const qAll = s => document.querySelectorAll(s);
 
-// esc: for innerHTML text nodes
+// esc: safe for innerHTML text nodes
 function esc(s) {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-// escAttr: for HTML attribute values (same as esc — both needed for clarity)
+
+// escAttr: safe for HTML attribute values (single-quote safe too)
 function escAttr(s) {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function toast(m, t = '') {
@@ -1230,32 +1265,32 @@ const SEED = [
     id:'co1', type:'company', name:'Nokia', sector:'Technology / Telecom', founded:'1865',
     description:"Finnish multinational that dominated global mobile phone markets in early 2000s before collapsing under iOS/Android disruption. Peak market cap ~$110B in 2000.",
     revenueEngine:"Hardware device sales (high volumes, thin margins on low end; better margins on enterprise). Symbian licensing. Network infrastructure (separate division).",
-    flywheel:"Operator distribution relationships → volume scale → component cost advantage → price competitiveness → more operator deals. Worked until platform mattered more than hardware.",
-    switchingCosts:"Low consumer switching costs. Operator switching costs somewhat higher. App ecosystem switching costs (near zero on Symbian — tiny ecosystem anyway).",
+    flywheel:"Operator distribution relationships -> volume scale -> component cost advantage -> price competitiveness -> more operator deals. Worked until platform mattered more than hardware.",
+    switchingCosts:"Low consumer switching costs. Operator switching costs somewhat higher. App ecosystem switching costs (near zero on Symbian -- tiny ecosystem anyway).",
     failurePoints:"Software/platform capability. Symbian too old and fragile to be competitive. No developer ecosystem. Cultural: hardware engineers dominant, software treated as secondary.",
     tags:['Technology','Telecom','Failure','Platform Disruption','Europe','2000s'], links:[]
   },
   {
     id:'co2', type:'company', name:'Kodak', sector:'Technology / Consumer', founded:'1892',
     description:"American photography giant. Dominated film and camera markets for a century. Invented the digital camera in 1975 but failed to commercialize it. Filed Chapter 11 in 2012.",
-    revenueEngine:"Film sales (razor/blade model — cameras priced low, film at 60%+ gross margin). Chemical processing. Printer consumables (late strategy).",
-    flywheel:"Film manufacturing scale → cost leadership → retail distribution → consumer brand trust → film repurchase. Destroyed by digital (no consumables needed).",
+    revenueEngine:"Film sales (razor/blade model -- cameras priced low, film at 60%+ gross margin). Chemical processing. Printer consumables (late strategy).",
+    flywheel:"Film manufacturing scale -> cost leadership -> retail distribution -> consumer brand trust -> film repurchase. Destroyed by digital (no consumables needed).",
     failurePoints:"Business model entirely dependent on consumable film. Digital photography eliminated the recurring revenue stream. No platform or software capabilities to pivot to services.",
     tags:['Technology','Failure',"Innovator's Dilemma",'USA','1990s','2000s'], links:[]
   },
   {
     id:'co3', type:'company', name:'Netflix', sector:'Media / Technology', founded:'1997',
     description:"Streaming giant. Started as DVD-by-mail, proactively cannibalized its own business with streaming. Now a global content platform with 260M+ subscribers.",
-    revenueEngine:"Subscription revenue (monthly recurring). Content amortized over subscriber base — scale economics in content creation.",
-    flywheel:"More subscribers → more content budget → better content → more subscribers. Data advantage from viewing behavior informs content investment decisions.",
+    revenueEngine:"Subscription revenue (monthly recurring). Content amortized over subscriber base -- scale economics in content creation.",
+    flywheel:"More subscribers -> more content budget -> better content -> more subscribers. Data advantage from viewing behavior informs content investment decisions.",
     switchingCosts:"Moderate: original content exclusivity creates sticky library. Low switching cost to other streaming services.",
     tags:['Media','Technology','Success','Platform Disruption','USA','2000s','2010s'], links:[]
   },
   {
     id:'co4', type:'company', name:'Reliance Jio', sector:'Telecom / Technology', founded:'2016',
     description:"Reliance Industries' telecom arm. Launched with free data in 2016, permanently disrupted Indian telecom economics. Built $30B+ network infrastructure. Now expanding into financial services, retail, and entertainment.",
-    revenueEngine:"Mobile subscriptions (ARPU ~₹181). JioCinema, JioFiber. Ancillary digital services. Spectrum assets.",
-    flywheel:"Cheapest data → massive user base → content/services distribution platform → monetize at scale → fund further infrastructure.",
+    revenueEngine:"Mobile subscriptions (ARPU ~181 INR). JioCinema, JioFiber. Ancillary digital services. Spectrum assets.",
+    flywheel:"Cheapest data -> massive user base -> content/services distribution platform -> monetize at scale -> fund further infrastructure.",
     switchingCosts:"Growing: JioCinema (IPL, World Cup rights), JioFiber bundling, digital payments integration.",
     tags:['Telecom','Technology','Success','Network Effects','India','2010s','2020s'], links:[]
   },
@@ -1263,46 +1298,46 @@ const SEED = [
   // ── CASE STUDIES ──
   {
     id:'cs1', type:'case-study', name:'Nokia: Platform Collapse', industry:'Technology / Telecom', year:'2007', outcome:'Failure',
-    summary:"Nokia, holding 40% global handset market share, failed to recognize the iPhone as a platform shift rather than a premium hardware product. Its response — Symbian upgrades — was structurally incapable of competing with iOS/Android ecosystems.",
+    summary:"Nokia, holding 40% global handset market share, failed to recognize the iPhone as a platform shift rather than a premium hardware product. Its response -- Symbian upgrades -- was structurally incapable of competing with iOS/Android ecosystems.",
     rootCause:"1. Symbian OS was unmaintainable (millions of lines of C++, different variants for different handsets).\n2. Internal silos: software engineers had no power vs hardware engineers.\n3. Incentive structures rewarded hardware volume, not platform adoption.\n4. Management dismissed ecosystem risk as a niche concern.",
     warningSignsIgnored:"RIM (BlackBerry) gaining enterprise share through software advantages. iPhone launch dismissed as 'too expensive.' Android developer ecosystem growing at 10x Symbian rate. Internal engineers' written warnings about Symbian's ceiling (2005-2007).",
-    lessons:"1. Platform beats product — always evaluate the ecosystem, not just the device.\n2. Software capability cannot be acquired quickly; it must be built over years.\n3. Fear of cannibalization kills faster than external competition.\n4. When insiders warn in writing, listen.",
+    lessons:"1. Platform beats product -- always evaluate the ecosystem, not just the device.\n2. Software capability cannot be acquired quickly; it must be built over years.\n3. Fear of cannibalization kills faster than external competition.\n4. When insiders warn in writing, listen.",
     tags:['Technology','Telecom','Platform Disruption','Failure','Europe','2000s','2010s'],
     links:[{targetId:'co1',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'},{targetId:'con2',rel:'illustrates'}]
   },
   {
     id:'cs2', type:'case-study', name:"Kodak: Invented It, Couldn't Use It", industry:'Technology / Consumer', year:'1975', outcome:'Failure',
     summary:"Kodak engineer Steve Sasson invented the digital camera in 1975. The company shelved it for 20 years to protect film margins. By the time digital was unavoidable, Kodak had neither the software talent nor the consumer trust in digital to compete. Filed Chapter 11 in 2012.",
-    rootCause:"1. Film was 60%+ gross margin — no rational manager wanted to cannibalize it.\n2. Razor-blade model created structural dependency on consumables (digital has none).\n3. No software culture — Kodak was a chemistry and manufacturing company.\n4. Classic innovator's dilemma: serving existing customers excellently while ignoring paradigm shift.",
+    rootCause:"1. Film was 60%+ gross margin -- no rational manager wanted to cannibalize it.\n2. Razor-blade model created structural dependency on consumables (digital has none).\n3. No software culture -- Kodak was a chemistry and manufacturing company.\n4. Classic innovator's dilemma: serving existing customers excellently while ignoring paradigm shift.",
     warningSignsIgnored:"Own internal digital camera project (1975). Japan consumer electronics companies moving hard into digital through 1990s. Fujifilm building digital capabilities while Kodak harvested film profits. Film volume declining year-on-year from 1999.",
-    lessons:"1. Owning the patent on the future does not mean you'll profit from it.\n2. Margin protection = innovation suppression.\n3. Structural solutions needed (spinout, separate P&L) — cultural change alone fails.\n4. Follow the profit model, not the product — digital had no consumables, which was the real threat.",
+    lessons:"1. Owning the patent on the future does not mean you'll profit from it.\n2. Margin protection = innovation suppression.\n3. Structural solutions needed (spinout, separate P&L) -- cultural change alone fails.\n4. Follow the profit model, not the product -- digital had no consumables, which was the real threat.",
     tags:["Innovator's Dilemma",'Technology','Failure','USA','1990s','2000s'],
     links:[{targetId:'co2',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'}]
   },
   {
     id:'cs3', type:'case-study', name:'Netflix vs Blockbuster', industry:'Media / Entertainment', year:'2004', outcome:'Success',
-    summary:"Netflix built a subscription DVD-by-mail model eliminating late fees (Blockbuster's key revenue line and biggest customer grievance). When streaming became viable, Netflix proactively cannibalized its own DVD business — something Blockbuster could not do without destroying its store economics.",
-    rootCause:"Blockbuster's failure: late fees were 16% of revenue — structurally impossible to eliminate. Store footprint (9,000+ locations) was a liability in streaming era. Netflix's success: Reed Hastings explicitly chose to cannibalize the DVD business.",
+    summary:"Netflix built a subscription DVD-by-mail model eliminating late fees (Blockbuster's key revenue line and biggest customer grievance). When streaming became viable, Netflix proactively cannibalized its own DVD business -- something Blockbuster could not do without destroying its store economics.",
+    rootCause:"Blockbuster's failure: late fees were 16% of revenue -- structurally impossible to eliminate. Store footprint (9,000+ locations) was a liability in streaming era. Netflix's success: Reed Hastings explicitly chose to cannibalize the DVD business.",
     warningSignsIgnored:"By Blockbuster: Netflix subscriber growth 2002-2005 was unambiguous. Consumer surveys consistently cited late fees as #1 pain point. Streaming infrastructure improving rapidly.",
-    lessons:"1. Willingness to cannibalize yourself is the most powerful strategic weapon.\n2. The incumbent's strength (physical stores) became its prison.\n3. Subscription models that eliminate friction can displace transaction models.\n4. Data advantage: Netflix's viewing data → content investment edge.",
+    lessons:"1. Willingness to cannibalize yourself is the most powerful strategic weapon.\n2. The incumbent's strength (physical stores) became its prison.\n3. Subscription models that eliminate friction can displace transaction models.\n4. Data advantage: Netflix's viewing data -> content investment edge.",
     tags:['Platform Disruption','Media','Success','USA','2000s','2010s'],
     links:[{targetId:'co3',rel:'involves'},{targetId:'fw1',rel:'uses_framework'},{targetId:'fw3',rel:'uses_framework'},{targetId:'con2',rel:'illustrates'}]
   },
   {
     id:'cs4', type:'case-study', name:'Jio: Weaponizing Capital to Reset Industry', industry:'Telecom / India', year:'2016', outcome:'Success',
     summary:"Reliance invested $30B+ building India's only pan-India 4G LTE network before launching a single commercial service. Launched with 6 months of free data in 2016. Within 18 months, three incumbents exited, two merged (Vodafone Idea), and India had the world's cheapest data.",
-    rootCause:"Success factors: (1) Patient capital from Mukesh Ambani — no short-term profitability pressure. (2) Greenfield network built on latest technology — no legacy costs. (3) Priced at marginal cost to acquire user base for platform. (4) Government spectrum policy created a window for new entrant.",
+    rootCause:"Success factors: (1) Patient capital from Mukesh Ambani -- no short-term profitability pressure. (2) Greenfield network built on latest technology -- no legacy costs. (3) Priced at marginal cost to acquire user base for platform. (4) Government spectrum policy created a window for new entrant.",
     warningSignsIgnored:"By incumbents: Reliance's spectrum acquisitions 2012-2016 clearly signaled intent. Announced $20B investment publicly. Incumbents assumed it would be another Reliance Communications failure.",
-    lessons:"1. Capital as competitive weapon — incumbents cannot match greenfield economics.\n2. Platform logic: cheap data → digital services monetization → the real business.\n3. Telcos with legacy infrastructure cannot compete with a greenfield on cost.\n4. Regulatory windows are temporary — move when they open.",
+    lessons:"1. Capital as competitive weapon -- incumbents cannot match greenfield economics.\n2. Platform logic: cheap data -> digital services monetization -> the real business.\n3. Telcos with legacy infrastructure cannot compete with a greenfield on cost.\n4. Regulatory windows are temporary -- move when they open.",
     tags:['Telecom','Capital Allocation','India','Success','2010s'],
     links:[{targetId:'co4',rel:'involves'},{targetId:'con3',rel:'illustrates'},{targetId:'con4',rel:'illustrates'}]
   },
   {
     id:'cs5', type:'case-study', name:'WeWork: The Governance Catastrophe', industry:'Real Estate / Technology', year:'2019', outcome:'Failure',
     summary:"WeWork raised $12.8B at valuations up to $47B by convincing investors it was a tech company with platform economics. The 2019 IPO S-1 exposed: $47B in lease liabilities vs $2.4B revenue, Neumann extracting $700M via secondaries, and community-adjusted EBITDA as an invented metric.",
-    rootCause:"1. SoftBank Vision Fund created a single LP with $100B+ enabling ego-driven capital deployment with no governance constraint.\n2. Supervoting shares (20:1) meant Neumann had absolute control.\n3. 'Tech premium' on real estate economics is not real — no network effects, no data advantage, no platform.\n4. Regulatory failure: IPO process should have caught this.",
+    rootCause:"1. SoftBank Vision Fund created a single LP with $100B+ enabling ego-driven capital deployment with no governance constraint.\n2. Supervoting shares (20:1) meant Neumann had absolute control.\n3. 'Tech premium' on real estate economics is not real -- no network effects, no data advantage, no platform.\n4. Regulatory failure: IPO process should have caught this.",
     warningSignsIgnored:"Community-adjusted EBITDA invented to exclude actual costs. S-1 disclosed Neumann had trademarked 'We' and licensed it back to WeWork for $5.9M. Lease obligations growing 3x faster than revenue. Neumann selling shares while telling employees to believe.",
-    lessons:"1. Supervoting share structures enable founder extraction at shareholder expense — always flag.\n2. Invented financial metrics are almost always concealing something.\n3. 'Tech premium' requires demonstrated network effects or data advantage — not just an app.\n4. SoftBank's Vision Fund created a governance vacuum across its portfolio.",
+    lessons:"1. Supervoting share structures enable founder extraction at shareholder expense -- always flag.\n2. Invented financial metrics are almost always concealing something.\n3. 'Tech premium' requires demonstrated network effects or data advantage -- not just an app.\n4. SoftBank's Vision Fund created a governance vacuum across its portfolio.",
     tags:['Governance Failure','Real Estate','Failure','USA','2010s'],
     links:[{targetId:'con3',rel:'illustrates'},{targetId:'fw4',rel:'uses_framework'}]
   }
