@@ -4,269 +4,239 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIA — Strategic Intelligence Architecture</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#06080f;--bg2:#0a0d17;--bg3:#0f1220;--bg4:#141828;--bg5:#1a1f30;
-  --b1:#191e2e;--b2:#21283c;--b3:#2a3350;
-  --t1:#c8cce0;--t2:#7880a0;--t3:#404870;
-  --gold:#c49020;--gold2:#e8b840;--gold3:#f5d060;
-  --co:#2858b0;--co2:#4888f8;
-  --fw:#8a4010;--fw2:#e8701a;
-  --cs:#802838;--cs2:#e84060;
-  --cn:#186040;--cn2:#28c870;
-  --mono:'IBM Plex Mono',monospace;
-  --serif:'Playfair Display',Georgia,serif;
+:root {
+  --bg:     #0d1117;
+  --surf:   #161b22;
+  --surf2:  #1c2128;
+  --border: #30363d;
+  --text:   #c9d1d9;
+  --text2:  #8b949e;
+  --text3:  #484f58;
+  --blue:   #58a6ff;
+  --green:  #3fb950;
+  --red:    #f85149;
+  --orange: #d29922;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:var(--mono);font-size:13px}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; font-size:13px; }
 
 /* ── SETUP ── */
-#setup{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
-.sbox{width:480px;background:var(--bg2);border:1px solid var(--b2);border-radius:10px;padding:38px}
-.sbox h1{font-family:var(--serif);font-size:30px;color:var(--gold2);margin-bottom:5px}
-.sbox .sub{font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:26px}
-.sbox .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.f{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.f label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3)}
-.f input,.f select,.f textarea{background:var(--bg3);border:1px solid var(--b2);color:var(--t1);padding:8px 10px;border-radius:5px;font-family:var(--mono);font-size:12px;outline:none;resize:vertical;transition:border-color .12s}
-.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--gold)}
-.f input::placeholder,.f textarea::placeholder{color:var(--t3)}
-.f select option{background:var(--bg3)}
-.f textarea{min-height:74px}
-.serr{display:none;margin-top:10px;padding:9px 12px;border:1px solid var(--cs2);border-radius:5px;color:var(--cs2);font-size:11px;background:rgba(128,40,56,.1)}
-.snote{margin-top:10px;font-size:10px;color:var(--t3);line-height:1.6}
+#setup { position:fixed; inset:0; background:var(--bg); z-index:500; display:flex; align-items:center; justify-content:center; }
+.setup-box { width:440px; background:var(--surf); border:1px solid var(--border); border-radius:8px; padding:32px; }
+.setup-box h1 { font-size:22px; font-weight:700; margin-bottom:4px; }
+.setup-box .sub { font-size:12px; color:var(--text2); margin-bottom:24px; line-height:1.6; }
+.setup-note { margin-top:10px; font-size:11px; color:var(--text3); line-height:1.6; }
+.err-box { display:none; margin-top:10px; padding:8px 12px; border:1px solid var(--red); border-radius:5px; color:var(--red); font-size:11px; background:rgba(248,81,73,.06); }
+
+/* ── FORM ELEMENTS ── */
+.field { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
+.field label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.1em; }
+.field input, .field select, .field textarea {
+  background:var(--bg); border:1px solid var(--border); color:var(--text);
+  padding:7px 10px; border-radius:5px; font-family:inherit; font-size:12px;
+  outline:none; transition:border-color .1s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--blue); }
+.field textarea { min-height:72px; resize:vertical; }
+.field select option { background:var(--bg); }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+/* ── BUTTONS ── */
+.btn { padding:6px 14px; border-radius:5px; border:1px solid; cursor:pointer; font-size:12px; font-family:inherit; transition:all .1s; }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+.btn-primary   { background:var(--blue);   border-color:var(--blue);   color:#0d1117; font-weight:600; }
+.btn-primary:hover:not(:disabled) { filter:brightness(1.1); }
+.btn-secondary { background:transparent;   border-color:var(--border); color:var(--text2); }
+.btn-secondary:hover:not(:disabled) { border-color:var(--text2); color:var(--text); }
+.btn-danger    { background:transparent;   border-color:var(--red);    color:var(--red); }
+.btn-danger:hover  { background:var(--red); color:#fff; }
+.btn-ghost     { background:transparent;   border-color:transparent;   color:var(--text3); padding:6px 8px; }
+.btn-ghost:hover   { color:var(--red); }
+.btn-sm { font-size:10px; padding:4px 10px; }
 
 /* ── APP SHELL ── */
-#app{display:none;height:100vh;flex-direction:row}
+#app { display:none; height:100vh; flex-direction:row; }
 
-/* ── LEFT SIDEBAR ── */
-#lsb{width:210px;min-width:210px;background:var(--bg2);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
-#logo{padding:18px 16px 14px;border-bottom:1px solid var(--b1)}
-#logo .wm{font-family:var(--serif);font-size:20px;color:var(--gold2);font-weight:700;letter-spacing:.02em}
-#logo .ws{font-size:9px;color:var(--t3);letter-spacing:.15em;text-transform:uppercase;margin-top:3px}
-#nav{padding:10px 8px 0;flex-shrink:0}
-.nl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);padding:10px 8px 4px}
-.ni{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:5px;cursor:pointer;color:var(--t2);font-size:12px;border:1px solid transparent;transition:all .13s;margin-bottom:2px}
-.ni:hover{background:var(--bg3);color:var(--t1)}
-.ni.active{background:var(--bg3);color:var(--gold2);border-color:var(--b2)}
-.ni .ico{width:16px;font-size:13px;text-align:center}
+/* ── SIDEBAR ── */
+#sidebar { width:200px; min-width:200px; background:var(--surf); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+.logo { padding:14px 16px; border-bottom:1px solid var(--border); }
+.logo-title { font-size:17px; font-weight:700; }
+.logo-sub   { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.12em; margin-top:2px; }
+nav { padding:8px; flex-shrink:0; }
+.nav-lbl  { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.12em; padding:8px 8px 4px; }
+.nav-item { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:5px; cursor:pointer; color:var(--text2); font-size:12px; transition:all .1s; margin-bottom:1px; }
+.nav-item:hover  { background:var(--surf2); color:var(--text); }
+.nav-item.active { background:var(--surf2); color:var(--blue); }
+.tag-area { flex:1; overflow-y:auto; border-top:1px solid var(--border); padding:8px; }
+.tag-area-lbl { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.12em; padding:4px 8px 8px; }
+.tag-group { margin-bottom:10px; }
+.tag-group-lbl { font-size:10px; color:var(--text3); letter-spacing:.06em; padding:2px 8px 5px; }
+.tag-chip { display:inline-flex; padding:2px 8px; margin:2px 2px 2px 0; border-radius:10px; font-size:10px; border:1px solid var(--border); cursor:pointer; color:var(--text2); transition:all .1s; }
+.tag-chip:hover  { border-color:var(--text3); color:var(--text); }
+.tag-chip.active { border-color:var(--orange); color:var(--orange); background:rgba(210,153,34,.1); }
+.sidebar-foot { padding:10px; border-top:1px solid var(--border); flex-shrink:0; }
+.repo-status { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text2); margin-bottom:8px; overflow:hidden; }
+.status-dot { width:6px; height:6px; border-radius:50%; background:var(--text3); flex-shrink:0; }
+.status-dot.ok { background:var(--green); box-shadow:0 0 4px var(--green); }
+#repo-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-/* TAG FILTER SIDEBAR */
-#tag-filter{flex:1;overflow-y:auto;padding:10px 8px;border-top:1px solid var(--b1);margin-top:6px}
-.tfl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);padding:8px 8px 4px}
-.tag-group{margin-bottom:10px}
-.tag-group-title{font-size:9px;color:var(--t3);padding:0 8px 4px;letter-spacing:.08em}
-.tag-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:10px;border:1px solid var(--b2);cursor:pointer;margin:2px 3px 2px 0;color:var(--t2);transition:all .13s;background:transparent}
-.tag-pill:hover{border-color:var(--t3);color:var(--t1)}
-.tag-pill.on{border-color:var(--gold);color:var(--gold2);background:rgba(196,144,32,.1)}
+/* ── MAIN ── */
+#main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+#topbar { height:48px; display:flex; align-items:center; padding:0 16px; gap:10px; border-bottom:1px solid var(--border); background:var(--surf); flex-shrink:0; }
+.view-tabs { display:flex; gap:2px; }
+.vtab { padding:5px 12px; border-radius:4px; cursor:pointer; font-size:12px; color:var(--text2); border:1px solid transparent; transition:all .1s; }
+.vtab:hover  { background:var(--surf2); color:var(--text); }
+.vtab.active { background:var(--surf2); border-color:var(--border); color:var(--blue); }
+.spacer { flex:1; }
+#search { background:var(--surf2); border:1px solid var(--border); color:var(--text); padding:5px 12px; border-radius:5px; font-size:12px; outline:none; width:180px; }
+#search:focus { border-color:var(--blue); }
+#search::placeholder { color:var(--text3); }
 
-#lsfooter{padding:10px 10px 12px;border-top:1px solid var(--b1);flex-shrink:0}
-.repostatus{font-size:10px;color:var(--t3);display:flex;align-items:center;gap:6px;margin-bottom:7px}
-.rdot{width:6px;height:6px;border-radius:50%;background:var(--t3)}
-.rdot.ok{background:var(--cn2);box-shadow:0 0 5px var(--cn2)}
-.btn-cfg{width:100%;background:transparent;border:1px solid var(--b2);color:var(--t2);padding:6px 10px;border-radius:5px;cursor:pointer;font-family:var(--mono);font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;transition:all .13s}
-.btn-cfg:hover{border-color:var(--gold);color:var(--gold)}
+#content { flex:1; display:flex; overflow:hidden; position:relative; }
 
-/* ── MAIN AREA ── */
-#main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
-#topbar{display:flex;align-items:center;height:50px;padding:0 18px;border-bottom:1px solid var(--b1);background:var(--bg2);flex-shrink:0;gap:10px}
-.view-tabs{display:flex;gap:4px}
-.vtab{padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--t2);border:1px solid transparent;transition:all .13s}
-.vtab:hover{background:var(--bg3);color:var(--t1)}
-.vtab.active{background:var(--bg3);border-color:var(--b2);color:var(--gold2)}
-.sp{flex:1}
-#search-box{background:var(--bg3);border:1px solid var(--b2);color:var(--t1);padding:6px 12px;border-radius:5px;font-family:var(--mono);font-size:11px;outline:none;width:200px}
-#search-box:focus{border-color:var(--gold)}
-#search-box::placeholder{color:var(--t3)}
+/* ── GRAPH VIEW ── */
+#graph-view { flex:1; position:relative; display:none; }
+#graph-svg  { width:100%; height:100%; }
+#graph-tip  { position:absolute; pointer-events:none; background:var(--surf); border:1px solid var(--border); border-radius:5px; padding:8px 10px; font-size:11px; opacity:0; transition:opacity .1s; z-index:5; max-width:200px; }
+#graph-info { position:absolute; top:12px; left:12px; background:var(--surf); border:1px solid var(--border); border-radius:5px; padding:5px 10px; font-size:10px; color:var(--text3); }
+#graph-btns { position:absolute; top:12px; right:12px; display:flex; gap:6px; }
+.g-btn { background:var(--surf); border:1px solid var(--border); color:var(--text2); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:inherit; transition:all .1s; }
+.g-btn:hover { border-color:var(--text2); color:var(--text); }
+#graph-legend { position:absolute; bottom:12px; left:12px; background:var(--surf); border:1px solid var(--border); border-radius:5px; padding:8px 12px; }
+.leg-row { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text2); padding:2px 0; }
+.leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
-/* BUTTONS */
-.btn{padding:6px 13px;border-radius:4px;border:1px solid;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all .13s}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.btn-p{background:var(--gold);border-color:var(--gold);color:#080400;font-weight:600}
-.btn-p:hover:not(:disabled){background:var(--gold2);border-color:var(--gold2)}
-.btn-s{background:transparent;border-color:var(--b2);color:var(--t2)}
-.btn-s:hover:not(:disabled){border-color:var(--t2);color:var(--t1)}
-.btn-g{background:transparent;border-color:transparent;color:var(--t3);padding:6px 8px}
-.btn-g:hover{color:var(--cs2)}
-.btn-d{background:var(--cs);border-color:var(--cs);color:#fff}
-.btn-d:hover{background:var(--cs2)}
+/* ── LIBRARY VIEW ── */
+#library-view { flex:1; overflow-y:auto; padding:16px; display:none; }
+.lib-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
+.lib-card { background:var(--surf); border:1px solid var(--border); border-left:3px solid transparent; border-radius:6px; padding:12px 14px; cursor:pointer; transition:border-color .1s; }
+.lib-card:hover  { border-color:var(--border); filter:brightness(1.04); }
+.lib-card.sel    { border-color:var(--blue) !important; background:var(--surf2); }
+.lib-card.t-company    { border-left-color:#58a6ff; }
+.lib-card.t-framework  { border-left-color:#d29922; }
+.lib-card.t-case-study { border-left-color:#f85149; }
+.lib-card.t-concept    { border-left-color:#3fb950; }
+.card-type { font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px; }
+.card-name { font-size:13px; font-weight:500; margin-bottom:6px; line-height:1.3; }
+.card-desc { font-size:11px; color:var(--text2); line-height:1.5; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card-chips { display:flex; flex-wrap:wrap; gap:3px; }
+.card-chip  { font-size:9px; padding:1px 6px; border-radius:8px; border:1px solid var(--border); color:var(--text3); }
 
-/* ── VIEWS ── */
-#content{flex:1;display:flex;overflow:hidden;position:relative}
+/* ── ANALYTICS VIEW ── */
+#analytics-view { flex:1; overflow-y:auto; padding:16px; display:none; }
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
+.stat-box { background:var(--surf); border:1px solid var(--border); border-radius:6px; padding:14px; text-align:center; }
+.stat-num { font-size:26px; font-weight:700; line-height:1; }
+.stat-lbl { font-size:10px; color:var(--text2); margin-top:4px; }
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.chart-box { background:var(--surf); border:1px solid var(--border); border-radius:6px; padding:14px; }
+.chart-title { font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--text3); margin-bottom:12px; }
+.chart-area  { height:180px; position:relative; }
 
-/* GRAPH VIEW */
-#graph-view{flex:1;position:relative;display:none}
-#graph-svg{width:100%;height:100%}
-.gnode circle{cursor:pointer;transition:opacity .2s}
-.gnode text{pointer-events:none;fill:var(--t2);font-family:var(--mono);font-size:11px}
-.glink{stroke-opacity:.35;stroke-width:1.2;fill:none;transition:opacity .2s}
-.glink.active{stroke-opacity:.8;stroke-width:2}
-#graph-tooltip{position:absolute;background:var(--bg3);border:1px solid var(--b2);border-radius:5px;padding:8px 10px;font-size:11px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;max-width:200px}
-#graph-legend{position:absolute;bottom:14px;left:14px;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:10px 14px;font-size:10px}
-.leg-item{display:flex;align-items:center;gap:7px;padding:3px 0;color:var(--t2)}
-.leg-dot{width:10px;height:10px;border-radius:50%}
-#graph-controls{position:absolute;top:14px;right:14px;display:flex;gap:6px}
-.gc-btn{background:var(--bg2);border:1px solid var(--b2);color:var(--t2);padding:5px 10px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all .13s}
-.gc-btn:hover{border-color:var(--gold);color:var(--gold)}
-#node-count{position:absolute;top:14px;left:14px;background:var(--bg2);border:1px solid var(--b1);border-radius:5px;padding:5px 10px;font-size:10px;color:var(--t3)}
+/* ── DETAIL PANEL ── */
+#detail-panel { width:0; min-width:0; background:var(--surf); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; transition:width .15s,min-width .15s; }
+#detail-panel.open { width:300px; min-width:300px; }
+#dp-header { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; flex-shrink:0; }
+#dp-body   { flex:1; overflow-y:auto; padding:14px; }
+.dp-badge  { font-size:10px; text-transform:uppercase; letter-spacing:.1em; }
+.dp-name   { font-size:17px; font-weight:600; line-height:1.3; margin-bottom:4px; }
+.dp-meta   { font-size:10px; color:var(--text3); margin-bottom:10px; }
+.dp-chips  { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:14px; }
+.dp-chip   { font-size:9px; padding:2px 7px; border-radius:8px; border:1px solid var(--border); color:var(--text2); cursor:pointer; transition:all .1s; }
+.dp-chip:hover { border-color:var(--orange); color:var(--orange); }
+.dp-section-title { font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--text3); margin:14px 0 8px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+.dp-field  { margin-bottom:10px; }
+.dp-fl     { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
+.dp-fv     { font-size:11px; color:var(--text); line-height:1.65; white-space:pre-wrap; }
+.conn-row  { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:padding .1s; }
+.conn-row:hover { padding-left:4px; }
+.conn-row:last-child { border-bottom:none; }
+.conn-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.conn-name { font-size:11px; color:var(--text); }
+.conn-rel  { font-size:9px; color:var(--text3); }
 
-/* LIBRARY VIEW */
-#library-view{flex:1;overflow-y:auto;padding:20px;display:none}
-.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-.lib-card{background:var(--bg2);border:1px solid var(--b1);border-radius:7px;padding:14px 16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
-.lib-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
-.lib-card.t-company::before{background:var(--co2)}
-.lib-card.t-framework::before{background:var(--fw2)}
-.lib-card.t-case-study::before{background:var(--cs2)}
-.lib-card.t-concept::before{background:var(--cn2)}
-.lib-card:hover{border-color:var(--b2);transform:translateY(-1px)}
-.lib-card.selected{border-color:var(--gold);background:var(--bg3)}
-.lc-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
-.lc-type.t-company{color:var(--co2)}
-.lc-type.t-framework{color:var(--fw2)}
-.lc-type.t-case-study{color:var(--cs2)}
-.lc-type.t-concept{color:var(--cn2)}
-.lc-name{font-size:13px;color:var(--t1);font-weight:500;margin-bottom:6px;line-height:1.3}
-.lc-desc{font-size:11px;color:var(--t2);line-height:1.55;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.lc-tags{display:flex;flex-wrap:wrap;gap:4px}
-.lc-tag{font-size:9px;padding:2px 6px;border-radius:10px;border:1px solid var(--b2);color:var(--t3)}
-.lib-empty{text-align:center;padding:60px 20px;color:var(--t3)}
-.lib-empty .le-i{font-size:28px;opacity:.3;margin-bottom:8px}
-.lib-empty p{font-size:12px;color:var(--t2)}
+/* ── FORM PANEL ── */
+#form-panel { position:absolute; inset:0; background:var(--bg); z-index:20; display:none; flex-direction:column; }
+#fp-header  { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; background:var(--surf); flex-shrink:0; }
+#fp-title   { font-size:15px; font-weight:600; }
+#fp-body    { flex:1; overflow-y:auto; padding:20px 24px; }
+.fs-section { margin-bottom:20px; }
+.fs-title   { font-size:10px; text-transform:uppercase; letter-spacing:.15em; color:var(--text3); margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid var(--border); }
+.type-grid  { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.type-opt   { border:1px solid var(--border); border-radius:5px; padding:10px 8px; text-align:center; cursor:pointer; transition:all .1s; }
+.type-opt:hover { border-color:var(--text3); }
+.type-opt.active { border-width:2px; }
+.type-opt.active.t-company    { border-color:#58a6ff; background:rgba(88,166,255,.08); }
+.type-opt.active.t-framework  { border-color:#d29922; background:rgba(210,153,34,.08); }
+.type-opt.active.t-case-study { border-color:#f85149; background:rgba(248,81,73,.08); }
+.type-opt.active.t-concept    { border-color:#3fb950; background:rgba(63,185,80,.08); }
+.type-opt-icon  { font-size:16px; margin-bottom:3px; }
+.type-opt-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
+.tag-grid   { display:flex; flex-wrap:wrap; gap:4px; padding:8px; background:var(--surf2); border:1px solid var(--border); border-radius:5px; min-height:48px; }
+.tag-opt    { font-size:10px; padding:2px 8px; border-radius:8px; border:1px solid var(--border); cursor:pointer; color:var(--text2); transition:all .1s; }
+.tag-opt:hover  { border-color:var(--text3); color:var(--text); }
+.tag-opt.active { border-color:var(--orange); color:var(--orange); background:rgba(210,153,34,.1); }
+.rel-search-input { width:100%; background:var(--surf2); border:none; border-bottom:1px solid var(--border); color:var(--text); padding:6px 8px; font-family:inherit; font-size:11px; outline:none; }
+.rel-search-input::placeholder { color:var(--text3); }
+.rel-list   { background:var(--surf2); border:1px solid var(--border); border-top:none; border-radius:0 0 5px 5px; max-height:160px; overflow-y:auto; }
+.rel-opt    { display:flex; align-items:center; gap:8px; padding:6px 8px; cursor:pointer; font-size:11px; color:var(--text2); transition:all .1s; }
+.rel-opt:hover  { background:var(--surf); color:var(--text); }
+.rel-opt.picked { background:rgba(88,166,255,.08); color:var(--blue); }
+.rel-dot    { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 
-/* ANALYTICS VIEW */
-#analytics-view{flex:1;overflow-y:auto;padding:20px;display:none}
-.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.an-card{background:var(--bg2);border:1px solid var(--b1);border-radius:7px;padding:16px;position:relative}
-.an-card.wide{grid-column:span 2}
-.an-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
-.an-chart{position:relative;height:200px}
-.an-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.an-stat{background:var(--bg2);border:1px solid var(--b1);border-radius:7px;padding:14px;text-align:center}
-.an-stat .asn{font-family:var(--serif);font-size:28px;font-weight:700;line-height:1}
-.an-stat .asl{font-size:10px;color:var(--t2);margin-top:4px}
-
-/* DETAIL PANEL */
-#detail-panel{width:0;min-width:0;background:var(--bg2);border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;transition:width .2s ease,min-width .2s ease}
-#detail-panel.open{width:320px;min-width:320px}
-#dp-header{padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;flex-shrink:0}
-#dp-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase}
-#dp-actions{margin-left:auto;display:flex;gap:6px}
-#dp-body{flex:1;overflow-y:auto;padding:16px}
-.dp-name{font-family:var(--serif);font-size:18px;color:var(--t1);font-weight:700;margin-bottom:4px;line-height:1.3}
-.dp-meta{font-size:10px;color:var(--t3);margin-bottom:14px}
-.dp-section{margin-bottom:16px}
-.dp-section-title{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--b1)}
-.dp-field{margin-bottom:9px}
-.dp-fl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:3px}
-.dp-fv{font-size:11px;color:var(--t1);line-height:1.65;white-space:pre-wrap}
-.dp-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
-.dp-tag{font-size:9px;padding:2px 7px;border-radius:10px;border:1px solid var(--b2);color:var(--t2);cursor:pointer;transition:all .12s}
-.dp-tag:hover{border-color:var(--gold);color:var(--gold)}
-.conn-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b1);cursor:pointer;transition:all .12s}
-.conn-item:hover{padding-left:4px}
-.conn-item:last-child{border-bottom:none}
-.conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.conn-info{flex:1}
-.conn-name{font-size:11px;color:var(--t1)}
-.conn-rel{font-size:9px;color:var(--t3)}
-
-/* FORM PANEL */
-#form-panel{position:absolute;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column;overflow:hidden}
-#fp-header{padding:14px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px;background:var(--bg2);flex-shrink:0}
-#fp-title{font-family:var(--serif);font-size:16px;color:var(--t1)}
-#fp-body{flex:1;overflow-y:auto;padding:24px 28px}
-.fs{margin-bottom:22px}
-.fst{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--t3);margin-bottom:12px;padding-bottom:5px;border-bottom:1px solid var(--b1)}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.frow.full{grid-template-columns:1fr}
-
-/* RELATIONSHIP PICKER */
-.rel-picker{background:var(--bg3);border:1px solid var(--b2);border-radius:5px;padding:10px;max-height:160px;overflow-y:auto}
-.rel-item{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--t2);transition:all .12s}
-.rel-item:hover{background:var(--bg4);color:var(--t1)}
-.rel-item.picked{background:rgba(196,144,32,.1);color:var(--gold2)}
-.rel-item .ri-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.rel-search{width:100%;background:var(--bg3);border:none;border-bottom:1px solid var(--b2);color:var(--t1);padding:6px 8px;font-family:var(--mono);font-size:11px;outline:none;margin-bottom:6px}
-.rel-search::placeholder{color:var(--t3)}
-
-/* TAG MULTI SELECT */
-.tag-select-grid{display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:var(--bg3);border:1px solid var(--b2);border-radius:5px;min-height:52px}
-.ts-pill{font-size:10px;padding:3px 8px;border-radius:10px;border:1px solid var(--b2);cursor:pointer;color:var(--t2);transition:all .12px}
-.ts-pill:hover{border-color:var(--t3);color:var(--t1)}
-.ts-pill.on{border-color:var(--gold);color:var(--gold2);background:rgba(196,144,32,.12)}
-
-/* TYPE SELECTOR */
-.type-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
-.ts-opt{border:1px solid var(--b2);border-radius:6px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .14s}
-.ts-opt:hover{border-color:var(--b3)}
-.ts-opt.on{border-width:2px}
-.ts-opt.on.t-company{border-color:var(--co2);background:rgba(40,88,176,.1)}
-.ts-opt.on.t-framework{border-color:var(--fw2);background:rgba(138,64,16,.1)}
-.ts-opt.on.t-case-study{border-color:var(--cs2);background:rgba(128,40,56,.1)}
-.ts-opt.on.t-concept{border-color:var(--cn2);background:rgba(24,96,64,.1)}
-.ts-opt .to-icon{font-size:18px;margin-bottom:4px}
-.ts-opt .to-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2)}
-
-/* SPINNER, TOAST, MODAL */
-.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:sp .65s linear infinite;vertical-align:middle;margin-right:5px}
-@keyframes sp{to{transform:rotate(360deg)}}
-#toast{position:fixed;bottom:16px;right:16px;background:var(--bg3);border:1px solid var(--b2);padding:8px 14px;border-radius:5px;font-size:11px;color:var(--t1);transform:translateY(40px);opacity:0;transition:all .25s;z-index:9999;pointer-events:none}
-#toast.show{transform:translateY(0);opacity:1}
-#toast.ok{border-color:var(--cn2);color:var(--cn2)}
-#toast.er{border-color:var(--cs2);color:var(--cs2)}
-#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;align-items:center;justify-content:center}
-.mbox{width:360px;background:var(--bg2);border:1px solid var(--b2);border-radius:8px;padding:22px}
-.mbox h3{font-size:14px;margin-bottom:7px;color:var(--t1)}
-.mbox p{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:18px}
-.macts{display:flex;gap:9px;justify-content:flex-end}
-
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
-::-webkit-scrollbar-thumb:hover{background:var(--b3)}
+/* ── MISC ── */
+.spin { display:inline-block; width:11px; height:11px; border:2px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:5px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+#toast { position:fixed; bottom:16px; right:16px; background:var(--surf); border:1px solid var(--border); padding:7px 14px; border-radius:5px; font-size:12px; opacity:0; transform:translateY(20px); transition:all .2s; z-index:9999; pointer-events:none; }
+#toast.show { opacity:1; transform:translateY(0); }
+#toast.ok  { border-color:var(--green); color:var(--green); }
+#toast.err { border-color:var(--red);   color:var(--red);   }
+.modal-bg  { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:400; align-items:center; justify-content:center; }
+.modal     { width:340px; background:var(--surf); border:1px solid var(--border); border-radius:8px; padding:22px; }
+.modal h3  { font-size:14px; margin-bottom:6px; }
+.modal p   { font-size:12px; color:var(--text2); line-height:1.6; margin-bottom:16px; }
+.modal-acts{ display:flex; gap:8px; justify-content:flex-end; }
+::-webkit-scrollbar       { width:3px; height:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 </style>
 </head>
 <body>
 
 <!-- SETUP -->
 <div id="setup">
-  <div class="sbox">
+  <div class="setup-box">
     <h1>SIA</h1>
-    <p class="sub">Strategic Intelligence Architecture — a knowledge graph for strategic analysis. Connect your GitHub repository to persist all data.</p>
-    <div class="f"><label>GitHub Personal Access Token (repo scope)</label><input type="password" id="s-tok" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
-    <div class="row">
-      <div class="f"><label>Repository Owner</label><input type="text" id="s-own" placeholder="username"></div>
-      <div class="f"><label>Repository Name</label><input type="text" id="s-rep" placeholder="sia-data"></div>
+    <p class="sub">Strategic Intelligence Architecture — a knowledge graph for companies, frameworks, case studies, and concepts. Data lives in your GitHub repo.</p>
+    <div class="field"><label>Personal Access Token (repo scope)</label><input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
+    <div class="row2">
+      <div class="field"><label>Owner</label><input type="text" id="s-owner" placeholder="username"></div>
+      <div class="field"><label>Repository</label><input type="text" id="s-repo" placeholder="sia-data"></div>
     </div>
-    <button class="btn btn-p" id="s-btn" style="width:100%" onclick="connectGH()">Connect Repository</button>
-    <div class="serr" id="s-err"></div>
-    <p class="snote">Create a private GitHub repo first (can be empty). Token stays in localStorage. App auto-creates <code>sia/data.json</code> in your repo.</p>
+    <button class="btn btn-primary" id="s-btn" style="width:100%" onclick="connectGH()">Connect Repository</button>
+    <div class="err-box" id="s-err"></div>
+    <p class="setup-note">Create a private repo first (can be empty). Token is stored in localStorage only. App writes to <code>sia/data.json</code>.</p>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
-
-  <!-- LEFT SIDEBAR -->
-  <div id="lsb">
-    <div id="logo"><div class="wm">SIA</div><div class="ws">Intelligence Architecture</div></div>
-    <div id="nav">
-      <div class="nl">Views</div>
-      <div class="ni active" id="n-graph" onclick="setView('graph')"><span class="ico">⬡</span> Graph View</div>
-      <div class="ni" id="n-library" onclick="setView('library')"><span class="ico">▤</span> Library</div>
-      <div class="ni" id="n-analytics" onclick="setView('analytics')"><span class="ico">◈</span> Analytics</div>
-      <div class="nl">Actions</div>
-      <div class="ni" onclick="openForm(null)"><span class="ico">+</span> Add Entry</div>
-    </div>
-    <div id="tag-filter">
-      <div class="tfl">Filter by Tag</div>
-      <div id="tag-filter-content"></div>
-    </div>
-    <div id="lsfooter">
-      <div class="repostatus"><span class="rdot ok" id="rdot"></span><span id="rlabel">not connected</span></div>
-      <button class="btn-cfg" onclick="showSetup()">⚙ &nbsp;Settings / Reconnect</button>
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="logo"><div class="logo-title">SIA</div><div class="logo-sub">Intelligence Architecture</div></div>
+    <nav>
+      <div class="nav-lbl">Views</div>
+      <div class="nav-item active" id="nav-graph"     onclick="setView('graph')">⬡  Graph</div>
+      <div class="nav-item"        id="nav-library"   onclick="setView('library')">▤  Library</div>
+      <div class="nav-item"        id="nav-analytics" onclick="setView('analytics')">◈  Analytics</div>
+      <div class="nav-lbl">Actions</div>
+      <div class="nav-item" onclick="openForm(null)">+  Add Entry</div>
+    </nav>
+    <div class="tag-area" id="tag-area"></div>
+    <div class="sidebar-foot">
+      <div class="repo-status"><span class="status-dot" id="status-dot"></span><span id="repo-label">not connected</span></div>
+      <button class="btn btn-secondary" style="width:100%;font-size:11px" onclick="showSetup()">⚙ Settings / Reconnect</button>
     </div>
   </div>
 
@@ -274,46 +244,42 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
   <div id="main">
     <div id="topbar">
       <div class="view-tabs">
-        <div class="vtab active" id="vt-graph" onclick="setView('graph')">Graph</div>
-        <div class="vtab" id="vt-library" onclick="setView('library')">Library</div>
-        <div class="vtab" id="vt-analytics" onclick="setView('analytics')">Analytics</div>
+        <div class="vtab active" id="vt-graph"     onclick="setView('graph')">Graph</div>
+        <div class="vtab"        id="vt-library"   onclick="setView('library')">Library</div>
+        <div class="vtab"        id="vt-analytics" onclick="setView('analytics')">Analytics</div>
       </div>
-      <div class="sp"></div>
-      <input id="search-box" type="text" placeholder="Search entries…" oninput="onSearch()">
-      <button class="btn btn-p" onclick="openForm(null)">+ New Entry</button>
+      <div class="spacer"></div>
+      <input id="search" type="text" placeholder="Search entries…" oninput="onSearch()">
+      <button class="btn btn-primary" onclick="openForm(null)">+ New Entry</button>
     </div>
 
     <div id="content">
-      <!-- GRAPH VIEW -->
+      <!-- GRAPH -->
       <div id="graph-view">
         <svg id="graph-svg"></svg>
-        <div id="graph-tooltip"></div>
-        <div id="node-count"></div>
-        <div id="graph-controls">
-          <button class="gc-btn" onclick="resetZoom()">Reset View</button>
-          <button class="gc-btn" onclick="toggleLabels()">Labels</button>
+        <div id="graph-tip"></div>
+        <div id="graph-info"></div>
+        <div id="graph-btns">
+          <button class="g-btn" onclick="resetZoom()">Reset View</button>
+          <button class="g-btn" onclick="toggleLabels()">Labels</button>
         </div>
         <div id="graph-legend">
-          <div class="leg-item"><span class="leg-dot" style="background:var(--co2)"></span> Company</div>
-          <div class="leg-item"><span class="leg-dot" style="background:var(--fw2)"></span> Framework</div>
-          <div class="leg-item"><span class="leg-dot" style="background:var(--cs2)"></span> Case Study</div>
-          <div class="leg-item"><span class="leg-dot" style="background:var(--cn2)"></span> Concept</div>
+          <div class="leg-row"><span class="leg-dot" style="background:#58a6ff"></span>Company</div>
+          <div class="leg-row"><span class="leg-dot" style="background:#d29922"></span>Framework</div>
+          <div class="leg-row"><span class="leg-dot" style="background:#f85149"></span>Case Study</div>
+          <div class="leg-row"><span class="leg-dot" style="background:#3fb950"></span>Concept</div>
         </div>
       </div>
-
-      <!-- LIBRARY VIEW -->
-      <div id="library-view">
-        <div id="lib-grid" class="lib-grid"></div>
-      </div>
-
-      <!-- ANALYTICS VIEW -->
+      <!-- LIBRARY -->
+      <div id="library-view"><div class="lib-grid" id="lib-grid"></div></div>
+      <!-- ANALYTICS -->
       <div id="analytics-view">
-        <div class="an-stat-grid" id="an-stats"></div>
-        <div class="an-grid">
-          <div class="an-card"><div class="an-title">Entity Type Distribution</div><div class="an-chart"><canvas id="ch-types"></canvas></div></div>
-          <div class="an-card"><div class="an-title">Case Study Outcomes</div><div class="an-chart"><canvas id="ch-outcomes"></canvas></div></div>
-          <div class="an-card"><div class="an-title">Top Industries / Sectors</div><div class="an-chart"><canvas id="ch-industries"></canvas></div></div>
-          <div class="an-card"><div class="an-title">Top Tags</div><div class="an-chart"><canvas id="ch-tags"></canvas></div></div>
+        <div class="stats-row" id="stats-row"></div>
+        <div class="charts-grid">
+          <div class="chart-box"><div class="chart-title">Type Distribution</div><div class="chart-area"><canvas id="ch-types"></canvas></div></div>
+          <div class="chart-box"><div class="chart-title">Case Study Outcomes</div><div class="chart-area"><canvas id="ch-outcomes"></canvas></div></div>
+          <div class="chart-box"><div class="chart-title">Top Industries</div><div class="chart-area"><canvas id="ch-industries"></canvas></div></div>
+          <div class="chart-box"><div class="chart-title">Top Tags</div><div class="chart-area"><canvas id="ch-tags"></canvas></div></div>
         </div>
       </div>
     </div>
@@ -322,10 +288,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
   <!-- DETAIL PANEL -->
   <div id="detail-panel">
     <div id="dp-header">
-      <span id="dp-type"></span>
-      <div id="dp-actions" style="margin-left:auto;display:flex;gap:6px">
-        <button class="btn btn-s" style="font-size:10px;padding:4px 10px" onclick="openForm(S.sel)">Edit</button>
-        <button class="btn btn-g" onclick="confirmDel()">✕</button>
+      <span id="dp-badge" class="dp-badge"></span>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-secondary btn-sm" onclick="openForm(S.sel)">Edit</button>
+        <button class="btn btn-ghost" onclick="confirmDelete()">✕</button>
       </div>
     </div>
     <div id="dp-body"></div>
@@ -336,201 +302,183 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
     <div id="fp-header">
       <div id="fp-title">New Entry</div>
       <div style="margin-left:auto;display:flex;gap:8px">
-        <button class="btn btn-p" id="fp-save" onclick="saveEntry()">Save</button>
-        <button class="btn btn-s" onclick="closeForm()">Cancel</button>
+        <button class="btn btn-primary" id="fp-save" onclick="saveEntry()">Save</button>
+        <button class="btn btn-secondary" onclick="closeForm()">Cancel</button>
       </div>
     </div>
     <div id="fp-body"></div>
   </div>
-
 </div>
 
-<!-- TOAST / MODAL -->
+<!-- TOAST -->
 <div id="toast"></div>
-<div id="modal" onclick="closeModal()">
-  <div class="mbox" onclick="event.stopPropagation()">
+
+<!-- DELETE MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
     <h3>Delete this entry?</h3>
-    <p>This will permanently remove the entry and all its connections from your repository.</p>
-    <div class="macts">
-      <button class="btn btn-s" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-d" onclick="doDelete()">Delete</button>
+    <p>This permanently removes the entry and all its connections from your repository.</p>
+    <div class="modal-acts">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger"    onclick="doDelete()">Delete</button>
     </div>
   </div>
 </div>
 
-<!-- SCRIPTS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // CONSTANTS
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 const TYPE_CFG = {
-  'company':    { color:'#4888f8', label:'Company',    icon:'🏢', rBase:10 },
-  'framework':  { color:'#e8701a', label:'Framework',  icon:'📐', rBase:11 },
-  'case-study': { color:'#e84060', label:'Case Study', icon:'📋', rBase:13 },
-  'concept':    { color:'#28c870', label:'Concept',    icon:'💡', rBase:9  }
+  'company':    { hex:'#58a6ff', label:'Company',    icon:'🏢' },
+  'framework':  { hex:'#d29922', label:'Framework',  icon:'📐' },
+  'case-study': { hex:'#f85149', label:'Case Study', icon:'📋' },
+  'concept':    { hex:'#3fb950', label:'Concept',    icon:'💡' }
 };
-
 const TAG_CATS = {
   'Outcome':   ['Success','Failure','Ongoing','Ambiguous'],
   'Industry':  ['Technology','Financial Services','Aviation','FMCG','Telecom','Healthcare','Retail','Automotive','Media','Energy','Industrial'],
-  'Theme':     ['Platform Disruption','Innovator\'s Dilemma','Cost Leadership','Brand Strategy','M&A','Digital Transformation','Governance Failure','Overleveraging','ESG','Network Effects'],
+  'Theme':     ['Platform Disruption',"Innovator's Dilemma",'Cost Leadership','Brand Strategy','M&A','Digital Transformation','Governance Failure','Overleveraging','ESG','Network Effects'],
   'Period':    ['1970s','1980s','1990s','2000s','2010s','2020s'],
   'Geography': ['India','USA','Europe','Asia-Pacific','Global'],
   'Evidence':  ['Academic','Empirical','Case Study','Anecdotal']
 };
-
 const REL_LABELS = {
-  'uses_framework':'uses framework',
-  'involves':'involves company',
-  'illustrates':'illustrates concept',
-  'applies_to':'applies to',
-  'related_to':'related to',
-  'caused_by':'caused by'
+  'uses_framework':'uses framework','involves':'involves company',
+  'illustrates':'illustrates concept','applies_to':'applies to',
+  'related_to':'related to','caused_by':'caused by'
 };
+const ALL_FIELDS = [
+  'name','sector','founded','author','year','industry','summary','description',
+  'revenueEngine','flywheel','switchingCosts','failurePoints',
+  'keyComponents','useCases','rootCause','warningSignsIgnored',
+  'lessons','examples','counterExamples'
+];
+const GH_API = 'https://api.github.com';
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // STATE
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 const S = {
-  cfg: null,
-  view: 'graph',
-  sel: null,
-  editing: null,
-  data: [],
-  sha: null,
-  activeTags: new Set(),
-  searchQ: '',
-  showLabels: true,
-  charts: {}
+  cfg: null, view: 'graph', sel: null,
+  data: [], sha: null,
+  activeTags: new Set(), searchQ: '',
+  showLabels: true, charts: {},
+  formData: {}, formType: 'case-study'
 };
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // GITHUB API
-// ════════════════════════════════════════════════════
-const GH_BASE = 'https://api.github.com';
-const gh = () => ({
-  'Authorization':'token ' + S.cfg.token,
-  'Accept':'application/vnd.github.v3+json',
-  'Content-Type':'application/json'
+// ══════════════════════════════════════════════════
+const ghHdr = () => ({
+  'Authorization': 'token ' + S.cfg.token,
+  'Accept': 'application/vnd.github.v3+json',
+  'Content-Type': 'application/json'
 });
-
-// FIX 1: UTF-8 safe base64 decode — mirrors the encodeURIComponent encoding used in ghWrite
-function b64DecodeUtf8(str) {
-  return decodeURIComponent(escape(atob(str)));
-}
-
-// FIX 2: UTF-8 safe base64 encode
-function b64EncodeUtf8(str) {
-  return btoa(unescape(encodeURIComponent(str)));
-}
+const b64enc = s => btoa(unescape(encodeURIComponent(s)));
+const b64dec = s => decodeURIComponent(escape(atob(s)));
+const ghPath = () => `${GH_API}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`;
 
 async function ghRead() {
-  const r = await fetch(
-    `${GH_BASE}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`,
-    { headers: gh() }
-  );
+  const r = await fetch(ghPath(), { headers: ghHdr() });
   if (r.status === 404) return { data: [], sha: null };
   const f = await r.json();
-  if (f.message) return { data: [], sha: null };
-  // FIX 1 applied: use UTF-8-aware decode
-  const decoded = b64DecodeUtf8(f.content.replace(/\n/g, ''));
-  return { data: JSON.parse(decoded), sha: f.sha };
+  if (!f.content) return { data: [], sha: null };
+  return { data: JSON.parse(b64dec(f.content.replace(/\n/g,''))), sha: f.sha };
 }
 
+/**
+ * KEY FIX: Always fetch the current SHA immediately before writing.
+ * This prevents 409/422 "SHA mismatch" errors that caused saves to fail
+ * whenever the in-memory SHA drifted from GitHub (other sessions, browser
+ * refresh, failed seed write, etc.).
+ */
 async function ghWrite() {
-  // FIX 2 applied: use UTF-8-aware encode
-  const content = b64EncodeUtf8(JSON.stringify(S.data, null, 2));
-  const body = { message: 'sia: update data.json', content };
+  // Refresh SHA right before writing — never trust the cached value
+  const check = await fetch(ghPath(), { headers: ghHdr() });
+  if (check.ok) {
+    const f = await check.json();
+    if (f.sha) S.sha = f.sha;
+  } else if (check.status === 404) {
+    S.sha = null; // File doesn't exist yet — create it
+  } else {
+    throw new Error('Could not fetch current file state (HTTP ' + check.status + ')');
+  }
+
+  const body = { message: 'sia: update', content: b64enc(JSON.stringify(S.data, null, 2)) };
   if (S.sha) body.sha = S.sha;
-  const r = await fetch(
-    `${GH_BASE}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`,
-    { method: 'PUT', headers: gh(), body: JSON.stringify(body) }
-  );
+
+  const r = await fetch(ghPath(), { method: 'PUT', headers: ghHdr(), body: JSON.stringify(body) });
   const j = await r.json();
-  if (!r.ok) throw new Error(j.message || 'Write failed');
-  S.sha = j.content?.sha;
+  if (!r.ok) throw new Error(j.message || 'Write failed (HTTP ' + r.status + ')');
+  S.sha = j.content?.sha || S.sha;
 }
 
-// ════════════════════════════════════════════════════
-// SETUP
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// SETUP / BOOT
+// ══════════════════════════════════════════════════
 async function connectGH() {
-  const token = q('#s-tok').value.trim();
-  const owner = q('#s-own').value.trim();
-  const repo  = q('#s-rep').value.trim();
-  if (!token || !owner || !repo) { serr('All fields required.'); return; }
-
-  q('#s-btn').innerHTML = '<span class="spin"></span>Connecting…';
-  q('#s-btn').disabled = true;
-  q('#s-err').style.display = 'none';
-
+  const token = q('#s-token').value.trim();
+  const owner = q('#s-owner').value.trim();
+  const repo  = q('#s-repo').value.trim();
+  if (!token || !owner || !repo) { showSetupErr('All three fields are required.'); return; }
+  const btn = q('#s-btn');
+  btn.innerHTML = '<span class="spin"></span>Connecting…';
+  btn.disabled = true;
   try {
-    const r = await fetch(`${GH_BASE}/repos/${owner}/${repo}`, {
-      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    const r = await fetch(`${GH_API}/repos/${owner}/${repo}`, {
+      headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
     });
-    if (!r.ok) throw new Error('Repo not found or token has insufficient permissions (needs repo scope).');
+    if (!r.ok) throw new Error('Repo not found, or token lacks "repo" scope.');
     S.cfg = { token, owner, repo };
     localStorage.setItem('sia_cfg', JSON.stringify(S.cfg));
     await boot();
   } catch(e) {
-    serr(e.message);
-    q('#s-btn').innerHTML = 'Connect Repository';
-    q('#s-btn').disabled = false;
+    showSetupErr(e.message);
+    btn.innerHTML = 'Connect Repository';
+    btn.disabled = false;
   }
 }
-
-function serr(m) {
-  const e = q('#s-err');
-  e.textContent = m;
-  e.style.display = 'block';
-}
-
+function showSetupErr(m) { const e = q('#s-err'); e.textContent = m; e.style.display = 'block'; }
 function showSetup() {
   q('#setup').style.display = 'flex';
-  if (S.cfg) {
-    q('#s-tok').value = S.cfg.token;
-    q('#s-own').value = S.cfg.owner;
-    q('#s-rep').value = S.cfg.repo;
-  }
+  q('#s-err').style.display = 'none';
+  if (S.cfg) { q('#s-token').value = S.cfg.token; q('#s-owner').value = S.cfg.owner; q('#s-repo').value = S.cfg.repo; }
 }
 
-// FIX 3: boot() now has full error handling and won't crash silently
 async function boot() {
   q('#setup').style.display = 'none';
-  q('#app').style.display = 'flex';
-  q('#rlabel').textContent = S.cfg.owner + '/' + S.cfg.repo;
-
+  q('#app').style.display   = 'flex';
+  q('#repo-label').textContent = S.cfg.owner + '/' + S.cfg.repo;
+  q('#status-dot').className   = 'status-dot ok';
   try {
     const { data, sha } = await ghRead();
-    S.data = data;
-    S.sha  = sha;
-    // FIX 4: only seed when file truly didn't exist (sha === null), not when user has 0 entries
-    if (S.data.length === 0 && S.sha === null) {
-      S.data = SEED;
+    S.data = data; S.sha = sha;
+    if (S.data.length === 0 && sha === null) {
+      S.data = JSON.parse(JSON.stringify(SEED));
       await ghWrite();
+      toast('Seeded with example data ✓', 'ok');
     }
   } catch(e) {
-    toast('Failed to load data: ' + e.message, 'er');
-    // Fall back to seed so the app is still usable
+    toast('Load error: ' + e.message + '. Showing local seed data.', 'err');
     S.data = JSON.parse(JSON.stringify(SEED));
     S.sha  = null;
   }
-
   buildTagFilter();
   setView('graph');
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // NAVIGATION
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function setView(v) {
   S.view = v;
-  qAll('.ni').forEach(e => e.classList.remove('active'));
+  qAll('.nav-item').forEach(e => e.classList.remove('active'));
   qAll('.vtab').forEach(e => e.classList.remove('active'));
-  const ni = q('#n-' + v); if (ni) ni.classList.add('active');
-  const vt = q('#vt-' + v); if (vt) vt.classList.add('active');
+  const ni = q('#nav-' + v); if (ni) ni.classList.add('active');
+  const vt = q('#vt-'  + v); if (vt) vt.classList.add('active');
   q('#graph-view').style.display     = v === 'graph'     ? 'block' : 'none';
   q('#library-view').style.display   = v === 'library'   ? 'block' : 'none';
   q('#analytics-view').style.display = v === 'analytics' ? 'block' : 'none';
@@ -539,580 +487,420 @@ function setView(v) {
   if (v === 'analytics') renderAnalytics();
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // TAG FILTER
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function buildTagFilter() {
-  const c = q('#tag-filter-content');
-  c.innerHTML = Object.entries(TAG_CATS).map(([cat, tags]) =>
-    `<div class="tag-group">
-      <div class="tag-group-title">${cat}</div>
-      ${tags.map(t => `<span class="tag-pill" onclick="toggleTag('${escAttr(t)}')" id="tp-${CSS.escape(t)}">${esc(t)}</span>`).join('')}
-    </div>`
-  ).join('');
+  const area = q('#tag-area');
+  area.innerHTML = '<div class="tag-area-lbl">Filter by Tag</div>' +
+    Object.entries(TAG_CATS).map(([cat, tags]) =>
+      `<div class="tag-group">
+        <div class="tag-group-lbl">${cat}</div>
+        ${tags.map(t =>
+          `<span class="tag-chip${S.activeTags.has(t) ? ' active' : ''}" id="tc-${CSS.escape(t)}" onclick="toggleTag('${esca(t)}')">${esc(t)}</span>`
+        ).join('')}
+      </div>`
+    ).join('');
 }
-
 function toggleTag(t) {
-  if (S.activeTags.has(t)) S.activeTags.delete(t);
-  else S.activeTags.add(t);
-  const el = document.getElementById('tp-' + CSS.escape(t));
-  if (el) el.classList.toggle('on', S.activeTags.has(t));
-  applyFilters();
+  S.activeTags.has(t) ? S.activeTags.delete(t) : S.activeTags.add(t);
+  const el = document.getElementById('tc-' + CSS.escape(t));
+  if (el) el.classList.toggle('active', S.activeTags.has(t));
+  filterAndRender();
 }
-
-function applyFilters() {
-  const active = [...S.activeTags];
-  const sq = S.searchQ.toLowerCase();
-  const matches = id => {
-    const e = S.data.find(x => x.id === id);
-    if (!e) return false;
-    const textMatch = !sq
-      || (e.name        || '').toLowerCase().includes(sq)
-      || (e.description || '').toLowerCase().includes(sq)
-      || (e.summary     || '').toLowerCase().includes(sq);
-    const tagMatch = active.length === 0 || active.every(t => (e.tags || []).includes(t));
-    return textMatch && tagMatch;
-  };
-  if (S.view === 'graph')   highlightGraph(matches);
+function onSearch() { S.searchQ = q('#search').value.toLowerCase(); filterAndRender(); }
+function matchEntry(e) {
+  const textOk = !S.searchQ
+    || (e.name||'').toLowerCase().includes(S.searchQ)
+    || (e.description||'').toLowerCase().includes(S.searchQ)
+    || (e.summary||'').toLowerCase().includes(S.searchQ);
+  const tagOk = S.activeTags.size === 0 || [...S.activeTags].every(t => (e.tags||[]).includes(t));
+  return textOk && tagOk;
+}
+function filterAndRender() {
+  if (S.view === 'graph')   highlightGraph();
   if (S.view === 'library') renderLibrary();
 }
 
-function onSearch() {
-  S.searchQ = q('#search-box').value || '';
-  applyFilters();
-}
-
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // GRAPH VIEW (D3)
-// ════════════════════════════════════════════════════
-let gSvg, gZoom, gSim, gLink, gNode, gLabel, showLab = true;
+// ══════════════════════════════════════════════════
+let gSvg, gZoom, gSim, gLink, gNodes, gLabel;
 
 function renderGraph() {
+  if (gSim) gSim.stop(); // Stop previous simulation before rebuilding
   const container = q('#graph-view');
   const svg = d3.select('#graph-svg');
   svg.selectAll('*').remove();
-
   const W = container.clientWidth, H = container.clientHeight;
 
   const nodes = S.data.map(e => ({ ...e, _deg: 0 }));
   const links = [];
-  S.data.forEach(e => {
-    (e.links || []).forEach(l => {
-      if (S.data.find(x => x.id === l.targetId)) {
+  S.data.forEach(e =>
+    (e.links||[]).forEach(l => {
+      if (S.data.find(x => x.id === l.targetId))
         links.push({ source: e.id, target: l.targetId, rel: l.rel });
-      }
-    });
-  });
-
+    })
+  );
   links.forEach(l => {
     const s = nodes.find(n => n.id === l.source);
     const t = nodes.find(n => n.id === l.target);
-    if (s) s._deg++;
-    if (t) t._deg++;
+    if (s) s._deg++; if (t) t._deg++;
   });
 
   const nodeR = d => Math.max(8, Math.min(18, 8 + d._deg * 1.5));
-  const typeC = t => (TYPE_CFG[t] || TYPE_CFG['concept']).color;
+  const lkCol = { uses_framework:'#d29922', involves:'#58a6ff', illustrates:'#3fb950', related_to:'#f85149' };
 
-  gZoom = d3.zoom().scaleExtent([.15, 4]).on('zoom', e => g.attr('transform', e.transform));
+  gZoom = d3.zoom().scaleExtent([.1, 4]).on('zoom', ev => grp.attr('transform', ev.transform));
   svg.call(gZoom);
-
   svg.append('defs').append('marker')
-    .attr('id', 'arr').attr('viewBox', '0 -5 10 10').attr('refX', 18)
-    .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto')
-    .append('path').attr('d', 'M0,-5L10,0L0,5').attr('fill', '#2a3350');
+    .attr('id','arr').attr('viewBox','0 -5 10 10').attr('refX',18)
+    .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
+    .append('path').attr('d','M0,-5L10,0L0,5').attr('fill','#30363d');
 
-  const g = svg.append('g');
+  const grp = svg.append('g');
 
-  const linkColors = {
-    'uses_framework': '#c49020',
-    'involves':       '#4888f8',
-    'illustrates':    '#28c870',
-    'related_to':     '#e84060'
-  };
+  gLink = grp.append('g').selectAll('line').data(links).join('line')
+    .attr('stroke', d => lkCol[d.rel] || '#30363d')
+    .attr('stroke-opacity', .35).attr('stroke-width', 1.2)
+    .attr('fill', 'none').attr('marker-end', 'url(#arr)');
 
-  gLink = g.append('g').selectAll('line').data(links).join('line')
-    .attr('class', 'glink')
-    .attr('stroke', d => linkColors[d.rel] || '#2a3350')
-    .attr('marker-end', 'url(#arr)');
-
-  const nodeG = g.append('g').selectAll('g').data(nodes).join('g')
-    .attr('class', 'gnode')
+  gNodes = grp.append('g').selectAll('g').data(nodes).join('g')
     .call(d3.drag()
-      .on('start', dragStart)
-      .on('drag',  dragged)
-      .on('end',   dragEnd))
-    .on('click',     (ev, d) => { ev.stopPropagation(); selectNode(d); })
-    .on('mouseover', (ev, d) => showTip(ev, d))
-    .on('mouseout',  ()      => hideTip());
+      .on('start', (ev,d) => { if (!ev.active) gSim.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (ev,d) => { d.fx=ev.x; d.fy=ev.y; })
+      .on('end',   (ev,d) => { if (!ev.active) gSim.alphaTarget(0); d.fx=null; d.fy=null; }))
+    .on('click',     (ev,d) => { ev.stopPropagation(); selectNode(d); })
+    .on('mouseover', (ev,d) => showTip(ev, d))
+    .on('mouseout',  () => hideTip());
 
-  nodeG.append('circle')
-    .attr('r',              d => nodeR(d))
-    .attr('fill',           d => typeC(d.type))
-    .attr('fill-opacity',  .85)
-    .attr('stroke',         d => typeC(d.type))
-    .attr('stroke-width',   2)
-    .attr('stroke-opacity', .5);
+  gNodes.append('circle')
+    .attr('r', d => nodeR(d))
+    .attr('fill', d => TYPE_CFG[d.type]?.hex || '#888')
+    .attr('fill-opacity', .8)
+    .attr('stroke', d => TYPE_CFG[d.type]?.hex || '#888')
+    .attr('stroke-width', 2).attr('stroke-opacity', .4);
 
-  gLabel = nodeG.append('text')
-    .attr('dy', '2.2em')
-    .attr('text-anchor', 'middle')
-    .attr('font-size', '10px')
-    .attr('fill', 'var(--t2)')
-    .text(d => d.name.length > 18 ? d.name.slice(0, 16) + '…' : d.name)
-    .style('display', showLab ? null : 'none');
+  gLabel = gNodes.append('text')
+    .attr('dy', '2.2em').attr('text-anchor', 'middle')
+    .attr('font-size', '10px').attr('fill', '#8b949e')
+    .text(d => d.name.length > 18 ? d.name.slice(0,16) + '…' : d.name)
+    .style('display', S.showLabels ? null : 'none');
 
   gSim = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.rel === 'uses_framework' ? 120 : d.rel === 'involves' ? 100 : 90)
-      .strength(.4))
+    .force('link',      d3.forceLink(links).id(d => d.id).distance(100).strength(.4))
     .force('charge',    d3.forceManyBody().strength(d => -250 - d._deg * 30))
-    .force('center',    d3.forceCenter(W / 2, H / 2))
+    .force('center',    d3.forceCenter(W/2, H/2))
     .force('collision', d3.forceCollide().radius(d => nodeR(d) + 12))
-    .on('tick', ticked);
+    .on('tick', () => {
+      gLink.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+           .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      gNodes.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
 
-  svg.on('click', () => {
-    if (S.sel) { S.sel = null; resetHighlight(); closeDetail(); }
-  });
-
-  q('#node-count').textContent = `${nodes.length} nodes · ${links.length} links`;
-
-  function ticked() {
-    gLink
-      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
-      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
-    nodeG.attr('transform', d => `translate(${d.x},${d.y})`);
-  }
-
-  function dragStart(ev, d) { if (!ev.active) gSim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; }
-  function dragged(ev, d)   { d.fx = ev.x; d.fy = ev.y; }
-  function dragEnd(ev, d)   { if (!ev.active) gSim.alphaTarget(0); d.fx = null; d.fy = null; }
-
-  gSvg  = svg;
-  gNode = nodeG;
+  svg.on('click', () => { if (S.sel) { S.sel=null; resetHighlight(); closeDetail(); } });
+  q('#graph-info').textContent = `${nodes.length} nodes · ${links.length} links`;
+  gSvg = svg;
 }
 
 function showTip(ev, d) {
-  const tip = q('#graph-tooltip');
-  tip.innerHTML = `
-    <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:${TYPE_CFG[d.type]?.color || '#888'};margin-bottom:3px">
-      ${TYPE_CFG[d.type]?.label || d.type}
-    </div>
-    <div style="font-size:12px;color:var(--t1);font-weight:500">${esc(d.name)}</div>
-    ${d.tags?.length ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">${d.tags.slice(0, 3).join(' · ')}</div>` : ''}`;
-  tip.style.opacity = '1';
-  tip.style.left = (ev.offsetX + 12) + 'px';
-  tip.style.top  = (ev.offsetY - 10) + 'px';
+  const tip = q('#graph-tip');
+  const tc  = TYPE_CFG[d.type] || {};
+  tip.innerHTML = `<div style="font-size:10px;color:${tc.hex};margin-bottom:2px">${tc.label||d.type}</div><div style="font-size:12px;color:var(--text);font-weight:500">${esc(d.name)}</div>`;
+  tip.style.cssText += `;opacity:1;left:${ev.offsetX+12}px;top:${ev.offsetY-10}px`;
 }
-
-function hideTip() { q('#graph-tooltip').style.opacity = '0'; }
+function hideTip() { q('#graph-tip').style.opacity='0'; }
 
 function selectNode(d) {
-  S.sel = d;
-  const connIds = new Set([
-    ...(d.links || []).map(l => l.targetId),
-    ...S.data.filter(e => (e.links || []).some(l => l.targetId === d.id)).map(e => e.id),
-    d.id
-  ]);
-  if (gNode) {
-    gNode.selectAll('circle').attr('opacity', n => connIds.has(n.id) ? 1 : .1);
-    gLabel.style('opacity', n => connIds.has(n.id) ? 1 : .1);
-    gLink.attr('opacity', l => (l.source.id === d.id || l.target.id === d.id) ? .8 : .05);
-  }
-  openDetail(S.data.find(x => x.id === d.id));
+  S.sel = S.data.find(x => x.id === d.id);
+  const ids = new Set([d.id, ...(d.links||[]).map(l=>l.targetId),
+    ...S.data.filter(e=>(e.links||[]).some(l=>l.targetId===d.id)).map(e=>e.id)]);
+  gNodes.selectAll('circle').attr('opacity', n => ids.has(n.id) ? 1 : .06);
+  if (gLabel) gLabel.style('opacity', n => ids.has(n.id) ? 1 : .06);
+  if (gLink)  gLink.attr('opacity', l => (l.source.id===d.id||l.target.id===d.id) ? .8 : .03);
+  openDetail(S.sel);
 }
-
 function resetHighlight() {
-  if (gNode) {
-    gNode.selectAll('circle').attr('opacity', 1);
-    if (gLabel) gLabel.style('opacity', 1);
-    if (gLink)  gLink.attr('opacity', 1);
-  }
+  if (!gNodes) return;
+  gNodes.selectAll('circle').attr('opacity',1);
+  if (gLabel) gLabel.style('opacity',1);
+  if (gLink)  gLink.attr('opacity',.35);
 }
-
-function highlightGraph(matchFn) {
-  if (!gNode) return;
-  if (S.activeTags.size === 0 && !S.searchQ) { resetHighlight(); return; }
-  gNode.selectAll('circle').attr('opacity', d => matchFn(d.id) ? 1 : .08);
-  if (gLabel) gLabel.style('opacity', d => matchFn(d.id) ? 1 : .08);
-  if (gLink)  gLink.attr('opacity', l => (matchFn(l.source.id) && matchFn(l.target.id)) ? .6 : .03);
+function highlightGraph() {
+  if (!gNodes) return;
+  if (!S.activeTags.size && !S.searchQ) { resetHighlight(); return; }
+  gNodes.selectAll('circle').attr('opacity', d => matchEntry(d)?1:.06);
+  if (gLabel) gLabel.style('opacity', d => matchEntry(d)?1:.06);
+  if (gLink)  gLink.attr('opacity', l => (matchEntry(l.source)&&matchEntry(l.target))?.4:.02);
 }
-
 function resetZoom() {
-  if (!gSvg || !gZoom) return;
-  const el = q('#graph-view');
-  gSvg.transition().duration(600).call(
-    gZoom.transform,
-    d3.zoomIdentity.translate(el.clientWidth / 2, el.clientHeight / 2).scale(.8).translate(-el.clientWidth / 2, -el.clientHeight / 2)
-  );
+  if (gSvg && gZoom) gSvg.transition().duration(500).call(gZoom.transform, d3.zoomIdentity);
 }
-
 function toggleLabels() {
-  showLab = !showLab;
-  if (gLabel) gLabel.style('display', showLab ? null : 'none');
+  S.showLabels = !S.showLabels;
+  if (gLabel) gLabel.style('display', S.showLabels ? null : 'none');
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // DETAIL PANEL
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function openDetail(e) {
-  const p = q('#detail-panel');
-  p.classList.add('open');
+  const panel = q('#detail-panel');
+  panel.classList.add('open');
   const tc = TYPE_CFG[e.type] || TYPE_CFG['concept'];
+  const badge = q('#dp-badge');
+  badge.textContent = tc.label;
+  badge.style.color = tc.hex;
 
-  const dpType = q('#dp-type');
-  dpType.textContent          = tc.label;
-  dpType.style.color          = tc.color;
-  dpType.style.fontSize       = '9px';
-  dpType.style.letterSpacing  = '.12em';
-  dpType.style.textTransform  = 'uppercase';
+  const connOut = (e.links||[]).map(l => {
+    const t = S.data.find(x=>x.id===l.targetId);
+    return t ? {...t, relLabel: REL_LABELS[l.rel]||l.rel} : null;
+  }).filter(Boolean);
+  const connIn = S.data
+    .filter(x => x.id!==e.id && (x.links||[]).some(l=>l.targetId===e.id))
+    .map(x => ({...x, relLabel: REL_LABELS[x.links.find(l=>l.targetId===e.id)?.rel]||''}));
+  const allConn = [...connOut, ...connIn];
 
-  const connectedTo = (e.links || [])
-    .map(l => { const t = S.data.find(x => x.id === l.targetId); return t ? { ...t, rel: l.rel } : null; })
-    .filter(Boolean);
-  const backlinks = S.data
-    .filter(x => x.id !== e.id && (x.links || []).some(l => l.targetId === e.id))
-    .map(x => ({ ...x, rel: x.links.find(l => l.targetId === e.id)?.rel }));
-
-  const allConn = [...connectedTo, ...backlinks];
   const connHTML = allConn.length
-    ? allConn.map(c => `
-      <div class="conn-item" onclick="navToNode('${escAttr(c.id)}')">
-        <span class="conn-dot" style="background:${TYPE_CFG[c.type]?.color || '#888'}"></span>
-        <div class="conn-info">
-          <div class="conn-name">${esc(c.name)}</div>
-          <div class="conn-rel">${esc(REL_LABELS[c.rel] || c.rel || '')} · ${TYPE_CFG[c.type]?.label || c.type}</div>
-        </div>
-      </div>`).join('')
-    : `<div style="font-size:11px;color:var(--t3)">No connections yet.</div>`;
-
-  const tagsHTML = (e.tags || []).map(t => `<span class="dp-tag" onclick="toggleTag('${escAttr(t)}')">${esc(t)}</span>`).join('');
-  const fields   = getDetailFields(e);
+    ? allConn.map(c =>
+        `<div class="conn-row" onclick="navTo('${esca(c.id)}')">
+          <span class="conn-dot" style="background:${TYPE_CFG[c.type]?.hex||'#888'}"></span>
+          <div><div class="conn-name">${esc(c.name)}</div>
+          <div class="conn-rel">${esc(c.relLabel)} · ${TYPE_CFG[c.type]?.label||c.type}</div></div>
+        </div>`).join('')
+    : '<div style="font-size:11px;color:var(--text3)">No connections yet.</div>';
 
   q('#dp-body').innerHTML = `
     <div style="margin-bottom:14px">
       <div class="dp-name">${esc(e.name)}</div>
-      <div class="dp-meta">${e.year ? e.year + ' · ' : ''}${e.author ? e.author + ' · ' : ''}id: ${esc(e.id)}</div>
-      <div class="dp-tags">${tagsHTML}</div>
+      <div class="dp-meta">${[e.year,e.author,e.industry||e.sector].filter(Boolean).join(' · ')}</div>
+      <div class="dp-chips">${(e.tags||[]).map(t=>`<span class="dp-chip" onclick="toggleTag('${esca(t)}')">${esc(t)}</span>`).join('')}</div>
     </div>
-    ${fields}
-    <div class="dp-section">
-      <div class="dp-section-title">Connections (${allConn.length})</div>
-      ${connHTML}
-    </div>`;
+    ${detailFields(e)}
+    <div class="dp-section-title">Connections (${allConn.length})</div>
+    ${connHTML}`;
 }
-
-function getDetailFields(e) {
-  const df = (l, v) => v
-    ? `<div class="dp-field"><div class="dp-fl">${l}</div><div class="dp-fv">${esc(v)}</div></div>`
-    : '';
-  switch (e.type) {
-    case 'company':
-      return `<div class="dp-section"><div class="dp-section-title">Profile</div>
-        ${df('Sector', e.sector)}${df('Description', e.description)}${df('Revenue Engine', e.revenueEngine)}
-        ${df('Flywheel', e.flywheel)}${df('Switching Costs', e.switchingCosts)}${df('Failure Points', e.failurePoints)}</div>`;
-    case 'framework':
-      return `<div class="dp-section"><div class="dp-section-title">Framework</div>
-        ${df('Author / Source', e.author)}${df('Year', e.year)}${df('Description', e.description)}
-        ${df('Key Components', e.keyComponents)}${df('Use Cases', e.useCases)}</div>`;
-    case 'case-study':
-      return `<div class="dp-section"><div class="dp-section-title">Case</div>
-        ${df('Industry', e.industry)}${df('Year', e.year)}${df('Outcome', e.outcome)}${df('Summary', e.summary)}
-        ${df('Root Cause', e.rootCause)}${df('Warning Signs', e.warningSignsIgnored)}${df('Lessons', e.lessons)}</div>`;
-    case 'concept':
-      return `<div class="dp-section"><div class="dp-section-title">Concept</div>
-        ${df('Description', e.description)}${df('Examples', e.examples)}${df('Counter-examples', e.counterExamples)}</div>`;
-    default:
-      return df('Description', e.description);
+function detailFields(e) {
+  const df = (l,v) => v ? `<div class="dp-field"><div class="dp-fl">${l}</div><div class="dp-fv">${esc(v)}</div></div>` : '';
+  switch(e.type) {
+    case 'company':    return df('Sector',e.sector)+df('Description',e.description)+df('Revenue Engine',e.revenueEngine)+df('Flywheel',e.flywheel)+df('Switching Costs',e.switchingCosts)+df('Failure Points',e.failurePoints);
+    case 'framework':  return df('Author',e.author)+df('Year',e.year)+df('Description',e.description)+df('Key Components',e.keyComponents)+df('Use Cases',e.useCases);
+    case 'case-study': return df('Industry',e.industry)+df('Year',e.year)+df('Outcome',e.outcome)+df('Summary',e.summary)+df('Root Cause',e.rootCause)+df('Warning Signs',e.warningSignsIgnored)+df('Lessons',e.lessons);
+    case 'concept':    return df('Description',e.description)+df('Examples',e.examples)+df('Counter-examples',e.counterExamples);
+    default:           return df('Description',e.description);
   }
 }
-
 function closeDetail() { q('#detail-panel').classList.remove('open'); }
-
-function navToNode(id) {
-  const e = S.data.find(x => x.id === id);
-  if (!e) return;
-  S.sel = e;
-  openDetail(e);
-  if (S.view === 'graph' && gNode) {
-    const nd = gNode.data().find(d => d.id === id);
+function navTo(id) {
+  const e = S.data.find(x=>x.id===id); if (!e) return;
+  S.sel = e; openDetail(e);
+  if (S.view==='graph' && gNodes) {
+    const nd = gNodes.data().find(d=>d.id===id);
     if (nd) selectNode(nd);
   }
-  if (S.view === 'library') {
-    qAll('.lib-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
-  }
+  if (S.view==='library') qAll('.lib-card').forEach(c=>c.classList.toggle('sel', c.dataset.id===id));
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // LIBRARY VIEW
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function renderLibrary() {
-  const active = [...S.activeTags];
-  const sq = S.searchQ.toLowerCase();
-  const items = S.data.filter(e => {
-    const textMatch = !sq
-      || (e.name        || '').toLowerCase().includes(sq)
-      || (e.description || '').toLowerCase().includes(sq)
-      || (e.summary     || '').toLowerCase().includes(sq);
-    const tagMatch = active.length === 0 || active.every(t => (e.tags || []).includes(t));
-    return textMatch && tagMatch;
-  });
+  const items = S.data.filter(matchEntry);
   const g = q('#lib-grid');
   if (!items.length) {
-    g.innerHTML = `<div class="lib-empty" style="grid-column:1/-1"><div class="le-i">◈</div><p>No entries match your filters.</p></div>`;
+    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text3)">No entries match your filters.</div>';
     return;
   }
   g.innerHTML = items.map(e => {
-    const tc = TYPE_CFG[e.type] || TYPE_CFG['concept'];
-    const connCount = (e.links || []).length +
-      S.data.filter(x => x.id !== e.id && (x.links || []).some(l => l.targetId === e.id)).length;
-    return `<div class="lib-card t-${e.type}${S.sel?.id === e.id ? ' selected' : ''}" data-id="${escAttr(e.id)}" onclick="selectLibCard('${escAttr(e.id)}')">
-      <div class="lc-type t-${e.type}">${tc.label}</div>
-      <div class="lc-name">${esc(e.name)}</div>
-      <div class="lc-desc">${esc((e.description || e.summary || '').substring(0, 120))}</div>
-      <div class="lc-tags">
-        ${(e.tags || []).slice(0, 4).map(t => `<span class="lc-tag">${esc(t)}</span>`).join('')}
-        ${connCount ? `<span class="lc-tag" style="border-color:var(--b3)">⬡ ${connCount}</span>` : ''}
+    const tc = TYPE_CFG[e.type]||TYPE_CFG['concept'];
+    const connCount = (e.links||[]).length +
+      S.data.filter(x=>x.id!==e.id&&(x.links||[]).some(l=>l.targetId===e.id)).length;
+    return `<div class="lib-card t-${e.type}${S.sel?.id===e.id?' sel':''}" data-id="${esca(e.id)}" onclick="selectLibCard('${esca(e.id)}')">
+      <div class="card-type" style="color:${tc.hex}">${tc.label}</div>
+      <div class="card-name">${esc(e.name)}</div>
+      <div class="card-desc">${esc((e.description||e.summary||'').slice(0,120))}</div>
+      <div class="card-chips">
+        ${(e.tags||[]).slice(0,4).map(t=>`<span class="card-chip">${esc(t)}</span>`).join('')}
+        ${connCount?`<span class="card-chip">⬡ ${connCount}</span>`:''}
       </div>
     </div>`;
   }).join('');
 }
-
 function selectLibCard(id) {
-  S.sel = S.data.find(x => x.id === id);
-  if (S.sel) {
-    openDetail(S.sel);
-    qAll('.lib-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
-  }
+  S.sel = S.data.find(x=>x.id===id);
+  if (S.sel) { openDetail(S.sel); qAll('.lib-card').forEach(c=>c.classList.toggle('sel',c.dataset.id===id)); }
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // ANALYTICS VIEW
-// ════════════════════════════════════════════════════
-const CH_OPT = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      labels: { color: '#7880a0', font: { family: "'IBM Plex Mono',monospace", size: 11 }, boxWidth: 12, padding: 10 }
-    }
-  }
+// ══════════════════════════════════════════════════
+const CHART_BASE = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ labels:{ color:'#8b949e', font:{size:10}, boxWidth:10, padding:8 } } }
 };
-const AXIS_OPT = {
-  ticks: { color: '#404870', font: { family: "'IBM Plex Mono',monospace", size: 10 } },
-  grid:  { color: '#141828' }
-};
+const AX = { ticks:{color:'#484f58',font:{size:10}}, grid:{color:'#21262d'} };
 
 function renderAnalytics() {
-  const byType = {}, byOutcome = {}, tagCount = {}, indCount = {};
+  const byType={}, byOutcome={}, tagCount={}, indCount={};
   S.data.forEach(e => {
-    byType[e.type] = (byType[e.type] || 0) + 1;
-    if (e.type === 'case-study') {
-      const o = e.outcome || 'Unknown';
-      byOutcome[o] = (byOutcome[o] || 0) + 1;
-    }
-    (e.tags || []).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; });
-    if (e.industry) indCount[e.industry] = (indCount[e.industry] || 0) + 1;
-    if (e.sector)   indCount[e.sector]   = (indCount[e.sector]   || 0) + 1;
+    byType[e.type] = (byType[e.type]||0)+1;
+    if (e.type==='case-study'&&e.outcome) byOutcome[e.outcome]=(byOutcome[e.outcome]||0)+1;
+    (e.tags||[]).forEach(t => tagCount[t]=(tagCount[t]||0)+1);
+    const ind = e.industry||e.sector;
+    if (ind) indCount[ind]=(indCount[ind]||0)+1;
   });
+  const totalLinks = S.data.reduce((a,e)=>a+(e.links||[]).length,0);
+  q('#stats-row').innerHTML = [
+    {n:S.data.length,              l:'Entries',      c:'var(--blue)'},
+    {n:byType['case-study']||0,    l:'Case Studies', c:'var(--red)'},
+    {n:byType['framework']||0,     l:'Frameworks',   c:'var(--orange)'},
+    {n:totalLinks,                 l:'Links',        c:'var(--green)'}
+  ].map(s=>`<div class="stat-box"><div class="stat-num" style="color:${s.c}">${s.n}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
 
-  const totalLinks = S.data.reduce((a, e) => a + (e.links || []).length, 0);
-
-  q('#an-stats').innerHTML = [
-    { n: S.data.length,             l: 'Total Entries', c: 'var(--gold2)' },
-    { n: byType['case-study'] || 0, l: 'Case Studies',  c: 'var(--cs2)'  },
-    { n: byType['framework']  || 0, l: 'Frameworks',    c: 'var(--fw2)'  },
-    { n: totalLinks,                l: 'Connections',   c: 'var(--cn2)'  }
-  ].map(s => `<div class="an-stat"><div class="asn" style="color:${s.c}">${s.n}</div><div class="asl">${s.l}</div></div>`).join('');
-
-  const mkChart = (id, type, data, opts = {}) => {
+  const mk = (id, type, data, opts={}) => {
     if (S.charts[id]) S.charts[id].destroy();
-    S.charts[id] = new Chart(q('#' + id), { type, data, options: { ...CH_OPT, ...opts } });
+    S.charts[id] = new Chart(q('#'+id), {type, data, options:{...CHART_BASE,...opts}});
   };
-
-  const typeKeys = Object.keys(byType);
-  mkChart('ch-types', 'doughnut', {
-    labels: typeKeys.map(k => TYPE_CFG[k]?.label || k),
-    datasets: [{ data: typeKeys.map(k => byType[k]), backgroundColor: typeKeys.map(k => TYPE_CFG[k]?.color || '#888'), borderWidth: 0 }]
+  const tk = Object.keys(byType);
+  mk('ch-types','doughnut',{
+    labels:tk.map(k=>TYPE_CFG[k]?.label||k),
+    datasets:[{data:tk.map(k=>byType[k]),backgroundColor:tk.map(k=>TYPE_CFG[k]?.hex||'#888'),borderWidth:0}]
   });
-
-  const outKeys = Object.keys(byOutcome);
-  const outColors = { 'Success': '#28c870', 'Failure': '#e84060', 'Ongoing': '#4888f8', 'Ambiguous': '#e8701a' };
-  mkChart('ch-outcomes', 'bar', {
-    labels: outKeys,
-    datasets: [{ data: outKeys.map(k => byOutcome[k]), backgroundColor: outKeys.map(k => outColors[k] || '#888'), borderRadius: 4, borderWidth: 0 }]
-  }, { scales: { x: { ...AXIS_OPT }, y: { ...AXIS_OPT, ticks: { ...AXIS_OPT.ticks, stepSize: 1 } } }, plugins: { legend: { display: false } } });
-
-  const topInd = Object.entries(indCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  mkChart('ch-industries', 'bar', {
-    labels: topInd.map(x => x[0]),
-    datasets: [{ data: topInd.map(x => x[1]), backgroundColor: '#3d78d4', borderRadius: 3, borderWidth: 0 }]
-  }, { indexAxis: 'y', scales: { x: { ...AXIS_OPT }, y: { ...AXIS_OPT } }, plugins: { legend: { display: false } } });
-
-  const topTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  mkChart('ch-tags', 'bar', {
-    labels: topTags.map(x => x[0]),
-    datasets: [{ data: topTags.map(x => x[1]), backgroundColor: '#c49020', borderRadius: 3, borderWidth: 0 }]
-  }, { indexAxis: 'y', scales: { x: { ...AXIS_OPT }, y: { ...AXIS_OPT } }, plugins: { legend: { display: false } } });
+  const ok = Object.keys(byOutcome);
+  const oc = {Success:'#3fb950',Failure:'#f85149',Ongoing:'#58a6ff',Ambiguous:'#d29922'};
+  mk('ch-outcomes','bar',{
+    labels:ok,datasets:[{data:ok.map(k=>byOutcome[k]),backgroundColor:ok.map(k=>oc[k]||'#888'),borderRadius:3,borderWidth:0}]
+  },{scales:{x:AX,y:{...AX,ticks:{...AX.ticks,stepSize:1}}},plugins:{legend:{display:false}}});
+  const topInd = Object.entries(indCount).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  mk('ch-industries','bar',{
+    labels:topInd.map(x=>x[0]),datasets:[{data:topInd.map(x=>x[1]),backgroundColor:'#3d78d4',borderRadius:3,borderWidth:0}]
+  },{indexAxis:'y',scales:{x:AX,y:AX},plugins:{legend:{display:false}}});
+  const topTags = Object.entries(tagCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  mk('ch-tags','bar',{
+    labels:topTags.map(x=>x[0]),datasets:[{data:topTags.map(x=>x[1]),backgroundColor:'#d29922',borderRadius:3,borderWidth:0}]
+  },{indexAxis:'y',scales:{x:AX,y:AX},plugins:{legend:{display:false}}});
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // FORM
-// ════════════════════════════════════════════════════
-let formType = 'case-study';
-let formData = {};
-// Queue of { id, value } to set on textareas after innerHTML render
-let _taQueue = [];
-
+// ══════════════════════════════════════════════════
 function openForm(entry) {
-  formData = entry
-    ? { ...entry, tags: [...(entry.tags || [])], links: [...(entry.links || [])] }
-    : { type: 'case-study', tags: [], links: [] };
-  formType = formData.type || 'case-study';
-  q('#form-panel').style.display = 'flex';
+  S.formData = entry
+    ? {...entry, tags:[...(entry.tags||[])], links:[...(entry.links||[])]}
+    : {type:'case-study', tags:[], links:[]};
+  S.formType = S.formData.type || 'case-study';
   q('#fp-title').textContent = entry ? 'Edit Entry' : 'New Entry';
-  renderFormBody();
+  q('#form-panel').style.display = 'flex';
+  renderForm();
 }
-
 function closeForm() { q('#form-panel').style.display = 'none'; }
+function setFormType(t) { S.formType = t; S.formData.type = t; renderForm(); }
 
-function setFormType(t) { formType = t; renderFormBody(); }
-
-function renderFormBody() {
-  _taQueue = [];
-  const fb = q('#fp-body');
-
-  const typeSel = ['company', 'framework', 'case-study', 'concept'].map(t => `
-    <div class="ts-opt t-${t}${formType === t ? ' on' : ''}" onclick="setFormType('${t}')">
-      <div class="to-icon">${TYPE_CFG[t].icon}</div>
-      <div class="to-label">${TYPE_CFG[t].label}</div>
+function renderForm() {
+  const fd = S.formData;
+  const typeGrid = ['company','framework','case-study','concept'].map(t =>
+    `<div class="type-opt t-${t}${S.formType===t?' active':''}" onclick="setFormType('${t}')">
+      <div class="type-opt-icon">${TYPE_CFG[t].icon}</div>
+      <div class="type-opt-label">${TYPE_CFG[t].label}</div>
     </div>`).join('');
 
-  const allTagsFlat = [...new Set(Object.values(TAG_CATS).flat())];
-  const tagSel = allTagsFlat.map(t =>
-    `<span class="ts-pill${(formData.tags || []).includes(t) ? ' on' : ''}" onclick="toggleFormTag('${escAttr(t)}')" id="ft-${CSS.escape(t)}">${esc(t)}</span>`
+  const allTags = [...new Set(Object.values(TAG_CATS).flat())];
+  const tagGrid = allTags.map(t =>
+    `<span class="tag-opt${(fd.tags||[]).includes(t)?' active':''}" id="fo-${CSS.escape(t)}" onclick="toggleFormTag('${esca(t)}')">${esc(t)}</span>`
   ).join('');
 
-  const otherEntities = S.data.filter(e => e.id !== formData.id);
-  const pickedIds = (formData.links || []).map(l => l.targetId);
-  const relItems = otherEntities.map(e => `
-    <div class="rel-item${pickedIds.includes(e.id) ? ' picked' : ''}" onclick="toggleLink('${escAttr(e.id)}')" id="ri-${CSS.escape(e.id)}">
-      <span class="ri-dot" style="background:${TYPE_CFG[e.type]?.color || '#888'}"></span>
+  const others = S.data.filter(e => e.id !== fd.id);
+  const picked = (fd.links||[]).map(l => l.targetId);
+  const relList = others.map(e =>
+    `<div class="rel-opt${picked.includes(e.id)?' picked':''}" id="ro-${CSS.escape(e.id)}" onclick="toggleLink('${esca(e.id)}')">
+      <span class="rel-dot" style="background:${TYPE_CFG[e.type]?.hex||'#888'}"></span>
       <span>${esc(e.name)}</span>
-      <span style="color:var(--t3);font-size:9px;margin-left:auto">${TYPE_CFG[e.type]?.label || e.type}</span>
+      <span style="margin-left:auto;font-size:9px;color:var(--text3)">${TYPE_CFG[e.type]?.label||e.type}</span>
     </div>`).join('');
 
   const typeFields = {
-    'company': `
-      <div class="frow">${fi('sector', 'Sector', formData.sector || '')}${fi('founded', 'Founded', formData.founded || '')}</div>
-      ${fta('description', 'Description', formData.description || '')}
-      ${fta('revenueEngine', 'Revenue Engine', formData.revenueEngine || '')}
-      ${fta('flywheel', 'Flywheel / Virtuous Cycle', formData.flywheel || '')}
-      ${fta('switchingCosts', 'Switching Costs', formData.switchingCosts || '')}
-      ${fta('failurePoints', 'Failure Points', formData.failurePoints || '')}`,
-    'framework': `
-      <div class="frow">${fi('author', 'Author / Source', formData.author || '')}${fi('year', 'Year', formData.year || '')}</div>
-      ${fta('description', 'Description', formData.description || '')}
-      ${fta('keyComponents', 'Key Components', formData.keyComponents || '')}
-      ${fta('useCases', 'Typical Use Cases', formData.useCases || '')}`,
-    'case-study': `
-      <div class="frow">${fi('industry', 'Industry', formData.industry || '')}${fi('year', 'Year', formData.year || '')}</div>
-      <div class="f"><label>Outcome</label><select id="ff-outcome" onchange="formData.outcome=this.value">
-        <option value="">Select…</option>
-        ${['Success', 'Failure', 'Ongoing', 'Ambiguous'].map(o =>
-          `<option value="${o}"${formData.outcome === o ? ' selected' : ''}>${o}</option>`
-        ).join('')}
-      </select></div>
-      ${fta('summary', 'Summary', formData.summary || '')}
-      ${fta('rootCause', 'Root Cause', formData.rootCause || '')}
-      ${fta('warningSignsIgnored', 'Warning Signs Ignored', formData.warningSignsIgnored || '')}
-      ${fta('lessons', 'Lessons', formData.lessons || '')}`,
-    'concept': `
-      ${fta('description', 'Description', formData.description || '')}
-      ${fta('examples', 'Examples', formData.examples || '')}
-      ${fta('counterExamples', 'Counter-examples', formData.counterExamples || '')}`
+    company: `<div class="row2">${fi('sector','Sector')}${fi('founded','Founded')}</div>
+      ${fta('description','Description')}${fta('revenueEngine','Revenue Engine')}
+      ${fta('flywheel','Flywheel / Virtuous Cycle')}${fta('switchingCosts','Switching Costs')}${fta('failurePoints','Failure Points')}`,
+    framework: `<div class="row2">${fi('author','Author / Source')}${fi('year','Year')}</div>
+      ${fta('description','Description')}${fta('keyComponents','Key Components')}${fta('useCases','Use Cases')}`,
+    'case-study': `<div class="row2">${fi('industry','Industry')}${fi('year','Year')}</div>
+      <div class="field"><label>Outcome</label>
+        <select id="ff-outcome">
+          <option value="">Select…</option>
+          ${['Success','Failure','Ongoing','Ambiguous'].map(o=>`<option value="${o}">${o}</option>`).join('')}
+        </select>
+      </div>
+      ${fta('summary','Summary')}${fta('rootCause','Root Cause')}
+      ${fta('warningSignsIgnored','Warning Signs Ignored')}${fta('lessons','Lessons')}`,
+    concept: `${fta('description','Description')}${fta('examples','Examples')}${fta('counterExamples','Counter-examples')}`
   };
 
-  fb.innerHTML = `
-    <div class="fs"><div class="fst">Entry Type</div><div class="type-selector">${typeSel}</div></div>
-    <div class="fs"><div class="fst">Core Identity</div>${fi('name', 'Name *', formData.name || '')}</div>
-    <div class="fs"><div class="fst">Type-Specific Fields</div>${typeFields[formType] || ''}</div>
-    <div class="fs"><div class="fst">Tags</div><div class="tag-select-grid">${tagSel}</div></div>
-    <div class="fs"><div class="fst">Connections to Other Entries</div>
-      <input type="text" class="rel-search" placeholder="Search entries…" oninput="filterRelPicker(this.value)">
-      <div class="rel-picker" id="rel-picker">${relItems}</div>
+  q('#fp-body').innerHTML = `
+    <div class="fs-section"><div class="fs-title">Entry Type</div><div class="type-grid">${typeGrid}</div></div>
+    <div class="fs-section"><div class="fs-title">Name</div>${fi('name','Name *')}</div>
+    <div class="fs-section"><div class="fs-title">Details</div>${typeFields[S.formType]||''}</div>
+    <div class="fs-section"><div class="fs-title">Tags</div><div class="tag-grid">${tagGrid}</div></div>
+    <div class="fs-section">
+      <div class="fs-title">Connections</div>
+      <input class="rel-search-input" type="text" placeholder="Search entries…" oninput="filterRelPicker(this.value)">
+      <div class="rel-list" id="rel-picker">${relList}</div>
     </div>`;
 
-  // FIX 5: Set textarea values via JS after render to avoid HTML-encoding corruption
-  _taQueue.forEach(({ id, value }) => {
-    const el = q('#ff-' + id);
-    if (el) el.value = value;
+  // Populate all field values from formData AFTER innerHTML is set
+  // This avoids HTML-encoding corruption and timing issues
+  ALL_FIELDS.forEach(f => {
+    const el = document.getElementById('ff-' + f);
+    if (el) el.value = fd[f] || '';
   });
+  const outEl = document.getElementById('ff-outcome');
+  if (outEl) outEl.value = fd.outcome || '';
 }
 
-function filterRelPicker(searchQ) {
-  const sq = searchQ.toLowerCase();
-  qAll('#rel-picker .rel-item').forEach(el => {
+const fi  = (id, lbl) => `<div class="field"><label>${lbl}</label><input type="text" id="ff-${id}"></div>`;
+const fta = (id, lbl) => `<div class="field"><label>${lbl}</label><textarea id="ff-${id}"></textarea></div>`;
+
+function toggleFormTag(t) {
+  if (!S.formData.tags) S.formData.tags = [];
+  const i = S.formData.tags.indexOf(t);
+  if (i > -1) S.formData.tags.splice(i,1); else S.formData.tags.push(t);
+  const el = document.getElementById('fo-' + CSS.escape(t));
+  if (el) el.classList.toggle('active', S.formData.tags.includes(t));
+}
+function toggleLink(id) {
+  if (!S.formData.links) S.formData.links = [];
+  const i = S.formData.links.findIndex(l=>l.targetId===id);
+  if (i > -1) {
+    S.formData.links.splice(i,1);
+  } else {
+    const tgt = S.data.find(e=>e.id===id);
+    const relMap = {company:'involves', framework:'uses_framework', concept:'illustrates', 'case-study':'related_to'};
+    S.formData.links.push({targetId:id, rel:relMap[tgt?.type]||'related_to'});
+  }
+  const el = document.getElementById('ro-' + CSS.escape(id));
+  if (el) el.classList.toggle('picked', S.formData.links.some(l=>l.targetId===id));
+}
+function filterRelPicker(sq) {
+  sq = sq.toLowerCase();
+  qAll('#rel-picker .rel-opt').forEach(el => {
     el.style.display = el.textContent.toLowerCase().includes(sq) ? 'flex' : 'none';
   });
 }
 
-function toggleFormTag(t) {
-  if (!formData.tags) formData.tags = [];
-  const i = formData.tags.indexOf(t);
-  if (i > -1) formData.tags.splice(i, 1); else formData.tags.push(t);
-  const el = document.getElementById('ft-' + CSS.escape(t));
-  if (el) el.classList.toggle('on', formData.tags.includes(t));
-}
-
-function toggleLink(id) {
-  if (!formData.links) formData.links = [];
-  const i = formData.links.findIndex(l => l.targetId === id);
-  const target = S.data.find(e => e.id === id);
-  if (i > -1) {
-    formData.links.splice(i, 1);
-  } else {
-    const relMap = { 'company': 'involves', 'framework': 'uses_framework', 'concept': 'illustrates', 'case-study': 'related_to' };
-    formData.links.push({ targetId: id, rel: relMap[target?.type] || 'related_to' });
-  }
-  const el = q('#ri-' + CSS.escape(id));
-  if (el) el.classList.toggle('picked', formData.links.some(l => l.targetId === id));
-}
-
-// ════════════════════════════════════════════════════
-// FORM HELPERS
-// fta() queues textarea value for post-render JS assignment
-// ════════════════════════════════════════════════════
-function fi(id, lbl, v = '') {
-  return `<div class="f"><label>${lbl}</label><input id="ff-${id}" value="${escAttr(v)}" oninput="formData.${id}=this.value"></div>`;
-}
-
-function fta(id, lbl, v = '') {
-  _taQueue.push({ id, value: v });
-  return `<div class="f"><label>${lbl}</label><textarea id="ff-${id}" oninput="formData.${id}=this.value"></textarea></div>`;
-}
-
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // CRUD
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 async function saveEntry() {
-  // Collect all field values from DOM at save time
-  const fields = [
-    'name', 'sector', 'founded', 'author', 'year', 'industry',
-    'summary', 'description', 'revenueEngine', 'flywheel', 'switchingCosts',
-    'failurePoints', 'keyComponents', 'useCases', 'rootCause',
-    'warningSignsIgnored', 'lessons', 'examples', 'counterExamples'
-  ];
-  fields.forEach(f => {
-    const el = q(`#ff-${f}`);
-    if (el) formData[f] = el.value.trim();
+  // Read all current values directly from DOM — the single source of truth at save time
+  ALL_FIELDS.forEach(f => {
+    const el = document.getElementById('ff-' + f);
+    if (el) S.formData[f] = el.value.trim();
   });
-  const selEl = q('#ff-outcome');
-  if (selEl) formData.outcome = selEl.value;
+  const outEl = document.getElementById('ff-outcome');
+  if (outEl) S.formData.outcome = outEl.value;
+  S.formData.type = S.formType;
 
-  formData.type = formType;
-
-  if (!formData.name) { toast('Name is required.', 'er'); return; }
+  if (!S.formData.name) { toast('Name is required.','err'); return; }
 
   const btn = q('#fp-save');
   btn.innerHTML = '<span class="spin"></span>Saving…';
@@ -1120,242 +908,183 @@ async function saveEntry() {
 
   try {
     let savedId;
-    if (formData.id) {
-      const i = S.data.findIndex(x => x.id === formData.id);
-      if (i > -1) S.data[i] = { ...S.data[i], ...formData };
-      savedId = formData.id;
+    if (S.formData.id) {
+      const idx = S.data.findIndex(x=>x.id===S.formData.id);
+      if (idx > -1) S.data[idx] = {...S.data[idx], ...S.formData};
+      else S.data.push({...S.formData});
+      savedId = S.formData.id;
     } else {
-      formData.id = 'e' + Date.now();
-      S.data.push(formData);
-      savedId = formData.id;
+      S.formData.id = 'e' + Date.now();
+      S.data.push({...S.formData});
+      savedId = S.formData.id;
     }
-
     await ghWrite();
     closeForm();
     buildTagFilter();
-    if (S.view === 'graph')     renderGraph();
-    if (S.view === 'library')   renderLibrary();
-    if (S.view === 'analytics') renderAnalytics();
-
-    const saved = S.data.find(x => x.id === savedId);
-    if (saved) openDetail(saved);
-
-    toast('Saved to GitHub ✓', 'ok');
+    if (S.view==='graph')     renderGraph();
+    if (S.view==='library')   renderLibrary();
+    if (S.view==='analytics') renderAnalytics();
+    const saved = S.data.find(x=>x.id===savedId);
+    if (saved) { S.sel=saved; openDetail(saved); }
+    toast('Saved to GitHub ✓','ok');
   } catch(e) {
-    toast('Save failed: ' + e.message, 'er');
+    toast('Save failed: ' + e.message, 'err');
   }
-
   btn.innerHTML = 'Save';
   btn.disabled  = false;
 }
 
-function confirmDel() { if (S.sel) q('#modal').style.display = 'flex'; }
-function closeModal()  { q('#modal').style.display = 'none'; }
+function confirmDelete() { if (S.sel) q('#modal-bg').style.display='flex'; }
+function closeModal()     { q('#modal-bg').style.display='none'; }
 
 async function doDelete() {
-  closeModal();
-  if (!S.sel) return;
+  closeModal(); if (!S.sel) return;
   const delId = S.sel.id;
-  S.data = S.data.filter(x => x.id !== delId);
-  // Clean up all links pointing to the deleted entry
-  S.data.forEach(e => { e.links = (e.links || []).filter(l => l.targetId !== delId); });
+  const prev  = JSON.parse(JSON.stringify(S.data)); // snapshot for rollback
+  S.data = S.data.filter(x=>x.id!==delId);
+  S.data.forEach(e => { e.links=(e.links||[]).filter(l=>l.targetId!==delId); });
   try {
     await ghWrite();
-    S.sel = null;
-    closeDetail();
-    if (S.view === 'graph')     renderGraph();
-    if (S.view === 'library')   renderLibrary();
-    if (S.view === 'analytics') renderAnalytics();
-    toast('Entry deleted', 'ok');
+    S.sel = null; closeDetail();
+    if (S.view==='graph')     renderGraph();
+    if (S.view==='library')   renderLibrary();
+    if (S.view==='analytics') renderAnalytics();
+    toast('Deleted','ok');
   } catch(e) {
-    toast('Delete failed: ' + e.message, 'er');
+    S.data = prev; // Roll back on failure
+    toast('Delete failed: ' + e.message,'err');
   }
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // UTILS
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 const q    = s => document.querySelector(s);
 const qAll = s => document.querySelectorAll(s);
-
-// esc: safe for innerHTML text nodes
-function esc(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-// escAttr: safe for HTML attribute values (single-quote safe too)
-function escAttr(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function toast(m, t = '') {
+const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esca = s => esc(s).replace(/'/g,'&#39;');
+let _toastTimer;
+function toast(msg, type='') {
+  clearTimeout(_toastTimer);
   const el = q('#toast');
-  el.textContent = m;
-  el.className = 'show ' + (t || '');
-  setTimeout(() => { el.className = ''; }, 2800);
+  el.textContent = msg; el.className = 'show ' + type;
+  _toastTimer = setTimeout(()=> el.className='', 3200);
 }
 
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // SEED DATA
-// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 const SEED = [
-  // ── CONCEPTS ──
-  {
-    id:'con1', type:'concept', name:"Innovator's Dilemma",
-    description:"Incumbents focus on sustaining innovations for current customers, ignoring disruptive tech that initially underperforms on mainstream metrics but eventually displaces them.",
-    examples:"Kodak ignored digital cameras it invented. Nokia dismissed smartphone as a platform. Blockbuster ignored streaming.",
-    counterExamples:"Amazon cannibalizing its retail with AWS and Kindle. Netflix proactively killing its own DVD business.",
-    tags:['Platform Disruption','Technology','Academic'], links:[]
-  },
-  {
-    id:'con2', type:'concept', name:'Platform Disruption',
-    description:"A challenger builds an ecosystem/platform that enables third parties to create value, eventually outcompeting vertically integrated incumbents on both quality and cost.",
-    examples:"iOS/Android vs Symbian. Stripe vs traditional payment processors. Airbnb vs hotels.",
-    counterExamples:"WeWork tried to claim platform dynamics but had none — pure real estate.",
-    tags:['Platform Disruption','Network Effects','Technology'], links:[{targetId:'con1',rel:'related_to'}]
-  },
-  {
-    id:'con3', type:'concept', name:'Capital Allocation',
-    description:"The single most important function of a CEO: directing resources (capex, acquisitions, buybacks, dividends) toward highest-return opportunities. Most value creation and destruction happens here.",
-    examples:"Berkshire's continuous reallocation to highest-return opportunities. Jio's $30B network bet (2012-2016). Buffett's insurance float as perpetual low-cost capital.",
-    counterExamples:"GE Capital under Welch — financial leverage masking industrial decay. Kingfisher Airlines debt-funded expansion.",
-    tags:['Capital Allocation','Financial Services','Academic'], links:[]
-  },
-  {
-    id:'con4', type:'concept', name:'Ecosystem Lock-in',
-    description:"Users face high switching costs not because of the core product but because of the interconnected web of complementary services, data, and network effects around it.",
-    examples:"Apple: iPhone + App Store + iCloud + AirPods + Watch. Salesforce: CRM + integrations + AppExchange. Microsoft: Office + Azure + Teams.",
-    counterExamples:"BlackBerry OS had no app ecosystem — switching cost was hardware, easily overcome.",
-    tags:['Network Effects','Technology','Switching Costs'], links:[{targetId:'con2',rel:'related_to'}]
-  },
-
-  // ── FRAMEWORKS ──
-  {
-    id:'fw1', type:'framework', name:"Porter's Five Forces", author:'Michael Porter', year:'1979',
-    description:"Analyzes industry profitability through five structural forces: competitive rivalry, threat of new entrants, threat of substitutes, bargaining power of buyers, and bargaining power of suppliers.",
-    keyComponents:"1. Competitive Rivalry (intensity of competition)\n2. Threat of New Entrants (barriers to entry)\n3. Threat of Substitutes (alternative products)\n4. Buyer Power (price sensitivity, alternatives)\n5. Supplier Power (concentration, switching costs)",
-    useCases:"Industry attractiveness assessment. Pre-entry market analysis. Strategy formulation for incumbents. M&A target screening.",
-    tags:['Competitive Strategy','Academic'], links:[]
-  },
-  {
-    id:'fw2', type:'framework', name:"Innovator's Dilemma Framework", author:'Clayton Christensen', year:'1997',
-    description:"Explains why successful companies fail: sustaining innovations serve existing customers well but leave firms vulnerable to disruptive entrants targeting non-consumption or low-end segments.",
-    keyComponents:"1. Sustaining vs Disruptive innovation distinction\n2. Trajectory of improvement vs customer need\n3. Value network analysis\n4. Response strategies: spinout units, acquisition",
-    useCases:"Tech disruption analysis. New entrant threat assessment. Portfolio strategy for incumbents. Investment thesis on challengers.",
-    tags:["Innovator's Dilemma",'Technology','Academic'],
-    links:[{targetId:'con1',rel:'illustrates'},{targetId:'fw1',rel:'related_to'}]
-  },
-  {
-    id:'fw3', type:'framework', name:'Blue Ocean Strategy', author:'Kim & Mauborgne', year:'2005',
-    description:"Create uncontested market space by making the competition irrelevant. Eliminate-Reduce-Raise-Create (ERRC) grid to reconstruct market boundaries.",
-    keyComponents:"1. ERRC Grid (Eliminate-Reduce-Raise-Create)\n2. Strategy Canvas\n3. Four Actions Framework\n4. Non-customer analysis",
-    useCases:"New market creation. Product/service redesign. Competitive positioning reset.",
-    tags:['Competitive Strategy','Innovation','Academic'], links:[]
-  },
-  {
-    id:'fw4', type:'framework', name:'VRIO Framework', author:'Jay Barney', year:'1991',
-    description:"Evaluates whether a firm's resources and capabilities are sources of sustained competitive advantage: Valuable, Rare, Inimitable, Organized.",
-    keyComponents:"V - Valuable: Does it neutralize threats or exploit opportunities?\nR - Rare: Few competitors possess it?\nI - Inimitable: Costly to copy (path dependence, causal ambiguity)?\nO - Organized: Firm structured to capture value?",
-    useCases:"Internal analysis. M&A due diligence. Competitive advantage durability assessment. Resource audit.",
-    tags:['Competitive Strategy','Academic'], links:[]
-  },
-
-  // ── COMPANIES ──
-  {
-    id:'co1', type:'company', name:'Nokia', sector:'Technology / Telecom', founded:'1865',
-    description:"Finnish multinational that dominated global mobile phone markets in early 2000s before collapsing under iOS/Android disruption. Peak market cap ~$110B in 2000.",
-    revenueEngine:"Hardware device sales (high volumes, thin margins on low end; better margins on enterprise). Symbian licensing. Network infrastructure (separate division).",
-    flywheel:"Operator distribution relationships -> volume scale -> component cost advantage -> price competitiveness -> more operator deals. Worked until platform mattered more than hardware.",
-    switchingCosts:"Low consumer switching costs. Operator switching costs somewhat higher. App ecosystem switching costs (near zero on Symbian -- tiny ecosystem anyway).",
-    failurePoints:"Software/platform capability. Symbian too old and fragile to be competitive. No developer ecosystem. Cultural: hardware engineers dominant, software treated as secondary.",
-    tags:['Technology','Telecom','Failure','Platform Disruption','Europe','2000s'], links:[]
-  },
-  {
-    id:'co2', type:'company', name:'Kodak', sector:'Technology / Consumer', founded:'1892',
-    description:"American photography giant. Dominated film and camera markets for a century. Invented the digital camera in 1975 but failed to commercialize it. Filed Chapter 11 in 2012.",
-    revenueEngine:"Film sales (razor/blade model -- cameras priced low, film at 60%+ gross margin). Chemical processing. Printer consumables (late strategy).",
-    flywheel:"Film manufacturing scale -> cost leadership -> retail distribution -> consumer brand trust -> film repurchase. Destroyed by digital (no consumables needed).",
-    failurePoints:"Business model entirely dependent on consumable film. Digital photography eliminated the recurring revenue stream. No platform or software capabilities to pivot to services.",
-    tags:['Technology','Failure',"Innovator's Dilemma",'USA','1990s','2000s'], links:[]
-  },
-  {
-    id:'co3', type:'company', name:'Netflix', sector:'Media / Technology', founded:'1997',
-    description:"Streaming giant. Started as DVD-by-mail, proactively cannibalized its own business with streaming. Now a global content platform with 260M+ subscribers.",
-    revenueEngine:"Subscription revenue (monthly recurring). Content amortized over subscriber base -- scale economics in content creation.",
-    flywheel:"More subscribers -> more content budget -> better content -> more subscribers. Data advantage from viewing behavior informs content investment decisions.",
-    switchingCosts:"Moderate: original content exclusivity creates sticky library. Low switching cost to other streaming services.",
-    tags:['Media','Technology','Success','Platform Disruption','USA','2000s','2010s'], links:[]
-  },
-  {
-    id:'co4', type:'company', name:'Reliance Jio', sector:'Telecom / Technology', founded:'2016',
-    description:"Reliance Industries' telecom arm. Launched with free data in 2016, permanently disrupted Indian telecom economics. Built $30B+ network infrastructure. Now expanding into financial services, retail, and entertainment.",
-    revenueEngine:"Mobile subscriptions (ARPU ~181 INR). JioCinema, JioFiber. Ancillary digital services. Spectrum assets.",
-    flywheel:"Cheapest data -> massive user base -> content/services distribution platform -> monetize at scale -> fund further infrastructure.",
-    switchingCosts:"Growing: JioCinema (IPL, World Cup rights), JioFiber bundling, digital payments integration.",
-    tags:['Telecom','Technology','Success','Network Effects','India','2010s','2020s'], links:[]
-  },
-
-  // ── CASE STUDIES ──
-  {
-    id:'cs1', type:'case-study', name:'Nokia: Platform Collapse', industry:'Technology / Telecom', year:'2007', outcome:'Failure',
-    summary:"Nokia, holding 40% global handset market share, failed to recognize the iPhone as a platform shift rather than a premium hardware product. Its response -- Symbian upgrades -- was structurally incapable of competing with iOS/Android ecosystems.",
-    rootCause:"1. Symbian OS was unmaintainable (millions of lines of C++, different variants for different handsets).\n2. Internal silos: software engineers had no power vs hardware engineers.\n3. Incentive structures rewarded hardware volume, not platform adoption.\n4. Management dismissed ecosystem risk as a niche concern.",
-    warningSignsIgnored:"RIM (BlackBerry) gaining enterprise share through software advantages. iPhone launch dismissed as 'too expensive.' Android developer ecosystem growing at 10x Symbian rate. Internal engineers' written warnings about Symbian's ceiling (2005-2007).",
-    lessons:"1. Platform beats product -- always evaluate the ecosystem, not just the device.\n2. Software capability cannot be acquired quickly; it must be built over years.\n3. Fear of cannibalization kills faster than external competition.\n4. When insiders warn in writing, listen.",
-    tags:['Technology','Telecom','Platform Disruption','Failure','Europe','2000s','2010s'],
-    links:[{targetId:'co1',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'},{targetId:'con2',rel:'illustrates'}]
-  },
-  {
-    id:'cs2', type:'case-study', name:"Kodak: Invented It, Couldn't Use It", industry:'Technology / Consumer', year:'1975', outcome:'Failure',
-    summary:"Kodak engineer Steve Sasson invented the digital camera in 1975. The company shelved it for 20 years to protect film margins. By the time digital was unavoidable, Kodak had neither the software talent nor the consumer trust in digital to compete. Filed Chapter 11 in 2012.",
-    rootCause:"1. Film was 60%+ gross margin -- no rational manager wanted to cannibalize it.\n2. Razor-blade model created structural dependency on consumables (digital has none).\n3. No software culture -- Kodak was a chemistry and manufacturing company.\n4. Classic innovator's dilemma: serving existing customers excellently while ignoring paradigm shift.",
-    warningSignsIgnored:"Own internal digital camera project (1975). Japan consumer electronics companies moving hard into digital through 1990s. Fujifilm building digital capabilities while Kodak harvested film profits. Film volume declining year-on-year from 1999.",
-    lessons:"1. Owning the patent on the future does not mean you'll profit from it.\n2. Margin protection = innovation suppression.\n3. Structural solutions needed (spinout, separate P&L) -- cultural change alone fails.\n4. Follow the profit model, not the product -- digital had no consumables, which was the real threat.",
-    tags:["Innovator's Dilemma",'Technology','Failure','USA','1990s','2000s'],
-    links:[{targetId:'co2',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'}]
-  },
-  {
-    id:'cs3', type:'case-study', name:'Netflix vs Blockbuster', industry:'Media / Entertainment', year:'2004', outcome:'Success',
-    summary:"Netflix built a subscription DVD-by-mail model eliminating late fees (Blockbuster's key revenue line and biggest customer grievance). When streaming became viable, Netflix proactively cannibalized its own DVD business -- something Blockbuster could not do without destroying its store economics.",
-    rootCause:"Blockbuster's failure: late fees were 16% of revenue -- structurally impossible to eliminate. Store footprint (9,000+ locations) was a liability in streaming era. Netflix's success: Reed Hastings explicitly chose to cannibalize the DVD business.",
-    warningSignsIgnored:"By Blockbuster: Netflix subscriber growth 2002-2005 was unambiguous. Consumer surveys consistently cited late fees as #1 pain point. Streaming infrastructure improving rapidly.",
-    lessons:"1. Willingness to cannibalize yourself is the most powerful strategic weapon.\n2. The incumbent's strength (physical stores) became its prison.\n3. Subscription models that eliminate friction can displace transaction models.\n4. Data advantage: Netflix's viewing data -> content investment edge.",
-    tags:['Platform Disruption','Media','Success','USA','2000s','2010s'],
-    links:[{targetId:'co3',rel:'involves'},{targetId:'fw1',rel:'uses_framework'},{targetId:'fw3',rel:'uses_framework'},{targetId:'con2',rel:'illustrates'}]
-  },
-  {
-    id:'cs4', type:'case-study', name:'Jio: Weaponizing Capital to Reset Industry', industry:'Telecom / India', year:'2016', outcome:'Success',
-    summary:"Reliance invested $30B+ building India's only pan-India 4G LTE network before launching a single commercial service. Launched with 6 months of free data in 2016. Within 18 months, three incumbents exited, two merged (Vodafone Idea), and India had the world's cheapest data.",
-    rootCause:"Success factors: (1) Patient capital from Mukesh Ambani -- no short-term profitability pressure. (2) Greenfield network built on latest technology -- no legacy costs. (3) Priced at marginal cost to acquire user base for platform. (4) Government spectrum policy created a window for new entrant.",
-    warningSignsIgnored:"By incumbents: Reliance's spectrum acquisitions 2012-2016 clearly signaled intent. Announced $20B investment publicly. Incumbents assumed it would be another Reliance Communications failure.",
-    lessons:"1. Capital as competitive weapon -- incumbents cannot match greenfield economics.\n2. Platform logic: cheap data -> digital services monetization -> the real business.\n3. Telcos with legacy infrastructure cannot compete with a greenfield on cost.\n4. Regulatory windows are temporary -- move when they open.",
-    tags:['Telecom','Capital Allocation','India','Success','2010s'],
-    links:[{targetId:'co4',rel:'involves'},{targetId:'con3',rel:'illustrates'},{targetId:'con4',rel:'illustrates'}]
-  },
-  {
-    id:'cs5', type:'case-study', name:'WeWork: The Governance Catastrophe', industry:'Real Estate / Technology', year:'2019', outcome:'Failure',
-    summary:"WeWork raised $12.8B at valuations up to $47B by convincing investors it was a tech company with platform economics. The 2019 IPO S-1 exposed: $47B in lease liabilities vs $2.4B revenue, Neumann extracting $700M via secondaries, and community-adjusted EBITDA as an invented metric.",
-    rootCause:"1. SoftBank Vision Fund created a single LP with $100B+ enabling ego-driven capital deployment with no governance constraint.\n2. Supervoting shares (20:1) meant Neumann had absolute control.\n3. 'Tech premium' on real estate economics is not real -- no network effects, no data advantage, no platform.\n4. Regulatory failure: IPO process should have caught this.",
-    warningSignsIgnored:"Community-adjusted EBITDA invented to exclude actual costs. S-1 disclosed Neumann had trademarked 'We' and licensed it back to WeWork for $5.9M. Lease obligations growing 3x faster than revenue. Neumann selling shares while telling employees to believe.",
-    lessons:"1. Supervoting share structures enable founder extraction at shareholder expense -- always flag.\n2. Invented financial metrics are almost always concealing something.\n3. 'Tech premium' requires demonstrated network effects or data advantage -- not just an app.\n4. SoftBank's Vision Fund created a governance vacuum across its portfolio.",
-    tags:['Governance Failure','Real Estate','Failure','USA','2010s'],
-    links:[{targetId:'con3',rel:'illustrates'},{targetId:'fw4',rel:'uses_framework'}]
-  }
+  {id:'con1',type:'concept',name:"Innovator's Dilemma",
+   description:"Incumbents focus on sustaining innovations for current customers, ignoring disruptive tech that initially underperforms on mainstream metrics but eventually displaces them.",
+   examples:"Kodak ignored digital cameras it invented. Nokia dismissed smartphone as a platform. Blockbuster ignored streaming.",
+   counterExamples:"Amazon cannibalizing its retail with AWS and Kindle. Netflix proactively killing its own DVD business.",
+   tags:['Platform Disruption','Technology','Academic'],links:[]},
+  {id:'con2',type:'concept',name:'Platform Disruption',
+   description:"A challenger builds an ecosystem/platform that enables third parties to create value, eventually outcompeting vertically integrated incumbents on both quality and cost.",
+   examples:"iOS/Android vs Symbian. Stripe vs traditional payment processors. Airbnb vs hotels.",
+   counterExamples:"WeWork tried to claim platform dynamics but had none — pure real estate.",
+   tags:['Platform Disruption','Network Effects','Technology'],links:[{targetId:'con1',rel:'related_to'}]},
+  {id:'con3',type:'concept',name:'Capital Allocation',
+   description:"The single most important function of a CEO: directing resources toward highest-return opportunities. Most value creation and destruction happens here.",
+   examples:"Berkshire's continuous reallocation. Jio's $30B network bet. Buffett's insurance float as perpetual low-cost capital.",
+   counterExamples:"GE Capital under Welch — financial leverage masking industrial decay. Kingfisher Airlines debt-funded expansion.",
+   tags:['Capital Allocation','Financial Services','Academic'],links:[]},
+  {id:'con4',type:'concept',name:'Ecosystem Lock-in',
+   description:"Users face high switching costs not because of the core product but because of the interconnected web of complementary services, data, and network effects around it.",
+   examples:"Apple: iPhone + App Store + iCloud + AirPods + Watch. Salesforce: CRM + integrations + AppExchange.",
+   counterExamples:"BlackBerry OS had no app ecosystem — switching cost was hardware, easily overcome.",
+   tags:['Network Effects','Technology'],links:[{targetId:'con2',rel:'related_to'}]},
+  {id:'fw1',type:'framework',name:"Porter's Five Forces",author:'Michael Porter',year:'1979',
+   description:"Analyzes industry profitability through five structural forces: competitive rivalry, threat of new entrants, threat of substitutes, bargaining power of buyers, and bargaining power of suppliers.",
+   keyComponents:"1. Competitive Rivalry\n2. Threat of New Entrants\n3. Threat of Substitutes\n4. Buyer Power\n5. Supplier Power",
+   useCases:"Industry attractiveness assessment. Pre-entry market analysis. M&A target screening.",
+   tags:['Academic'],links:[]},
+  {id:'fw2',type:'framework',name:"Innovator's Dilemma Framework",author:'Clayton Christensen',year:'1997',
+   description:"Explains why successful companies fail: sustaining innovations serve existing customers well but leave firms vulnerable to disruptive entrants targeting non-consumption or low-end segments.",
+   keyComponents:"1. Sustaining vs Disruptive innovation\n2. Trajectory of improvement vs customer need\n3. Value network analysis\n4. Response strategies: spinout, acquisition",
+   useCases:"Tech disruption analysis. New entrant threat assessment. Portfolio strategy for incumbents.",
+   tags:["Innovator's Dilemma",'Technology','Academic'],links:[{targetId:'con1',rel:'illustrates'},{targetId:'fw1',rel:'related_to'}]},
+  {id:'fw3',type:'framework',name:'Blue Ocean Strategy',author:'Kim & Mauborgne',year:'2005',
+   description:"Create uncontested market space by making the competition irrelevant. ERRC grid to reconstruct market boundaries.",
+   keyComponents:"1. ERRC Grid (Eliminate-Reduce-Raise-Create)\n2. Strategy Canvas\n3. Four Actions Framework\n4. Non-customer analysis",
+   useCases:"New market creation. Product redesign. Competitive positioning reset.",
+   tags:['Academic'],links:[]},
+  {id:'fw4',type:'framework',name:'VRIO Framework',author:'Jay Barney',year:'1991',
+   description:"Evaluates whether a firm's resources are sources of sustained competitive advantage: Valuable, Rare, Inimitable, Organized.",
+   keyComponents:"V - Valuable\nR - Rare\nI - Inimitable (costly to copy)\nO - Organized to capture value",
+   useCases:"Internal analysis. M&A due diligence. Competitive advantage durability assessment.",
+   tags:['Academic'],links:[]},
+  {id:'co1',type:'company',name:'Nokia',sector:'Technology / Telecom',founded:'1865',
+   description:"Finnish multinational that dominated global mobile phone markets in early 2000s before collapsing under iOS/Android disruption. Peak market cap ~$110B in 2000.",
+   revenueEngine:"Hardware device sales. Symbian licensing. Network infrastructure (separate division).",
+   flywheel:"Operator distribution -> volume scale -> component cost advantage -> price competitiveness -> more operator deals. Worked until platform mattered more than hardware.",
+   switchingCosts:"Low consumer switching costs. App ecosystem switching costs near zero on Symbian.",
+   failurePoints:"Symbian too old and fragile. No developer ecosystem. Hardware engineers dominated; software treated as secondary.",
+   tags:['Technology','Telecom','Failure','Platform Disruption','Europe','2000s'],links:[]},
+  {id:'co2',type:'company',name:'Kodak',sector:'Technology / Consumer',founded:'1892',
+   description:"American photography giant. Dominated film and camera markets for a century. Invented the digital camera in 1975 but failed to commercialize it. Filed Chapter 11 in 2012.",
+   revenueEngine:"Film sales (razor/blade — cameras priced low, film at 60%+ gross margin). Chemical processing.",
+   flywheel:"Film manufacturing scale -> cost leadership -> retail distribution -> consumer brand trust -> film repurchase. Destroyed by digital.",
+   failurePoints:"Business model entirely dependent on consumable film. Digital photography eliminated the recurring revenue stream.",
+   tags:['Technology','Failure',"Innovator's Dilemma",'USA','1990s','2000s'],links:[]},
+  {id:'co3',type:'company',name:'Netflix',sector:'Media / Technology',founded:'1997',
+   description:"Streaming giant. Started as DVD-by-mail, proactively cannibalized its own business with streaming. Now a global content platform with 260M+ subscribers.",
+   revenueEngine:"Subscription revenue (monthly recurring). Content amortized over subscriber base.",
+   flywheel:"More subscribers -> more content budget -> better content -> more subscribers. Data advantage informs content investment.",
+   switchingCosts:"Moderate: original content exclusivity creates sticky library.",
+   tags:['Media','Technology','Success','Platform Disruption','USA','2000s','2010s'],links:[]},
+  {id:'co4',type:'company',name:'Reliance Jio',sector:'Telecom / Technology',founded:'2016',
+   description:"Reliance Industries' telecom arm. Launched with free data in 2016, permanently disrupted Indian telecom economics. Built $30B+ network infrastructure.",
+   revenueEngine:"Mobile subscriptions. JioCinema, JioFiber. Ancillary digital services.",
+   flywheel:"Cheapest data -> massive user base -> content/services platform -> monetize at scale -> fund further infrastructure.",
+   switchingCosts:"Growing: JioCinema (IPL rights), JioFiber bundling, digital payments integration.",
+   tags:['Telecom','Technology','Success','Network Effects','India','2010s','2020s'],links:[]},
+  {id:'cs1',type:'case-study',name:'Nokia: Platform Collapse',industry:'Technology / Telecom',year:'2007',outcome:'Failure',
+   summary:"Nokia, holding 40% global handset market share, failed to recognize the iPhone as a platform shift. Its response — Symbian upgrades — was structurally incapable of competing with iOS/Android ecosystems.",
+   rootCause:"1. Symbian unmaintainable (millions of lines of C++, different variants per handset).\n2. Internal silos: software engineers had no power vs hardware.\n3. Incentive structures rewarded hardware volume, not platform adoption.",
+   warningSignsIgnored:"RIM gaining enterprise share through software. iPhone dismissed as 'too expensive.' Android ecosystem growing at 10x Symbian rate. Internal written warnings about Symbian's ceiling (2005-2007).",
+   lessons:"1. Platform beats product — evaluate the ecosystem, not just the device.\n2. Software capability cannot be acquired quickly.\n3. Fear of cannibalization kills faster than external competition.",
+   tags:['Technology','Telecom','Platform Disruption','Failure','Europe','2000s','2010s'],
+   links:[{targetId:'co1',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'},{targetId:'con2',rel:'illustrates'}]},
+  {id:'cs2',type:'case-study',name:"Kodak: Invented It, Couldn't Use It",industry:'Technology / Consumer',year:'1975',outcome:'Failure',
+   summary:"Kodak engineer Steve Sasson invented the digital camera in 1975. The company shelved it for 20 years to protect film margins. Filed Chapter 11 in 2012.",
+   rootCause:"1. Film was 60%+ gross margin — no manager wanted to cannibalize it.\n2. Razor-blade model created structural dependency on consumables.\n3. No software culture — Kodak was a chemistry and manufacturing company.",
+   warningSignsIgnored:"Own internal digital camera project (1975). Japan consumer electronics moving into digital through 1990s. Film volume declining year-on-year from 1999.",
+   lessons:"1. Owning the patent on the future does not mean you'll profit from it.\n2. Margin protection = innovation suppression.\n3. Structural solutions needed — cultural change alone fails.",
+   tags:["Innovator's Dilemma",'Technology','Failure','USA','1990s','2000s'],
+   links:[{targetId:'co2',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'}]},
+  {id:'cs3',type:'case-study',name:'Netflix vs Blockbuster',industry:'Media / Entertainment',year:'2004',outcome:'Success',
+   summary:"Netflix built a subscription DVD-by-mail model eliminating late fees (Blockbuster's key revenue line and biggest customer grievance). When streaming became viable, Netflix proactively cannibalized its own DVD business.",
+   rootCause:"Blockbuster's failure: late fees were 16% of revenue — structurally impossible to eliminate. Store footprint (9,000+ locations) was a liability in streaming era.",
+   warningSignsIgnored:"By Blockbuster: Netflix subscriber growth 2002-2005 was unambiguous. Consumer surveys consistently cited late fees as #1 pain point.",
+   lessons:"1. Willingness to cannibalize yourself is the most powerful strategic weapon.\n2. The incumbent's strength (physical stores) became its prison.\n3. Subscription models that eliminate friction displace transaction models.",
+   tags:['Platform Disruption','Media','Success','USA','2000s','2010s'],
+   links:[{targetId:'co3',rel:'involves'},{targetId:'fw1',rel:'uses_framework'},{targetId:'fw3',rel:'uses_framework'},{targetId:'con2',rel:'illustrates'}]},
+  {id:'cs4',type:'case-study',name:'Jio: Weaponizing Capital',industry:'Telecom / India',year:'2016',outcome:'Success',
+   summary:"Reliance invested $30B+ building India's only pan-India 4G LTE network before launching commercially. Launched with 6 months of free data in 2016. Within 18 months, three incumbents exited.",
+   rootCause:"Patient capital from Mukesh Ambani. Greenfield network on latest technology — no legacy costs. Priced at marginal cost to acquire user base. Government spectrum policy created an entry window.",
+   warningSignsIgnored:"By incumbents: Reliance's spectrum acquisitions 2012–2016 clearly signaled intent. Announced $20B investment publicly. Incumbents assumed it would be another Reliance Communications failure.",
+   lessons:"1. Capital as competitive weapon — incumbents cannot match greenfield economics.\n2. Platform logic: cheap data -> digital services monetization -> the real business.\n3. Regulatory windows are temporary — move when they open.",
+   tags:['Telecom','Capital Allocation','India','Success','2010s'],
+   links:[{targetId:'co4',rel:'involves'},{targetId:'con3',rel:'illustrates'},{targetId:'con4',rel:'illustrates'}]},
+  {id:'cs5',type:'case-study',name:'WeWork: Governance Catastrophe',industry:'Real Estate',year:'2019',outcome:'Failure',
+   summary:"WeWork raised $12.8B at valuations up to $47B by claiming tech platform economics. The 2019 IPO S-1 exposed: $47B in lease liabilities vs $2.4B revenue, Neumann extracting $700M via secondaries.",
+   rootCause:"1. SoftBank Vision Fund with $100B+ enabled ego-driven capital deployment with no governance.\n2. Supervoting shares (20:1) — Neumann had absolute control.\n3. 'Tech premium' on real estate requires demonstrated network effects — WeWork had none.",
+   warningSignsIgnored:"'Community-adjusted EBITDA' invented to exclude actual costs. Neumann trademarked 'We' and licensed it back to WeWork for $5.9M. Lease obligations growing 3x faster than revenue.",
+   lessons:"1. Supervoting share structures enable founder extraction at shareholder expense.\n2. Invented financial metrics almost always conceal something.\n3. 'Tech premium' requires demonstrated network effects or data advantage.",
+   tags:['Governance Failure','Real Estate','Failure','USA','2010s'],
+   links:[{targetId:'con3',rel:'illustrates'},{targetId:'fw4',rel:'uses_framework'}]}
 ];
 
-// ════════════════════════════════════════════════════
-// BOOT
-// ════════════════════════════════════════════════════
-(function() {
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+(function init() {
   const saved = localStorage.getItem('sia_cfg');
   if (saved) {
-    try {
-      S.cfg = JSON.parse(saved);
-      boot();
-      return;
-    } catch(e) {
-      localStorage.removeItem('sia_cfg');
-    }
+    try { S.cfg = JSON.parse(saved); boot(); return; }
+    catch(e) { localStorage.removeItem('sia_cfg'); }
   }
   q('#setup').style.display = 'flex';
 })();
