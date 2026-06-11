@@ -4,1089 +4,886 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIA — Strategic Intelligence Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:     #0d1117;
-  --surf:   #161b22;
-  --surf2:  #1c2128;
-  --border: #30363d;
-  --text:   #c9d1d9;
-  --text2:  #8b949e;
-  --text3:  #484f58;
-  --blue:   #58a6ff;
-  --green:  #3fb950;
-  --red:    #f85149;
-  --orange: #d29922;
+  --bg:#09090f; --bg2:#0d0d18; --surf:#111120; --surf2:#181830; --surf3:#1e1e38;
+  --border:#21213a; --border2:#2c2c50;
+  --text:#e2dff5; --text2:#8a87b8; --text3:#3e3c60;
+  --purple:#a78bfa; --pink:#ec4899; --blue:#60a5fa;
+  --emerald:#34d399; --orange:#fb923c; --amber:#fbbf24; --red:#f87171;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; font-size:13px; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;}
 
-/* ── SETUP ── */
-#setup { position:fixed; inset:0; background:var(--bg); z-index:500; display:flex; align-items:center; justify-content:center; }
-.setup-box { width:440px; background:var(--surf); border:1px solid var(--border); border-radius:8px; padding:32px; }
-.setup-box h1 { font-size:22px; font-weight:700; margin-bottom:4px; }
-.setup-box .sub { font-size:12px; color:var(--text2); margin-bottom:24px; line-height:1.6; }
-.setup-note { margin-top:10px; font-size:11px; color:var(--text3); line-height:1.6; }
-.err-box { display:none; margin-top:10px; padding:8px 12px; border:1px solid var(--red); border-radius:5px; color:var(--red); font-size:11px; background:rgba(248,81,73,.06); }
+/* SETUP */
+#setup{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.sbox{width:430px;background:var(--surf);border:1px solid var(--border2);border-radius:12px;padding:36px;box-shadow:0 0 60px rgba(167,139,250,.06);}
+.sbox h1{font-family:'Crimson Pro',serif;font-size:32px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sbox .sub{font-size:10px;color:var(--text2);line-height:1.7;margin-bottom:28px;}
+.sbox .note{margin-top:10px;font-size:10px;color:var(--text3);line-height:1.6;}
+.err{display:none;margin-top:10px;padding:8px 12px;border:1px solid var(--red);border-radius:6px;color:var(--red);font-size:10px;background:rgba(248,113,113,.05);}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.field label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);}
+.field input,.field select,.field textarea{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 11px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple);}
+.field textarea{min-height:74px;resize:vertical;}
+.field select option{background:var(--bg2);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{padding:7px 16px;border-radius:6px;border:1px solid;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;transition:all .15s;letter-spacing:.04em;}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-p{background:var(--purple);border-color:var(--purple);color:#0a0a14;font-weight:700;}
+.btn-p:hover:not(:disabled){background:#c4b5fd;border-color:#c4b5fd;}
+.btn-s{background:transparent;border-color:var(--border2);color:var(--text2);}
+.btn-s:hover:not(:disabled){border-color:var(--text2);color:var(--text);}
+.btn-d{background:transparent;border-color:var(--red);color:var(--red);}
+.btn-d:hover{background:var(--red);color:#fff;}
+.btn-g{background:transparent;border-color:transparent;color:var(--text3);}
+.btn-g:hover{color:var(--red);}
+.btn-sm{font-size:9px;padding:4px 10px;}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--border2);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* ── FORM ELEMENTS ── */
-.field { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
-.field label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.1em; }
-.field input, .field select, .field textarea {
-  background:var(--bg); border:1px solid var(--border); color:var(--text);
-  padding:7px 10px; border-radius:5px; font-family:inherit; font-size:12px;
-  outline:none; transition:border-color .1s;
-}
-.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--blue); }
-.field textarea { min-height:72px; resize:vertical; }
-.field select option { background:var(--bg); }
-.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+/* APP */
+#app{display:none;height:100vh;flex-direction:row;}
 
-/* ── BUTTONS ── */
-.btn { padding:6px 14px; border-radius:5px; border:1px solid; cursor:pointer; font-size:12px; font-family:inherit; transition:all .1s; }
-.btn:disabled { opacity:.4; cursor:not-allowed; }
-.btn-primary   { background:var(--blue);   border-color:var(--blue);   color:#0d1117; font-weight:600; }
-.btn-primary:hover:not(:disabled) { filter:brightness(1.1); }
-.btn-secondary { background:transparent;   border-color:var(--border); color:var(--text2); }
-.btn-secondary:hover:not(:disabled) { border-color:var(--text2); color:var(--text); }
-.btn-danger    { background:transparent;   border-color:var(--red);    color:var(--red); }
-.btn-danger:hover  { background:var(--red); color:#fff; }
-.btn-ghost     { background:transparent;   border-color:transparent;   color:var(--text3); padding:6px 8px; }
-.btn-ghost:hover   { color:var(--red); }
-.btn-sm { font-size:10px; padding:4px 10px; }
+/* SIDEBAR */
+#sidebar{width:210px;min-width:210px;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.logo{padding:16px 18px 14px;border-bottom:1px solid var(--border);}
+.logo-t{font-family:'Crimson Pro',serif;font-size:22px;font-weight:700;}
+.logo-s{font-size:8px;text-transform:uppercase;letter-spacing:.22em;color:var(--text3);margin-top:1px;}
+nav{padding:10px;flex-shrink:0;}
+.ns{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);padding:6px 8px 4px;}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--text2);font-size:10px;transition:all .12s;margin-bottom:1px;user-select:none;}
+.ni:hover{background:var(--surf2);color:var(--text);}
+.ni.active{background:var(--surf3);color:var(--purple);}
+.forces-panel{flex:1;overflow-y:auto;border-top:1px solid var(--border);padding:10px;}
+.fp-title{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);padding:4px 6px 10px;}
+.fp-row{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;cursor:pointer;transition:background .1s;margin-bottom:2px;user-select:none;}
+.fp-row:hover{background:var(--surf2);}
+.fp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.fp-name{font-size:10px;color:var(--text2);flex:1;line-height:1.3;}
+.fp-cnt{font-size:9px;color:var(--text3);}
+.fp-row.off .fp-name{color:var(--text3);text-decoration:line-through;}
+.sidebar-foot{padding:10px;border-top:1px solid var(--border);flex-shrink:0;}
+.repo-st{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2);margin-bottom:7px;overflow:hidden;}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.sdot.ok{background:var(--emerald);box-shadow:0 0 5px var(--emerald);}
+#repo-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ── APP SHELL ── */
-#app { display:none; height:100vh; flex-direction:row; }
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#topbar{height:46px;display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0;}
+.vtabs{display:flex;gap:3px;}
+.vt{padding:5px 12px;border-radius:5px;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border:1px solid transparent;transition:all .12s;}
+.vt:hover{background:var(--surf2);color:var(--text);}
+.vt.active{background:var(--surf3);border-color:var(--border2);color:var(--purple);}
+.spacer{flex:1;}
+#search{background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:6px 11px;border-radius:6px;font-size:10px;outline:none;width:170px;font-family:'JetBrains Mono',monospace;}
+#search:focus{border-color:var(--purple);}
+#search::placeholder{color:var(--text3);}
+#content{flex:1;display:flex;overflow:hidden;position:relative;}
 
-/* ── SIDEBAR ── */
-#sidebar { width:200px; min-width:200px; background:var(--surf); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
-.logo { padding:14px 16px; border-bottom:1px solid var(--border); }
-.logo-title { font-size:17px; font-weight:700; }
-.logo-sub   { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.12em; margin-top:2px; }
-nav { padding:8px; flex-shrink:0; }
-.nav-lbl  { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.12em; padding:8px 8px 4px; }
-.nav-item { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:5px; cursor:pointer; color:var(--text2); font-size:12px; transition:all .1s; margin-bottom:1px; }
-.nav-item:hover  { background:var(--surf2); color:var(--text); }
-.nav-item.active { background:var(--surf2); color:var(--blue); }
-.tag-area { flex:1; overflow-y:auto; border-top:1px solid var(--border); padding:8px; }
-.tag-area-lbl { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.12em; padding:4px 8px 8px; }
-.tag-group { margin-bottom:10px; }
-.tag-group-lbl { font-size:10px; color:var(--text3); letter-spacing:.06em; padding:2px 8px 5px; }
-.tag-chip { display:inline-flex; padding:2px 8px; margin:2px 2px 2px 0; border-radius:10px; font-size:10px; border:1px solid var(--border); cursor:pointer; color:var(--text2); transition:all .1s; }
-.tag-chip:hover  { border-color:var(--text3); color:var(--text); }
-.tag-chip.active { border-color:var(--orange); color:var(--orange); background:rgba(210,153,34,.1); }
-.sidebar-foot { padding:10px; border-top:1px solid var(--border); flex-shrink:0; }
-.repo-status { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text2); margin-bottom:8px; overflow:hidden; }
-.status-dot { width:6px; height:6px; border-radius:50%; background:var(--text3); flex-shrink:0; }
-.status-dot.ok { background:var(--green); box-shadow:0 0 4px var(--green); }
-#repo-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* GRAPH */
+#gv{flex:1;position:relative;
+  background-color:var(--bg);
+  background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);
+  background-size:28px 28px;}
+#graph-svg{width:100%;height:100%;}
+#g-tip{position:absolute;pointer-events:none;background:var(--surf2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;opacity:0;transition:opacity .1s;z-index:10;max-width:230px;box-shadow:0 8px 32px rgba(0,0,0,.6);}
+.tip-t{font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.tip-n{font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.3;}
+.tip-d{font-size:10px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+#g-info{position:absolute;bottom:14px;left:14px;background:var(--surf);border:1px solid var(--border);border-radius:5px;padding:5px 12px;font-size:9px;color:var(--text3);z-index:5;}
+#g-ctrl{position:absolute;top:14px;right:14px;display:flex;gap:6px;z-index:5;}
+.gc-btn{background:var(--surf);border:1px solid var(--border2);color:var(--text2);padding:5px 12px;border-radius:5px;cursor:pointer;font-size:9px;font-family:'JetBrains Mono',monospace;transition:all .12s;text-transform:uppercase;letter-spacing:.04em;}
+.gc-btn:hover{border-color:var(--purple);color:var(--purple);}
+#g-legend{position:absolute;bottom:14px;right:14px;background:var(--surf);border:1px solid var(--border);border-radius:7px;padding:10px 14px;z-index:5;}
+.lr{display:flex;align-items:center;gap:7px;font-size:9px;color:var(--text2);padding:2px 0;text-transform:uppercase;letter-spacing:.08em;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.lr2{width:7px;height:7px;border-radius:50%;border:2px solid;flex-shrink:0;}
 
-/* ── MAIN ── */
-#main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-#topbar { height:48px; display:flex; align-items:center; padding:0 16px; gap:10px; border-bottom:1px solid var(--border); background:var(--surf); flex-shrink:0; }
-.view-tabs { display:flex; gap:2px; }
-.vtab { padding:5px 12px; border-radius:4px; cursor:pointer; font-size:12px; color:var(--text2); border:1px solid transparent; transition:all .1s; }
-.vtab:hover  { background:var(--surf2); color:var(--text); }
-.vtab.active { background:var(--surf2); border-color:var(--border); color:var(--blue); }
-.spacer { flex:1; }
-#search { background:var(--surf2); border:1px solid var(--border); color:var(--text); padding:5px 12px; border-radius:5px; font-size:12px; outline:none; width:180px; }
-#search:focus { border-color:var(--blue); }
-#search::placeholder { color:var(--text3); }
+/* LIBRARY */
+#lv{flex:1;overflow-y:auto;padding:16px;display:none;}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;}
+.lc{background:var(--surf);border:1px solid var(--border);border-left:3px solid;border-radius:7px;padding:13px 15px;cursor:pointer;transition:all .12s;}
+.lc:hover{filter:brightness(1.07);}
+.lc.sel{outline:2px solid var(--purple);outline-offset:1px;}
+.lc-type{font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+.lc-name{font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;margin-bottom:5px;line-height:1.3;}
+.lc-desc{font-size:10px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 
-#content { flex:1; display:flex; overflow:hidden; position:relative; }
+/* DETAIL */
+#dp{width:0;min-width:0;background:var(--surf);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .15s,min-width .15s;}
+#dp.open{width:295px;min-width:295px;}
+#dp-hdr{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+#dp-body{flex:1;overflow-y:auto;padding:15px;}
+.dp-badge{font-size:9px;text-transform:uppercase;letter-spacing:.12em;}
+.dp-name{font-family:'Crimson Pro',serif;font-size:19px;font-weight:700;margin-bottom:3px;line-height:1.25;}
+.dp-meta{font-size:10px;color:var(--text3);margin-bottom:12px;}
+.dp-sec{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin:14px 0 7px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.dp-f{margin-bottom:10px;}
+.dp-fl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:3px;}
+.dp-fv{font-size:11px;color:var(--text);line-height:1.65;white-space:pre-wrap;}
+.dp-cr{display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding-left .1s;}
+.dp-cr:hover{padding-left:4px;}
+.dp-cr:last-child{border-bottom:none;}
+.dp-cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.dp-cname{font-size:11px;color:var(--text);line-height:1.4;}
+.dp-crel{font-size:9px;color:var(--text2);font-style:italic;}
+.dp-ctype{font-size:9px;color:var(--text3);}
 
-/* ── GRAPH VIEW ── */
-#graph-view { flex:1; position:relative; display:none; }
-#graph-svg  { width:100%; height:100%; }
-#graph-tip  { position:absolute; pointer-events:none; background:var(--surf); border:1px solid var(--border); border-radius:5px; padding:8px 10px; font-size:11px; opacity:0; transition:opacity .1s; z-index:5; max-width:200px; }
-#graph-info { position:absolute; top:12px; left:12px; background:var(--surf); border:1px solid var(--border); border-radius:5px; padding:5px 10px; font-size:10px; color:var(--text3); }
-#graph-btns { position:absolute; top:12px; right:12px; display:flex; gap:6px; }
-.g-btn { background:var(--surf); border:1px solid var(--border); color:var(--text2); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:inherit; transition:all .1s; }
-.g-btn:hover { border-color:var(--text2); color:var(--text); }
-#graph-legend { position:absolute; bottom:12px; left:12px; background:var(--surf); border:1px solid var(--border); border-radius:5px; padding:8px 12px; }
-.leg-row { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text2); padding:2px 0; }
-.leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+/* FORM */
+#fp{position:absolute;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column;}
+#fp-hdr{padding:13px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surf);flex-shrink:0;}
+#fp-title{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;}
+#fp-body{flex:1;overflow-y:auto;padding:22px 26px;}
+.fs-s{margin-bottom:20px;}
+.fs-t{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.type-opt{border:1px solid var(--border);border-radius:6px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .12s;}
+.type-opt:hover{border-color:var(--border2);}
+.type-opt.sel{border-width:2px;}
+.type-opt.sel.t-force{border-color:var(--purple);background:rgba(167,139,250,.08);}
+.type-opt.sel.t-factor{border-color:var(--text2);background:rgba(138,135,181,.07);}
+.type-opt.sel.t-company{border-color:var(--amber);background:rgba(251,191,36,.06);}
+.type-opt.sel.t-concept{border-color:var(--emerald);background:rgba(52,211,153,.06);}
+.type-opt.sel.t-strategy{border-color:var(--blue);background:rgba(96,165,250,.06);}
+.to-icon{font-size:16px;margin-bottom:3px;}
+.to-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);}
+.rel-si{width:100%;background:var(--surf2);border:none;border-bottom:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;}
+.rel-list{background:var(--surf2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;max-height:150px;overflow-y:auto;}
+.rel-opt{display:flex;align-items:center;gap:7px;padding:7px 10px;cursor:pointer;font-size:10px;color:var(--text2);transition:background .1s;}
+.rel-opt:hover{background:var(--surf);color:var(--text);}
+.rel-opt.picked{background:rgba(167,139,250,.08);color:var(--purple);}
+.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+#conn-list .ci{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);}
+#conn-list .ci:last-child{border:none;}
+.ci-name{font-size:10px;flex:1;color:var(--text);}
+.ci-rel{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:3px 6px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;outline:none;}
+.ci-lbl{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:3px 6px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;outline:none;flex:1;}
+.ci-rm{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 4px;}
+.ci-rm:hover{color:var(--red);}
 
-/* ── LIBRARY VIEW ── */
-#library-view { flex:1; overflow-y:auto; padding:16px; display:none; }
-.lib-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
-.lib-card { background:var(--surf); border:1px solid var(--border); border-left:3px solid transparent; border-radius:6px; padding:12px 14px; cursor:pointer; transition:border-color .1s; }
-.lib-card:hover  { border-color:var(--border); filter:brightness(1.04); }
-.lib-card.sel    { border-color:var(--blue) !important; background:var(--surf2); }
-.lib-card.t-company    { border-left-color:#58a6ff; }
-.lib-card.t-framework  { border-left-color:#d29922; }
-.lib-card.t-case-study { border-left-color:#f85149; }
-.lib-card.t-concept    { border-left-color:#3fb950; }
-.card-type { font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px; }
-.card-name { font-size:13px; font-weight:500; margin-bottom:6px; line-height:1.3; }
-.card-desc { font-size:11px; color:var(--text2); line-height:1.5; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.card-chips { display:flex; flex-wrap:wrap; gap:3px; }
-.card-chip  { font-size:9px; padding:1px 6px; border-radius:8px; border:1px solid var(--border); color:var(--text3); }
-
-/* ── ANALYTICS VIEW ── */
-#analytics-view { flex:1; overflow-y:auto; padding:16px; display:none; }
-.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
-.stat-box { background:var(--surf); border:1px solid var(--border); border-radius:6px; padding:14px; text-align:center; }
-.stat-num { font-size:26px; font-weight:700; line-height:1; }
-.stat-lbl { font-size:10px; color:var(--text2); margin-top:4px; }
-.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.chart-box { background:var(--surf); border:1px solid var(--border); border-radius:6px; padding:14px; }
-.chart-title { font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--text3); margin-bottom:12px; }
-.chart-area  { height:180px; position:relative; }
-
-/* ── DETAIL PANEL ── */
-#detail-panel { width:0; min-width:0; background:var(--surf); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; transition:width .15s,min-width .15s; }
-#detail-panel.open { width:300px; min-width:300px; }
-#dp-header { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; flex-shrink:0; }
-#dp-body   { flex:1; overflow-y:auto; padding:14px; }
-.dp-badge  { font-size:10px; text-transform:uppercase; letter-spacing:.1em; }
-.dp-name   { font-size:17px; font-weight:600; line-height:1.3; margin-bottom:4px; }
-.dp-meta   { font-size:10px; color:var(--text3); margin-bottom:10px; }
-.dp-chips  { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:14px; }
-.dp-chip   { font-size:9px; padding:2px 7px; border-radius:8px; border:1px solid var(--border); color:var(--text2); cursor:pointer; transition:all .1s; }
-.dp-chip:hover { border-color:var(--orange); color:var(--orange); }
-.dp-section-title { font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--text3); margin:14px 0 8px; padding-bottom:4px; border-bottom:1px solid var(--border); }
-.dp-field  { margin-bottom:10px; }
-.dp-fl     { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
-.dp-fv     { font-size:11px; color:var(--text); line-height:1.65; white-space:pre-wrap; }
-.conn-row  { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:padding .1s; }
-.conn-row:hover { padding-left:4px; }
-.conn-row:last-child { border-bottom:none; }
-.conn-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-.conn-name { font-size:11px; color:var(--text); }
-.conn-rel  { font-size:9px; color:var(--text3); }
-
-/* ── FORM PANEL ── */
-#form-panel { position:absolute; inset:0; background:var(--bg); z-index:20; display:none; flex-direction:column; }
-#fp-header  { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; background:var(--surf); flex-shrink:0; }
-#fp-title   { font-size:15px; font-weight:600; }
-#fp-body    { flex:1; overflow-y:auto; padding:20px 24px; }
-.fs-section { margin-bottom:20px; }
-.fs-title   { font-size:10px; text-transform:uppercase; letter-spacing:.15em; color:var(--text3); margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid var(--border); }
-.type-grid  { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-.type-opt   { border:1px solid var(--border); border-radius:5px; padding:10px 8px; text-align:center; cursor:pointer; transition:all .1s; }
-.type-opt:hover { border-color:var(--text3); }
-.type-opt.active { border-width:2px; }
-.type-opt.active.t-company    { border-color:#58a6ff; background:rgba(88,166,255,.08); }
-.type-opt.active.t-framework  { border-color:#d29922; background:rgba(210,153,34,.08); }
-.type-opt.active.t-case-study { border-color:#f85149; background:rgba(248,81,73,.08); }
-.type-opt.active.t-concept    { border-color:#3fb950; background:rgba(63,185,80,.08); }
-.type-opt-icon  { font-size:16px; margin-bottom:3px; }
-.type-opt-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
-.tag-grid   { display:flex; flex-wrap:wrap; gap:4px; padding:8px; background:var(--surf2); border:1px solid var(--border); border-radius:5px; min-height:48px; }
-.tag-opt    { font-size:10px; padding:2px 8px; border-radius:8px; border:1px solid var(--border); cursor:pointer; color:var(--text2); transition:all .1s; }
-.tag-opt:hover  { border-color:var(--text3); color:var(--text); }
-.tag-opt.active { border-color:var(--orange); color:var(--orange); background:rgba(210,153,34,.1); }
-.rel-search-input { width:100%; background:var(--surf2); border:none; border-bottom:1px solid var(--border); color:var(--text); padding:6px 8px; font-family:inherit; font-size:11px; outline:none; }
-.rel-search-input::placeholder { color:var(--text3); }
-.rel-list   { background:var(--surf2); border:1px solid var(--border); border-top:none; border-radius:0 0 5px 5px; max-height:160px; overflow-y:auto; }
-.rel-opt    { display:flex; align-items:center; gap:8px; padding:6px 8px; cursor:pointer; font-size:11px; color:var(--text2); transition:all .1s; }
-.rel-opt:hover  { background:var(--surf); color:var(--text); }
-.rel-opt.picked { background:rgba(88,166,255,.08); color:var(--blue); }
-.rel-dot    { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-
-/* ── MISC ── */
-.spin { display:inline-block; width:11px; height:11px; border:2px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:5px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-#toast { position:fixed; bottom:16px; right:16px; background:var(--surf); border:1px solid var(--border); padding:7px 14px; border-radius:5px; font-size:12px; opacity:0; transform:translateY(20px); transition:all .2s; z-index:9999; pointer-events:none; }
-#toast.show { opacity:1; transform:translateY(0); }
-#toast.ok  { border-color:var(--green); color:var(--green); }
-#toast.err { border-color:var(--red);   color:var(--red);   }
-.modal-bg  { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:400; align-items:center; justify-content:center; }
-.modal     { width:340px; background:var(--surf); border:1px solid var(--border); border-radius:8px; padding:22px; }
-.modal h3  { font-size:14px; margin-bottom:6px; }
-.modal p   { font-size:12px; color:var(--text2); line-height:1.6; margin-bottom:16px; }
-.modal-acts{ display:flex; gap:8px; justify-content:flex-end; }
-::-webkit-scrollbar       { width:3px; height:3px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+/* MISC */
+#toast{position:fixed;bottom:16px;right:16px;background:var(--surf2);border:1px solid var(--border2);padding:7px 16px;border-radius:6px;font-size:10px;opacity:0;transform:translateY(20px);transition:all .2s;z-index:9999;pointer-events:none;}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.ok{border-color:var(--emerald);color:var(--emerald);}
+#toast.err{border-color:var(--red);color:var(--red);}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;align-items:center;justify-content:center;}
+.modal{width:330px;background:var(--surf);border:1px solid var(--border2);border-radius:10px;padding:24px;}
+.modal h3{font-family:'Crimson Pro',serif;font-size:16px;margin-bottom:7px;}
+.modal p{font-size:10px;color:var(--text2);line-height:1.65;margin-bottom:16px;}
+.modal-acts{display:flex;gap:8px;justify-content:flex-end;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 </style>
 </head>
 <body>
 
 <!-- SETUP -->
 <div id="setup">
-  <div class="setup-box">
+  <div class="sbox">
     <h1>SIA</h1>
-    <p class="sub">Strategic Intelligence Architecture — a knowledge graph for companies, frameworks, case studies, and concepts. Data lives in your GitHub repo.</p>
-    <div class="field"><label>Personal Access Token (repo scope)</label><input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
+    <p class="sub">Strategic Intelligence Architecture — Porter's Five Forces knowledge graph.<br>Data lives in your GitHub repo.</p>
+    <div class="field"><label>Personal Access Token (repo scope)</label><input type="password" id="s-tok" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
     <div class="row2">
-      <div class="field"><label>Owner</label><input type="text" id="s-owner" placeholder="username"></div>
-      <div class="field"><label>Repository</label><input type="text" id="s-repo" placeholder="sia-data"></div>
+      <div class="field"><label>Owner</label><input id="s-own" placeholder="username"></div>
+      <div class="field"><label>Repository</label><input id="s-rep" placeholder="sia-data"></div>
     </div>
-    <button class="btn btn-primary" id="s-btn" style="width:100%" onclick="connectGH()">Connect Repository</button>
-    <div class="err-box" id="s-err"></div>
-    <p class="setup-note">Create a private repo first (can be empty). Token is stored in localStorage only. App writes to <code>sia/data.json</code>.</p>
+    <button class="btn btn-p" id="s-btn" style="width:100%" onclick="connectGH()">Connect Repository</button>
+    <div class="err" id="s-err"></div>
+    <p class="note">Create a private repo first. Token stored in localStorage only. Writes to <code>sia/data.json</code>.</p>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
-  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="logo"><div class="logo-title">SIA</div><div class="logo-sub">Intelligence Architecture</div></div>
+    <div class="logo"><div class="logo-t">SIA</div><div class="logo-s">Intelligence Architecture</div></div>
     <nav>
-      <div class="nav-lbl">Views</div>
-      <div class="nav-item active" id="nav-graph"     onclick="setView('graph')">⬡  Graph</div>
-      <div class="nav-item"        id="nav-library"   onclick="setView('library')">▤  Library</div>
-      <div class="nav-item"        id="nav-analytics" onclick="setView('analytics')">◈  Analytics</div>
-      <div class="nav-lbl">Actions</div>
-      <div class="nav-item" onclick="openForm(null)">+  Add Entry</div>
+      <div class="ns">Views</div>
+      <div class="ni active" id="ni-graph"   onclick="setView('graph')">⬡ &nbsp;Graph</div>
+      <div class="ni"        id="ni-library" onclick="setView('library')">▤ &nbsp;Library</div>
+      <div class="ns">Actions</div>
+      <div class="ni" onclick="openForm(null)">+ &nbsp;Add Node</div>
+      <div class="ni" onclick="expandAll()">↔ &nbsp;Expand All</div>
+      <div class="ni" onclick="collapseAll()">⇱ &nbsp;Collapse All</div>
     </nav>
-    <div class="tag-area" id="tag-area"></div>
+    <div class="forces-panel">
+      <div class="fp-title">Forces</div>
+      <div id="fp-list"></div>
+    </div>
     <div class="sidebar-foot">
-      <div class="repo-status"><span class="status-dot" id="status-dot"></span><span id="repo-label">not connected</span></div>
-      <button class="btn btn-secondary" style="width:100%;font-size:11px" onclick="showSetup()">⚙ Settings / Reconnect</button>
+      <div class="repo-st"><span class="sdot" id="sdot"></span><span id="repo-lbl">not connected</span></div>
+      <button class="btn btn-s" style="width:100%;font-size:9px" onclick="showSetup()">⚙ Settings</button>
     </div>
   </div>
 
-  <!-- MAIN -->
   <div id="main">
     <div id="topbar">
-      <div class="view-tabs">
-        <div class="vtab active" id="vt-graph"     onclick="setView('graph')">Graph</div>
-        <div class="vtab"        id="vt-library"   onclick="setView('library')">Library</div>
-        <div class="vtab"        id="vt-analytics" onclick="setView('analytics')">Analytics</div>
+      <div class="vtabs">
+        <div class="vt active" id="vt-graph"   onclick="setView('graph')">Graph</div>
+        <div class="vt"        id="vt-library" onclick="setView('library')">Library</div>
       </div>
       <div class="spacer"></div>
-      <input id="search" type="text" placeholder="Search entries…" oninput="onSearch()">
-      <button class="btn btn-primary" onclick="openForm(null)">+ New Entry</button>
+      <input id="search" placeholder="Search nodes…" oninput="onSearch()">
+      <button class="btn btn-p" onclick="openForm(null)">+ Add Node</button>
     </div>
-
     <div id="content">
-      <!-- GRAPH -->
-      <div id="graph-view">
+      <div id="gv">
         <svg id="graph-svg"></svg>
-        <div id="graph-tip"></div>
-        <div id="graph-info"></div>
-        <div id="graph-btns">
-          <button class="g-btn" onclick="resetZoom()">Reset View</button>
-          <button class="g-btn" onclick="toggleLabels()">Labels</button>
+        <div id="g-tip"></div>
+        <div id="g-ctrl">
+          <button class="gc-btn" onclick="expandAll()">Expand All</button>
+          <button class="gc-btn" onclick="collapseAll()">Collapse</button>
+          <button class="gc-btn" onclick="toggleLabels()">Labels</button>
+          <button class="gc-btn" onclick="resetZoom()">Reset</button>
         </div>
-        <div id="graph-legend">
-          <div class="leg-row"><span class="leg-dot" style="background:#58a6ff"></span>Company</div>
-          <div class="leg-row"><span class="leg-dot" style="background:#d29922"></span>Framework</div>
-          <div class="leg-row"><span class="leg-dot" style="background:#f85149"></span>Case Study</div>
-          <div class="leg-row"><span class="leg-dot" style="background:#3fb950"></span>Concept</div>
-        </div>
-      </div>
-      <!-- LIBRARY -->
-      <div id="library-view"><div class="lib-grid" id="lib-grid"></div></div>
-      <!-- ANALYTICS -->
-      <div id="analytics-view">
-        <div class="stats-row" id="stats-row"></div>
-        <div class="charts-grid">
-          <div class="chart-box"><div class="chart-title">Type Distribution</div><div class="chart-area"><canvas id="ch-types"></canvas></div></div>
-          <div class="chart-box"><div class="chart-title">Case Study Outcomes</div><div class="chart-area"><canvas id="ch-outcomes"></canvas></div></div>
-          <div class="chart-box"><div class="chart-title">Top Industries</div><div class="chart-area"><canvas id="ch-industries"></canvas></div></div>
-          <div class="chart-box"><div class="chart-title">Top Tags</div><div class="chart-area"><canvas id="ch-tags"></canvas></div></div>
+        <div id="g-info"></div>
+        <div id="g-legend">
+          <div class="lr"><span class="lr2" style="border-color:var(--purple)"></span>Force</div>
+          <div class="lr"><span class="ld" style="background:var(--text3)"></span>Factor</div>
+          <div class="lr"><span class="ld" style="background:var(--amber)"></span>Company</div>
+          <div class="lr"><span class="ld" style="background:var(--emerald)"></span>Concept</div>
         </div>
       </div>
+      <div id="lv"><div class="lib-grid" id="lib-grid"></div></div>
     </div>
   </div>
 
-  <!-- DETAIL PANEL -->
-  <div id="detail-panel">
-    <div id="dp-header">
+  <div id="dp">
+    <div id="dp-hdr">
       <span id="dp-badge" class="dp-badge"></span>
-      <div style="margin-left:auto;display:flex;gap:6px">
-        <button class="btn btn-secondary btn-sm" onclick="openForm(S.sel)">Edit</button>
-        <button class="btn btn-ghost" onclick="confirmDelete()">✕</button>
+      <div style="margin-left:auto;display:flex;gap:5px">
+        <button class="btn btn-s btn-sm" id="dp-coll-btn" onclick="toggleCollapseSelected()" style="display:none"></button>
+        <button class="btn btn-s btn-sm" onclick="openForm(S.sel)">Edit</button>
+        <button class="btn btn-g" style="padding:4px 8px;font-size:11px" onclick="confirmDelete()">✕</button>
       </div>
     </div>
     <div id="dp-body"></div>
   </div>
 
-  <!-- FORM PANEL -->
-  <div id="form-panel">
-    <div id="fp-header">
-      <div id="fp-title">New Entry</div>
+  <div id="fp">
+    <div id="fp-hdr">
+      <div id="fp-title">New Node</div>
       <div style="margin-left:auto;display:flex;gap:8px">
-        <button class="btn btn-primary" id="fp-save" onclick="saveEntry()">Save</button>
-        <button class="btn btn-secondary" onclick="closeForm()">Cancel</button>
+        <button class="btn btn-p" id="fp-save" onclick="saveEntry()">Save</button>
+        <button class="btn btn-s" onclick="closeForm()">Cancel</button>
       </div>
     </div>
     <div id="fp-body"></div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
-
-<!-- DELETE MODAL -->
 <div class="modal-bg" id="modal-bg" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3>Delete this entry?</h3>
-    <p>This permanently removes the entry and all its connections from your repository.</p>
+    <h3>Delete this node?</h3>
+    <p>Permanently removes the node and all connections from your repository.</p>
     <div class="modal-acts">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-danger"    onclick="doDelete()">Delete</button>
+      <button class="btn btn-s" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-d" onclick="doDelete()">Delete</button>
     </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
-// ══════════════════════════════════════════════════
-// CONSTANTS
-// ══════════════════════════════════════════════════
-const TYPE_CFG = {
-  'company':    { hex:'#58a6ff', label:'Company',    icon:'🏢' },
-  'framework':  { hex:'#d29922', label:'Framework',  icon:'📐' },
-  'case-study': { hex:'#f85149', label:'Case Study', icon:'📋' },
-  'concept':    { hex:'#3fb950', label:'Concept',    icon:'💡' }
-};
-const TAG_CATS = {
-  'Outcome':   ['Success','Failure','Ongoing','Ambiguous'],
-  'Industry':  ['Technology','Financial Services','Aviation','FMCG','Telecom','Healthcare','Retail','Automotive','Media','Energy','Industrial'],
-  'Theme':     ['Platform Disruption',"Innovator's Dilemma",'Cost Leadership','Brand Strategy','M&A','Digital Transformation','Governance Failure','Overleveraging','ESG','Network Effects'],
-  'Period':    ['1970s','1980s','1990s','2000s','2010s','2020s'],
-  'Geography': ['India','USA','Europe','Asia-Pacific','Global'],
-  'Evidence':  ['Academic','Empirical','Case Study','Anecdotal']
-};
-const REL_LABELS = {
-  'uses_framework':'uses framework','involves':'involves company',
-  'illustrates':'illustrates concept','applies_to':'applies to',
-  'related_to':'related to','caused_by':'caused by'
-};
-const ALL_FIELDS = [
-  'name','sector','founded','author','year','industry','summary','description',
-  'revenueEngine','flywheel','switchingCosts','failurePoints',
-  'keyComponents','useCases','rootCause','warningSignsIgnored',
-  'lessons','examples','counterExamples'
-];
+// ── CONSTANTS ──────────────────────────────────
 const GH_API = 'https://api.github.com';
-
-// ══════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════
-const S = {
-  cfg: null, view: 'graph', sel: null,
-  data: [], sha: null,
-  activeTags: new Set(), searchQ: '',
-  showLabels: true, charts: {},
-  formData: {}, formType: 'case-study'
+const PENT_R  = 195;
+const TYPE_CFG = {
+  force:    {label:'Force',    icon:'⬡', color:'#a78bfa'},
+  factor:   {label:'Factor',   icon:'◉', color:'#6060a0'},
+  company:  {label:'Company',  icon:'◈', color:'#fbbf24'},
+  concept:  {label:'Concept',  icon:'◆', color:'#34d399'},
+  strategy: {label:'Strategy', icon:'▶', color:'#60a5fa'},
 };
+const RELS = ['overcame','exploited','leveraged','disrupted','created','illustrates','related_to','reduces','caused_by','had','lost','faced','ignored','used'];
 
-// ══════════════════════════════════════════════════
-// GITHUB API
-// ══════════════════════════════════════════════════
-const ghHdr = () => ({
-  'Authorization': 'token ' + S.cfg.token,
-  'Accept': 'application/vnd.github.v3+json',
-  'Content-Type': 'application/json'
-});
+// ── STATE ──────────────────────────────────────
+const S = {cfg:null,view:'graph',sel:null,data:[],sha:null,searchQ:'',showLabels:true,formData:{},formType:'factor',hiddenForces:new Set()};
+
+// ── GITHUB API ─────────────────────────────────
+const ghHdr = () => ({'Authorization':'token '+S.cfg.token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'});
 const b64enc = s => btoa(unescape(encodeURIComponent(s)));
 const b64dec = s => decodeURIComponent(escape(atob(s)));
 const ghPath = () => `${GH_API}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data.json`;
 
 async function ghRead() {
-  const r = await fetch(ghPath(), { headers: ghHdr() });
-  if (r.status === 404) return { data: [], sha: null };
+  const r = await fetch(ghPath(), {headers:ghHdr()});
+  if (r.status===404) return {data:[],sha:null};
   const f = await r.json();
-  if (!f.content) return { data: [], sha: null };
-  return { data: JSON.parse(b64dec(f.content.replace(/\n/g,''))), sha: f.sha };
+  if (!f.content) return {data:[],sha:null};
+  return {data:JSON.parse(b64dec(f.content.replace(/\n/g,''))), sha:f.sha};
 }
-
-/**
- * KEY FIX: Always fetch the current SHA immediately before writing.
- * This prevents 409/422 "SHA mismatch" errors that caused saves to fail
- * whenever the in-memory SHA drifted from GitHub (other sessions, browser
- * refresh, failed seed write, etc.).
- */
 async function ghWrite() {
-  // Refresh SHA right before writing — never trust the cached value
-  const check = await fetch(ghPath(), { headers: ghHdr() });
-  if (check.ok) {
-    const f = await check.json();
-    if (f.sha) S.sha = f.sha;
-  } else if (check.status === 404) {
-    S.sha = null; // File doesn't exist yet — create it
-  } else {
-    throw new Error('Could not fetch current file state (HTTP ' + check.status + ')');
-  }
-
-  const body = { message: 'sia: update', content: b64enc(JSON.stringify(S.data, null, 2)) };
+  const chk = await fetch(ghPath(), {headers:ghHdr()});
+  if (chk.ok) { const f=await chk.json(); if(f.sha) S.sha=f.sha; }
+  else if (chk.status===404) S.sha=null;
+  else throw new Error('Cannot fetch file state (HTTP '+chk.status+')');
+  const body = {message:'sia: update', content:b64enc(JSON.stringify(S.data,null,2))};
   if (S.sha) body.sha = S.sha;
-
-  const r = await fetch(ghPath(), { method: 'PUT', headers: ghHdr(), body: JSON.stringify(body) });
+  const r = await fetch(ghPath(), {method:'PUT',headers:ghHdr(),body:JSON.stringify(body)});
   const j = await r.json();
-  if (!r.ok) throw new Error(j.message || 'Write failed (HTTP ' + r.status + ')');
-  S.sha = j.content?.sha || S.sha;
+  if (!r.ok) throw new Error(j.message||'Write failed');
+  S.sha = j.content?.sha||S.sha;
 }
 
-// ══════════════════════════════════════════════════
-// SETUP / BOOT
-// ══════════════════════════════════════════════════
+// ── SETUP / BOOT ───────────────────────────────
 async function connectGH() {
-  const token = q('#s-token').value.trim();
-  const owner = q('#s-owner').value.trim();
-  const repo  = q('#s-repo').value.trim();
-  if (!token || !owner || !repo) { showSetupErr('All three fields are required.'); return; }
-  const btn = q('#s-btn');
-  btn.innerHTML = '<span class="spin"></span>Connecting…';
-  btn.disabled = true;
+  const token=q('#s-tok').value.trim(), owner=q('#s-own').value.trim(), repo=q('#s-rep').value.trim();
+  if (!token||!owner||!repo) {setErr('All fields required.'); return;}
+  const btn=q('#s-btn'); btn.innerHTML='<span class="spin"></span>Connecting…'; btn.disabled=true;
   try {
-    const r = await fetch(`${GH_API}/repos/${owner}/${repo}`, {
-      headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (!r.ok) throw new Error('Repo not found, or token lacks "repo" scope.');
-    S.cfg = { token, owner, repo };
-    localStorage.setItem('sia_cfg', JSON.stringify(S.cfg));
-    await boot();
-  } catch(e) {
-    showSetupErr(e.message);
-    btn.innerHTML = 'Connect Repository';
-    btn.disabled = false;
-  }
+    const r=await fetch(`${GH_API}/repos/${owner}/${repo}`, {headers:{Authorization:'token '+token,Accept:'application/vnd.github.v3+json'}});
+    if (!r.ok) throw new Error('Repo not found or token lacks repo scope.');
+    S.cfg={token,owner,repo}; localStorage.setItem('sia_cfg',JSON.stringify(S.cfg)); await boot();
+  } catch(e) { setErr(e.message); btn.innerHTML='Connect Repository'; btn.disabled=false; }
 }
-function showSetupErr(m) { const e = q('#s-err'); e.textContent = m; e.style.display = 'block'; }
-function showSetup() {
-  q('#setup').style.display = 'flex';
-  q('#s-err').style.display = 'none';
-  if (S.cfg) { q('#s-token').value = S.cfg.token; q('#s-owner').value = S.cfg.owner; q('#s-repo').value = S.cfg.repo; }
-}
+function setErr(m) { const e=q('#s-err'); e.textContent=m; e.style.display='block'; }
+function showSetup() { q('#setup').style.display='flex'; q('#s-err').style.display='none'; if(S.cfg){q('#s-tok').value=S.cfg.token;q('#s-own').value=S.cfg.owner;q('#s-rep').value=S.cfg.repo;} }
 
 async function boot() {
-  q('#setup').style.display = 'none';
-  q('#app').style.display   = 'flex';
-  q('#repo-label').textContent = S.cfg.owner + '/' + S.cfg.repo;
-  q('#status-dot').className   = 'status-dot ok';
+  q('#setup').style.display='none'; q('#app').style.display='flex';
+  q('#repo-lbl').textContent=S.cfg.owner+'/'+S.cfg.repo; q('#sdot').className='sdot ok';
   try {
-    const { data, sha } = await ghRead();
-    S.data = data; S.sha = sha;
-    if (S.data.length === 0 && sha === null) {
-      S.data = JSON.parse(JSON.stringify(SEED));
-      await ghWrite();
-      toast('Seeded with example data ✓', 'ok');
-    }
-  } catch(e) {
-    toast('Load error: ' + e.message + '. Showing local seed data.', 'err');
-    S.data = JSON.parse(JSON.stringify(SEED));
-    S.sha  = null;
-  }
-  buildTagFilter();
-  setView('graph');
+    const {data,sha}=await ghRead(); S.data=data; S.sha=sha;
+    if (!S.data.length && sha===null) { S.data=JSON.parse(JSON.stringify(SEED)); await ghWrite(); toast("Seeded with Porter's Five Forces ✓",'ok'); }
+  } catch(e) { toast('Load error: '+e.message+'. Using seed.','err'); S.data=JSON.parse(JSON.stringify(SEED)); S.sha=null; }
+  buildForceFilter(); setView('graph');
 }
 
-// ══════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════
+// ── NAVIGATION ─────────────────────────────────
 function setView(v) {
-  S.view = v;
-  qAll('.nav-item').forEach(e => e.classList.remove('active'));
-  qAll('.vtab').forEach(e => e.classList.remove('active'));
-  const ni = q('#nav-' + v); if (ni) ni.classList.add('active');
-  const vt = q('#vt-'  + v); if (vt) vt.classList.add('active');
-  q('#graph-view').style.display     = v === 'graph'     ? 'block' : 'none';
-  q('#library-view').style.display   = v === 'library'   ? 'block' : 'none';
-  q('#analytics-view').style.display = v === 'analytics' ? 'block' : 'none';
-  if (v === 'graph')     renderGraph();
-  if (v === 'library')   renderLibrary();
-  if (v === 'analytics') renderAnalytics();
+  S.view=v;
+  ['graph','library'].forEach(n => { q('#ni-'+n)?.classList.toggle('active',n===v); q('#vt-'+n)?.classList.toggle('active',n===v); });
+  q('#gv').style.display  = v==='graph'   ? 'block' : 'none';
+  q('#lv').style.display  = v==='library' ? 'block' : 'none';
+  if (v==='graph')   renderGraph();
+  if (v==='library') renderLibrary();
 }
 
-// ══════════════════════════════════════════════════
-// TAG FILTER
-// ══════════════════════════════════════════════════
-function buildTagFilter() {
-  const area = q('#tag-area');
-  area.innerHTML = '<div class="tag-area-lbl">Filter by Tag</div>' +
-    Object.entries(TAG_CATS).map(([cat, tags]) =>
-      `<div class="tag-group">
-        <div class="tag-group-lbl">${cat}</div>
-        ${tags.map(t =>
-          `<span class="tag-chip${S.activeTags.has(t) ? ' active' : ''}" id="tc-${CSS.escape(t)}" onclick="toggleTag('${esca(t)}')">${esc(t)}</span>`
-        ).join('')}
-      </div>`
-    ).join('');
-}
-function toggleTag(t) {
-  S.activeTags.has(t) ? S.activeTags.delete(t) : S.activeTags.add(t);
-  const el = document.getElementById('tc-' + CSS.escape(t));
-  if (el) el.classList.toggle('active', S.activeTags.has(t));
-  filterAndRender();
-}
-function onSearch() { S.searchQ = q('#search').value.toLowerCase(); filterAndRender(); }
-function matchEntry(e) {
-  const textOk = !S.searchQ
-    || (e.name||'').toLowerCase().includes(S.searchQ)
-    || (e.description||'').toLowerCase().includes(S.searchQ)
-    || (e.summary||'').toLowerCase().includes(S.searchQ);
-  const tagOk = S.activeTags.size === 0 || [...S.activeTags].every(t => (e.tags||[]).includes(t));
-  return textOk && tagOk;
-}
-function filterAndRender() {
-  if (S.view === 'graph')   highlightGraph();
-  if (S.view === 'library') renderLibrary();
-}
-
-// ══════════════════════════════════════════════════
-// GRAPH VIEW (D3)
-// ══════════════════════════════════════════════════
-let gSvg, gZoom, gSim, gLink, gNodes, gLabel;
-
-function renderGraph() {
-  if (gSim) gSim.stop(); // Stop previous simulation before rebuilding
-  const container = q('#graph-view');
-  const svg = d3.select('#graph-svg');
-  svg.selectAll('*').remove();
-  const W = container.clientWidth, H = container.clientHeight;
-
-  const nodes = S.data.map(e => ({ ...e, _deg: 0 }));
-  const links = [];
-  S.data.forEach(e =>
-    (e.links||[]).forEach(l => {
-      if (S.data.find(x => x.id === l.targetId))
-        links.push({ source: e.id, target: l.targetId, rel: l.rel });
-    })
-  );
-  links.forEach(l => {
-    const s = nodes.find(n => n.id === l.source);
-    const t = nodes.find(n => n.id === l.target);
-    if (s) s._deg++; if (t) t._deg++;
-  });
-
-  const nodeR = d => Math.max(8, Math.min(18, 8 + d._deg * 1.5));
-  const lkCol = { uses_framework:'#d29922', involves:'#58a6ff', illustrates:'#3fb950', related_to:'#f85149' };
-
-  gZoom = d3.zoom().scaleExtent([.1, 4]).on('zoom', ev => grp.attr('transform', ev.transform));
-  svg.call(gZoom);
-  svg.append('defs').append('marker')
-    .attr('id','arr').attr('viewBox','0 -5 10 10').attr('refX',18)
-    .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
-    .append('path').attr('d','M0,-5L10,0L0,5').attr('fill','#30363d');
-
-  const grp = svg.append('g');
-
-  gLink = grp.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', d => lkCol[d.rel] || '#30363d')
-    .attr('stroke-opacity', .35).attr('stroke-width', 1.2)
-    .attr('fill', 'none').attr('marker-end', 'url(#arr)');
-
-  gNodes = grp.append('g').selectAll('g').data(nodes).join('g')
-    .call(d3.drag()
-      .on('start', (ev,d) => { if (!ev.active) gSim.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
-      .on('drag',  (ev,d) => { d.fx=ev.x; d.fy=ev.y; })
-      .on('end',   (ev,d) => { if (!ev.active) gSim.alphaTarget(0); d.fx=null; d.fy=null; }))
-    .on('click',     (ev,d) => { ev.stopPropagation(); selectNode(d); })
-    .on('mouseover', (ev,d) => showTip(ev, d))
-    .on('mouseout',  () => hideTip());
-
-  gNodes.append('circle')
-    .attr('r', d => nodeR(d))
-    .attr('fill', d => TYPE_CFG[d.type]?.hex || '#888')
-    .attr('fill-opacity', .8)
-    .attr('stroke', d => TYPE_CFG[d.type]?.hex || '#888')
-    .attr('stroke-width', 2).attr('stroke-opacity', .4);
-
-  gLabel = gNodes.append('text')
-    .attr('dy', '2.2em').attr('text-anchor', 'middle')
-    .attr('font-size', '10px').attr('fill', '#8b949e')
-    .text(d => d.name.length > 18 ? d.name.slice(0,16) + '…' : d.name)
-    .style('display', S.showLabels ? null : 'none');
-
-  gSim = d3.forceSimulation(nodes)
-    .force('link',      d3.forceLink(links).id(d => d.id).distance(100).strength(.4))
-    .force('charge',    d3.forceManyBody().strength(d => -250 - d._deg * 30))
-    .force('center',    d3.forceCenter(W/2, H/2))
-    .force('collision', d3.forceCollide().radius(d => nodeR(d) + 12))
-    .on('tick', () => {
-      gLink.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
-           .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-      gNodes.attr('transform', d => `translate(${d.x},${d.y})`);
-    });
-
-  svg.on('click', () => { if (S.sel) { S.sel=null; resetHighlight(); closeDetail(); } });
-  q('#graph-info').textContent = `${nodes.length} nodes · ${links.length} links`;
-  gSvg = svg;
-}
-
-function showTip(ev, d) {
-  const tip = q('#graph-tip');
-  const tc  = TYPE_CFG[d.type] || {};
-  tip.innerHTML = `<div style="font-size:10px;color:${tc.hex};margin-bottom:2px">${tc.label||d.type}</div><div style="font-size:12px;color:var(--text);font-weight:500">${esc(d.name)}</div>`;
-  tip.style.cssText += `;opacity:1;left:${ev.offsetX+12}px;top:${ev.offsetY-10}px`;
-}
-function hideTip() { q('#graph-tip').style.opacity='0'; }
-
-function selectNode(d) {
-  S.sel = S.data.find(x => x.id === d.id);
-  const ids = new Set([d.id, ...(d.links||[]).map(l=>l.targetId),
-    ...S.data.filter(e=>(e.links||[]).some(l=>l.targetId===d.id)).map(e=>e.id)]);
-  gNodes.selectAll('circle').attr('opacity', n => ids.has(n.id) ? 1 : .06);
-  if (gLabel) gLabel.style('opacity', n => ids.has(n.id) ? 1 : .06);
-  if (gLink)  gLink.attr('opacity', l => (l.source.id===d.id||l.target.id===d.id) ? .8 : .03);
-  openDetail(S.sel);
-}
-function resetHighlight() {
-  if (!gNodes) return;
-  gNodes.selectAll('circle').attr('opacity',1);
-  if (gLabel) gLabel.style('opacity',1);
-  if (gLink)  gLink.attr('opacity',.35);
-}
-function highlightGraph() {
-  if (!gNodes) return;
-  if (!S.activeTags.size && !S.searchQ) { resetHighlight(); return; }
-  gNodes.selectAll('circle').attr('opacity', d => matchEntry(d)?1:.06);
-  if (gLabel) gLabel.style('opacity', d => matchEntry(d)?1:.06);
-  if (gLink)  gLink.attr('opacity', l => (matchEntry(l.source)&&matchEntry(l.target))?.4:.02);
-}
-function resetZoom() {
-  if (gSvg && gZoom) gSvg.transition().duration(500).call(gZoom.transform, d3.zoomIdentity);
-}
-function toggleLabels() {
-  S.showLabels = !S.showLabels;
-  if (gLabel) gLabel.style('display', S.showLabels ? null : 'none');
-}
-
-// ══════════════════════════════════════════════════
-// DETAIL PANEL
-// ══════════════════════════════════════════════════
-function openDetail(e) {
-  const panel = q('#detail-panel');
-  panel.classList.add('open');
-  const tc = TYPE_CFG[e.type] || TYPE_CFG['concept'];
-  const badge = q('#dp-badge');
-  badge.textContent = tc.label;
-  badge.style.color = tc.hex;
-
-  const connOut = (e.links||[]).map(l => {
-    const t = S.data.find(x=>x.id===l.targetId);
-    return t ? {...t, relLabel: REL_LABELS[l.rel]||l.rel} : null;
-  }).filter(Boolean);
-  const connIn = S.data
-    .filter(x => x.id!==e.id && (x.links||[]).some(l=>l.targetId===e.id))
-    .map(x => ({...x, relLabel: REL_LABELS[x.links.find(l=>l.targetId===e.id)?.rel]||''}));
-  const allConn = [...connOut, ...connIn];
-
-  const connHTML = allConn.length
-    ? allConn.map(c =>
-        `<div class="conn-row" onclick="navTo('${esca(c.id)}')">
-          <span class="conn-dot" style="background:${TYPE_CFG[c.type]?.hex||'#888'}"></span>
-          <div><div class="conn-name">${esc(c.name)}</div>
-          <div class="conn-rel">${esc(c.relLabel)} · ${TYPE_CFG[c.type]?.label||c.type}</div></div>
-        </div>`).join('')
-    : '<div style="font-size:11px;color:var(--text3)">No connections yet.</div>';
-
-  q('#dp-body').innerHTML = `
-    <div style="margin-bottom:14px">
-      <div class="dp-name">${esc(e.name)}</div>
-      <div class="dp-meta">${[e.year,e.author,e.industry||e.sector].filter(Boolean).join(' · ')}</div>
-      <div class="dp-chips">${(e.tags||[]).map(t=>`<span class="dp-chip" onclick="toggleTag('${esca(t)}')">${esc(t)}</span>`).join('')}</div>
-    </div>
-    ${detailFields(e)}
-    <div class="dp-section-title">Connections (${allConn.length})</div>
-    ${connHTML}`;
-}
-function detailFields(e) {
-  const df = (l,v) => v ? `<div class="dp-field"><div class="dp-fl">${l}</div><div class="dp-fv">${esc(v)}</div></div>` : '';
-  switch(e.type) {
-    case 'company':    return df('Sector',e.sector)+df('Description',e.description)+df('Revenue Engine',e.revenueEngine)+df('Flywheel',e.flywheel)+df('Switching Costs',e.switchingCosts)+df('Failure Points',e.failurePoints);
-    case 'framework':  return df('Author',e.author)+df('Year',e.year)+df('Description',e.description)+df('Key Components',e.keyComponents)+df('Use Cases',e.useCases);
-    case 'case-study': return df('Industry',e.industry)+df('Year',e.year)+df('Outcome',e.outcome)+df('Summary',e.summary)+df('Root Cause',e.rootCause)+df('Warning Signs',e.warningSignsIgnored)+df('Lessons',e.lessons);
-    case 'concept':    return df('Description',e.description)+df('Examples',e.examples)+df('Counter-examples',e.counterExamples);
-    default:           return df('Description',e.description);
-  }
-}
-function closeDetail() { q('#detail-panel').classList.remove('open'); }
-function navTo(id) {
-  const e = S.data.find(x=>x.id===id); if (!e) return;
-  S.sel = e; openDetail(e);
-  if (S.view==='graph' && gNodes) {
-    const nd = gNodes.data().find(d=>d.id===id);
-    if (nd) selectNode(nd);
-  }
-  if (S.view==='library') qAll('.lib-card').forEach(c=>c.classList.toggle('sel', c.dataset.id===id));
-}
-
-// ══════════════════════════════════════════════════
-// LIBRARY VIEW
-// ══════════════════════════════════════════════════
-function renderLibrary() {
-  const items = S.data.filter(matchEntry);
-  const g = q('#lib-grid');
-  if (!items.length) {
-    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text3)">No entries match your filters.</div>';
-    return;
-  }
-  g.innerHTML = items.map(e => {
-    const tc = TYPE_CFG[e.type]||TYPE_CFG['concept'];
-    const connCount = (e.links||[]).length +
-      S.data.filter(x=>x.id!==e.id&&(x.links||[]).some(l=>l.targetId===e.id)).length;
-    return `<div class="lib-card t-${e.type}${S.sel?.id===e.id?' sel':''}" data-id="${esca(e.id)}" onclick="selectLibCard('${esca(e.id)}')">
-      <div class="card-type" style="color:${tc.hex}">${tc.label}</div>
-      <div class="card-name">${esc(e.name)}</div>
-      <div class="card-desc">${esc((e.description||e.summary||'').slice(0,120))}</div>
-      <div class="card-chips">
-        ${(e.tags||[]).slice(0,4).map(t=>`<span class="card-chip">${esc(t)}</span>`).join('')}
-        ${connCount?`<span class="card-chip">⬡ ${connCount}</span>`:''}
-      </div>
+// ── FORCE FILTER ───────────────────────────────
+function buildForceFilter() {
+  const forces=S.data.filter(d=>d.type==='force');
+  q('#fp-list').innerHTML=forces.map(f => {
+    const fc=S.data.filter(d=>d.type==='factor'&&d.parentId===f.id).length;
+    const cc=S.data.filter(d=>d.type==='company'&&(d.links||[]).some(l=>{const t=S.data.find(x=>x.id===l.targetId); return t&&(t.id===f.id||t.parentId===f.id);})).length;
+    return `<div class="fp-row${S.hiddenForces.has(f.id)?' off':''}" onclick="toggleForceViz('${esca(f.id)}')">
+      <span class="fp-dot" style="background:${f.forceColor||'#a78bfa'}"></span>
+      <span class="fp-name">${esc(f.name)}</span>
+      <span class="fp-cnt">${fc}f ${cc}c</span>
     </div>`;
   }).join('');
 }
-function selectLibCard(id) {
-  S.sel = S.data.find(x=>x.id===id);
-  if (S.sel) { openDetail(S.sel); qAll('.lib-card').forEach(c=>c.classList.toggle('sel',c.dataset.id===id)); }
+function toggleForceViz(id) { S.hiddenForces.has(id)?S.hiddenForces.delete(id):S.hiddenForces.add(id); buildForceFilter(); if(S.view==='graph') renderGraph(); }
+
+// ── COLLAPSE ───────────────────────────────────
+function toggleCollapse(id) {
+  const n=S.data.find(d=>d.id===id); if(!n) return;
+  n.collapsed=!n.collapsed;
+  if(S.view==='graph') renderGraph();
+  if(S.sel?.id===id) openDetail(n);
+}
+function toggleCollapseSelected() { if(S.sel?.type==='force') toggleCollapse(S.sel.id); }
+function expandAll()   { S.data.filter(d=>d.type==='force').forEach(d=>d.collapsed=false); if(S.view==='graph') renderGraph(); }
+function collapseAll() { S.data.filter(d=>d.type==='force').forEach(d=>d.collapsed=true);  if(S.view==='graph') renderGraph(); }
+
+// ── D3 GRAPH ───────────────────────────────────
+let gSim=null, gSvg=null, gZoom=null, gNodeG=null, gLinkG=null;
+
+function visData() {
+  const nodes=S.data.filter(n => {
+    if (S.hiddenForces.has(n.id)) return false;
+    if (n.type==='factor') {
+      const p=S.data.find(x=>x.id===n.parentId);
+      return p && !S.hiddenForces.has(p.id) && !p.collapsed;
+    }
+    return true;
+  });
+  const ids=new Set(nodes.map(n=>n.id));
+  const links=[];
+  nodes.forEach(n => {
+    if (n.type==='factor' && n.parentId && ids.has(n.parentId))
+      links.push({source:n.id, target:n.parentId, lt:'parent'});
+    (n.links||[]).forEach(l => {
+      if (ids.has(l.targetId)) links.push({source:n.id, target:l.targetId, lt:n.type, rel:l.rel, lbl:l.label});
+    });
+  });
+  return {nodes, links};
 }
 
-// ══════════════════════════════════════════════════
-// ANALYTICS VIEW
-// ══════════════════════════════════════════════════
-const CHART_BASE = {
-  responsive:true, maintainAspectRatio:false,
-  plugins:{ legend:{ labels:{ color:'#8b949e', font:{size:10}, boxWidth:10, padding:8 } } }
-};
-const AX = { ticks:{color:'#484f58',font:{size:10}}, grid:{color:'#21262d'} };
+function nc(d) {
+  if (d.type==='force') return d.forceColor||'#a78bfa';
+  if (d.type==='factor') { const p=S.data.find(x=>x.id===d.parentId); return p?(p.forceColor||'#a78bfa'):'#6060a0'; }
+  return TYPE_CFG[d.type]?.color||'#888';
+}
+function nr(d) { return d.type==='force'?37:d.type==='company'?22:16; }
 
-function renderAnalytics() {
-  const byType={}, byOutcome={}, tagCount={}, indCount={};
-  S.data.forEach(e => {
-    byType[e.type] = (byType[e.type]||0)+1;
-    if (e.type==='case-study'&&e.outcome) byOutcome[e.outcome]=(byOutcome[e.outcome]||0)+1;
-    (e.tags||[]).forEach(t => tagCount[t]=(tagCount[t]||0)+1);
-    const ind = e.industry||e.sector;
-    if (ind) indCount[ind]=(indCount[ind]||0)+1;
-  });
-  const totalLinks = S.data.reduce((a,e)=>a+(e.links||[]).length,0);
-  q('#stats-row').innerHTML = [
-    {n:S.data.length,              l:'Entries',      c:'var(--blue)'},
-    {n:byType['case-study']||0,    l:'Case Studies', c:'var(--red)'},
-    {n:byType['framework']||0,     l:'Frameworks',   c:'var(--orange)'},
-    {n:totalLinks,                 l:'Links',        c:'var(--green)'}
-  ].map(s=>`<div class="stat-box"><div class="stat-num" style="color:${s.c}">${s.n}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
+function renderGraph() {
+  if (gSim) { gSim.stop(); gSim=null; }
+  const cont=q('#gv'), W=cont.clientWidth||800, H=cont.clientHeight||600, cx=W/2, cy=H/2;
+  const svg=d3.select('#graph-svg'); svg.selectAll('*').remove();
+  const {nodes,links}=visData();
 
-  const mk = (id, type, data, opts={}) => {
-    if (S.charts[id]) S.charts[id].destroy();
-    S.charts[id] = new Chart(q('#'+id), {type, data, options:{...CHART_BASE,...opts}});
-  };
-  const tk = Object.keys(byType);
-  mk('ch-types','doughnut',{
-    labels:tk.map(k=>TYPE_CFG[k]?.label||k),
-    datasets:[{data:tk.map(k=>byType[k]),backgroundColor:tk.map(k=>TYPE_CFG[k]?.hex||'#888'),borderWidth:0}]
+  // Init positions
+  const fns=nodes.filter(n=>n.type==='force');
+  fns.forEach((fn,i) => {
+    if (fn.x===undefined) { const a=(i*2*Math.PI/fns.length)-Math.PI/2; fn.x=cx+PENT_R*Math.cos(a); fn.y=cy+PENT_R*Math.sin(a); }
   });
-  const ok = Object.keys(byOutcome);
-  const oc = {Success:'#3fb950',Failure:'#f85149',Ongoing:'#58a6ff',Ambiguous:'#d29922'};
-  mk('ch-outcomes','bar',{
-    labels:ok,datasets:[{data:ok.map(k=>byOutcome[k]),backgroundColor:ok.map(k=>oc[k]||'#888'),borderRadius:3,borderWidth:0}]
-  },{scales:{x:AX,y:{...AX,ticks:{...AX.ticks,stepSize:1}}},plugins:{legend:{display:false}}});
-  const topInd = Object.entries(indCount).sort((a,b)=>b[1]-a[1]).slice(0,7);
-  mk('ch-industries','bar',{
-    labels:topInd.map(x=>x[0]),datasets:[{data:topInd.map(x=>x[1]),backgroundColor:'#3d78d4',borderRadius:3,borderWidth:0}]
-  },{indexAxis:'y',scales:{x:AX,y:AX},plugins:{legend:{display:false}}});
-  const topTags = Object.entries(tagCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  mk('ch-tags','bar',{
-    labels:topTags.map(x=>x[0]),datasets:[{data:topTags.map(x=>x[1]),backgroundColor:'#d29922',borderRadius:3,borderWidth:0}]
-  },{indexAxis:'y',scales:{x:AX,y:AX},plugins:{legend:{display:false}}});
+  nodes.forEach(n => {
+    if (n.x===undefined||n.y===undefined) {
+      if (n.type==='factor'&&n.parentId) { const p=nodes.find(x=>x.id===n.parentId); if(p){n.x=p.x+(Math.random()-.5)*70;n.y=p.y+(Math.random()-.5)*70;return;} }
+      n.x=cx+(Math.random()-.5)*260; n.y=cy+(Math.random()-.5)*260;
+    }
+  });
+
+  // Color links before D3 resolves source/target
+  links.forEach(l => {
+    if (l.lt==='parent') { const t=nodes.find(n=>n.id===l.target); l._c=t?nc(t):'#2c2c50'; }
+    else { const s=nodes.find(n=>n.id===l.source); l._c=s?nc(s):'#2c2c50'; }
+  });
+
+  gZoom=d3.zoom().scaleExtent([.07,5]).on('zoom', ev=>grp.attr('transform',ev.transform));
+  svg.call(gZoom);
+  const grp=svg.append('g');
+
+  // Arrow markers
+  const defs=svg.append('defs');
+  ['company','concept','strategy'].forEach(t => {
+    defs.append('marker').attr('id','a-'+t).attr('viewBox','0 -4 8 8').attr('refX',26).attr('markerWidth',5).attr('markerHeight',5).attr('orient','auto')
+      .append('path').attr('d','M0,-4L8,0L0,4').attr('fill',TYPE_CFG[t].color).attr('fill-opacity',.55);
+  });
+
+  gLinkG=grp.append('g');
+  const lsel=gLinkG.selectAll('line').data(links).join('line')
+    .attr('stroke',d=>d._c)
+    .attr('stroke-dasharray',d=>d.lt==='parent'?'3,5':null)
+    .attr('stroke-width',d=>d.lt==='parent'?1:1.5)
+    .attr('stroke-opacity',d=>d.lt==='parent'?.22:.42)
+    .attr('fill','none')
+    .attr('marker-end',d=>['company','concept','strategy'].includes(d.lt)?`url(#a-${d.lt})`:null);
+
+  gNodeG=grp.append('g');
+  const nsel=gNodeG.selectAll('g').data(nodes).join('g')
+    .attr('cursor','pointer')
+    .call(d3.drag()
+      .on('start',(ev,d)=>{if(!ev.active)gSim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;})
+      .on('drag', (ev,d)=>{d.fx=ev.x;d.fy=ev.y;})
+      .on('end',  (ev,d)=>{if(!ev.active)gSim.alphaTarget(0);if(d.type!=='force'){d.fx=null;d.fy=null;}})
+    )
+    .on('click',(ev,d)=>{ev.stopPropagation();onNodeClick(d);})
+    .on('mouseover',(ev,d)=>showTip(ev,d))
+    .on('mouseout',()=>hideTip());
+
+  // Outer ring for force nodes
+  nsel.filter(d=>d.type==='force').append('circle').attr('r',d=>nr(d)+10)
+    .attr('fill','none').attr('stroke',d=>d.forceColor||'#a78bfa').attr('stroke-width',1).attr('stroke-opacity',.18).attr('stroke-dasharray','5,4');
+
+  // Main circle
+  nsel.append('circle').attr('r',nr)
+    .attr('fill',d=>d.type==='force'?'transparent':nc(d)+'18')
+    .attr('stroke',nc).attr('stroke-width',d=>d.type==='force'?2:1.5).attr('stroke-opacity',.9);
+
+  // Collapse toggle inside force nodes
+  nsel.filter(d=>d.type==='force').append('g').attr('class','ctog')
+    .on('click',(ev,d)=>{ev.stopPropagation();toggleCollapse(d.id);})
+    .call(g=>{
+      g.append('circle').attr('r',11).attr('fill','var(--bg)').attr('stroke',d=>d.forceColor||'#a78bfa').attr('stroke-width',1.5).attr('stroke-opacity',.7).attr('cursor','pointer');
+      g.append('text').attr('text-anchor','middle').attr('dominant-baseline','central').attr('font-size','9px').attr('pointer-events','none').attr('fill',d=>d.forceColor||'#a78bfa').attr('font-family',"'JetBrains Mono',monospace")
+        .text(d=>{const c=S.data.filter(x=>x.type==='factor'&&x.parentId===d.id).length; return d.collapsed?`+${c}`:'−';});
+    });
+
+  // Labels
+  nsel.append('text').attr('class','nlbl')
+    .attr('text-anchor','middle').attr('pointer-events','none')
+    .attr('dy',d=>`${nr(d)+(d.type==='force'?20:13)}px`)
+    .attr('font-family',d=>d.type==='force'?"'Crimson Pro',serif":"'JetBrains Mono',monospace")
+    .attr('font-size',d=>d.type==='force'?'12px':'9px').attr('font-weight',d=>d.type==='force'?'600':'400')
+    .attr('fill',d=>d.type==='force'?'var(--text)':'var(--text2)')
+    .style('display',S.showLabels?null:'none')
+    .text(d=>d.name.length>22?d.name.slice(0,20)+'…':d.name);
+
+  const nmap=new Map(nodes.map(n=>[n.id,n]));
+  gSim=d3.forceSimulation(nodes).alpha(.3)
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(d=>d.lt==='parent'?108:135).strength(d=>d.lt==='parent'?.5:.2))
+    .force('charge',d3.forceManyBody().strength(d=>d.type==='force'?-520:d.type==='company'?-180:-140))
+    .force('collision',d3.forceCollide().radius(d=>nr(d)+18))
+    .force('orbit',forceOrbit(nmap))
+    .force('cx',d3.forceX(cx).strength(.012)).force('cy',d3.forceY(cy).strength(.012))
+    .on('tick',()=>{
+      lsel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      nsel.attr('transform',d=>`translate(${d.x},${d.y})`);
+    });
+
+  svg.on('click',()=>{if(S.sel){S.sel=null;resetHL();closeDetail();}});
+  gSvg=svg;
+  q('#g-info').textContent=`${nodes.length} nodes · ${links.length} links`;
 }
 
-// ══════════════════════════════════════════════════
-// FORM
-// ══════════════════════════════════════════════════
+function forceOrbit(nm) {
+  const td=108, k=.35;
+  return function(a) { nm.forEach(n=>{ if(n.type!=='factor') return; const p=nm.get(n.parentId); if(!p) return; const dx=n.x-p.x,dy=n.y-p.y,d=Math.hypot(dx,dy)||1,f=(d-td)/d*a*k; n.vx-=dx*f; n.vy-=dy*f; }); };
+}
+
+function showTip(ev,d) {
+  const tip=q('#g-tip');
+  const pname=d.parentId?(' · '+(S.data.find(x=>x.id===d.parentId)?.name||'')):'';
+  tip.innerHTML=`<div class="tip-t" style="color:${nc(d)}">${TYPE_CFG[d.type]?.label||d.type}${pname}</div>
+    <div class="tip-n">${esc(d.name)}</div>
+    ${d.description?`<div class="tip-d">${esc(d.description.slice(0,130)+(d.description.length>130?'…':''))}</div>`:''}`;
+  const x=ev.layerX||ev.offsetX||0, y=ev.layerY||ev.offsetY||0;
+  tip.style.cssText+=`;opacity:1;left:${x+14}px;top:${y-10}px`;
+}
+function hideTip() { q('#g-tip').style.opacity='0'; }
+
+function onNodeClick(d) {
+  S.sel=S.data.find(x=>x.id===d.id);
+  hlNode(d); openDetail(S.sel);
+}
+function hlNode(d) {
+  if (!gNodeG||!gLinkG) return;
+  const rel=new Set([d.id]);
+  (d.links||[]).forEach(l=>rel.add(l.targetId));
+  S.data.forEach(n=>(n.links||[]).forEach(l=>{if(l.targetId===d.id)rel.add(n.id);}));
+  if (d.type==='factor'&&d.parentId) rel.add(d.parentId);
+  if (d.type==='force') S.data.filter(x=>x.type==='factor'&&x.parentId===d.id).forEach(x=>rel.add(x.id));
+  gNodeG.selectAll('g').attr('opacity',nd=>rel.has(nd.id)?1:.07);
+  gLinkG.selectAll('line').attr('opacity',l=>{const s=typeof l.source==='string'?l.source:l.source.id,t=typeof l.target==='string'?l.target:l.target.id;return(rel.has(s)&&rel.has(t))?.75:.03;});
+}
+function resetHL() { if(!gNodeG||!gLinkG) return; gNodeG.selectAll('g').attr('opacity',1); gLinkG.selectAll('line').attr('opacity',null); }
+function onSearch() { S.searchQ=q('#search').value.toLowerCase(); if(S.view==='graph') hlSearch(); if(S.view==='library') renderLibrary(); }
+function hlSearch() {
+  if (!gNodeG) return;
+  if (!S.searchQ) { resetHL(); return; }
+  gNodeG.selectAll('g').attr('opacity',d=>((d.name||'').toLowerCase().includes(S.searchQ)||(d.description||'').toLowerCase().includes(S.searchQ))?1:.07);
+}
+function resetZoom() { if(gSvg&&gZoom) gSvg.transition().duration(500).call(gZoom.transform,d3.zoomIdentity); }
+function toggleLabels() { S.showLabels=!S.showLabels; if(gNodeG) gNodeG.selectAll('.nlbl').style('display',S.showLabels?null:'none'); }
+
+// ── DETAIL PANEL ───────────────────────────────
+function openDetail(e) {
+  const panel=q('#dp'); panel.classList.add('open');
+  const c=nc(e);
+  q('#dp-badge').textContent=TYPE_CFG[e.type]?.label||e.type;
+  q('#dp-badge').style.color=c;
+  const cb=q('#dp-coll-btn');
+  if (e.type==='force') { cb.style.display='inline-block'; cb.textContent=e.collapsed?'Expand':'Collapse'; } else cb.style.display='none';
+  const connOut=(e.links||[]).map(l=>{const t=S.data.find(x=>x.id===l.targetId); return t?{...t,_rel:l.rel,_lbl:l.label}:null;}).filter(Boolean);
+  const connIn=S.data.filter(x=>x.id!==e.id&&(x.links||[]).some(l=>l.targetId===e.id)).map(x=>{const lk=x.links.find(l=>l.targetId===e.id); return {...x,_rel:lk?.rel,_lbl:lk?.label};});
+  const allConn=[...connOut,...connIn];
+  const children=e.type==='force'?S.data.filter(x=>x.type==='factor'&&x.parentId===e.id):[];
+  const df=(l,v)=>v?`<div class="dp-f"><div class="dp-fl">${l}</div><div class="dp-fv">${esc(v)}</div></div>`:'';
+  q('#dp-body').innerHTML=`
+    <div style="margin-bottom:13px">
+      <div class="dp-name">${esc(e.name)}</div>
+      <div class="dp-meta">${[e.industry,e.outcome,e.year,e.author].filter(Boolean).join(' · ')}</div>
+    </div>
+    ${df('Description',e.description)}${df('Examples',e.examples)}${df('Counter-examples',e.counterExamples)}${df('Lessons',e.lessons)}
+    ${children.length?`<div class="dp-sec">Factors (${children.length})</div>${children.map(ch=>`<div class="dp-cr" onclick="navTo('${esca(ch.id)}')"><span class="dp-cdot" style="background:${nc(ch)}"></span><div><div class="dp-cname">${esc(ch.name)}</div></div></div>`).join('')}`:''}
+    ${allConn.length?`<div class="dp-sec">Connections (${allConn.length})</div>${allConn.map(ch=>`<div class="dp-cr" onclick="navTo('${esca(ch.id)}')"><span class="dp-cdot" style="background:${nc(ch)}"></span><div><div class="dp-cname">${esc(ch.name)}</div><div class="dp-crel">${esc(ch._rel||'')}${ch._lbl?' — '+esc(ch._lbl):''}</div><div class="dp-ctype">${TYPE_CFG[ch.type]?.label||ch.type}</div></div></div>`).join('')}`:`<div class="dp-sec">Connections</div><div style="font-size:10px;color:var(--text3);padding:8px 0">No connections yet.</div>`}
+  `;
+}
+function closeDetail() { q('#dp').classList.remove('open'); }
+function navTo(id) {
+  const e=S.data.find(x=>x.id===id); if(!e) return;
+  S.sel=e; openDetail(e);
+  if (S.view==='graph'&&gNodeG) { const nd=gNodeG.data().find(d=>d.id===id); if(nd) hlNode(nd); }
+  if (S.view==='library') qAll('.lc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));
+}
+
+// ── LIBRARY ────────────────────────────────────
+function renderLibrary() {
+  const ORDER=['force','factor','company','concept','strategy'];
+  const items=S.data.filter(e=>!S.searchQ||((e.name||'').toLowerCase().includes(S.searchQ)||(e.description||'').toLowerCase().includes(S.searchQ)));
+  items.sort((a,b)=>ORDER.indexOf(a.type)-ORDER.indexOf(b.type)||(a.name>b.name?1:-1));
+  const g=q('#lib-grid');
+  if (!items.length) { g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text3)">No results.</div>'; return; }
+  g.innerHTML=items.map(e=>`<div class="lc${S.sel?.id===e.id?' sel':''}" data-id="${esca(e.id)}" style="border-left-color:${nc(e)}" onclick="selectLC('${esca(e.id)}')">
+    <div class="lc-type" style="color:${nc(e)}">${TYPE_CFG[e.type]?.label||e.type}</div>
+    <div class="lc-name">${esc(e.name)}</div>
+    <div class="lc-desc">${esc((e.description||'').slice(0,110))}</div>
+  </div>`).join('');
+}
+function selectLC(id) { S.sel=S.data.find(x=>x.id===id); if(S.sel){openDetail(S.sel); qAll('.lc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));} }
+
+// ── FORM ───────────────────────────────────────
 function openForm(entry) {
-  S.formData = entry
-    ? {...entry, tags:[...(entry.tags||[])], links:[...(entry.links||[])]}
-    : {type:'case-study', tags:[], links:[]};
-  S.formType = S.formData.type || 'case-study';
-  q('#fp-title').textContent = entry ? 'Edit Entry' : 'New Entry';
-  q('#form-panel').style.display = 'flex';
-  renderForm();
+  S.formData=entry?JSON.parse(JSON.stringify(entry)):{type:'factor',links:[]};
+  S.formType=S.formData.type||'factor';
+  q('#fp-title').textContent=entry?'Edit Node':'New Node';
+  q('#fp').style.display='flex'; renderForm();
 }
-function closeForm() { q('#form-panel').style.display = 'none'; }
-function setFormType(t) { S.formType = t; S.formData.type = t; renderForm(); }
+function closeForm() { q('#fp').style.display='none'; }
+function setFT(t) { S.formType=t; S.formData.type=t; renderForm(); }
 
 function renderForm() {
-  const fd = S.formData;
-  const typeGrid = ['company','framework','case-study','concept'].map(t =>
-    `<div class="type-opt t-${t}${S.formType===t?' active':''}" onclick="setFormType('${t}')">
-      <div class="type-opt-icon">${TYPE_CFG[t].icon}</div>
-      <div class="type-opt-label">${TYPE_CFG[t].label}</div>
-    </div>`).join('');
-
-  const allTags = [...new Set(Object.values(TAG_CATS).flat())];
-  const tagGrid = allTags.map(t =>
-    `<span class="tag-opt${(fd.tags||[]).includes(t)?' active':''}" id="fo-${CSS.escape(t)}" onclick="toggleFormTag('${esca(t)}')">${esc(t)}</span>`
-  ).join('');
-
-  const others = S.data.filter(e => e.id !== fd.id);
-  const picked = (fd.links||[]).map(l => l.targetId);
-  const relList = others.map(e =>
-    `<div class="rel-opt${picked.includes(e.id)?' picked':''}" id="ro-${CSS.escape(e.id)}" onclick="toggleLink('${esca(e.id)}')">
-      <span class="rel-dot" style="background:${TYPE_CFG[e.type]?.hex||'#888'}"></span>
-      <span>${esc(e.name)}</span>
-      <span style="margin-left:auto;font-size:9px;color:var(--text3)">${TYPE_CFG[e.type]?.label||e.type}</span>
-    </div>`).join('');
-
-  const typeFields = {
-    company: `<div class="row2">${fi('sector','Sector')}${fi('founded','Founded')}</div>
-      ${fta('description','Description')}${fta('revenueEngine','Revenue Engine')}
-      ${fta('flywheel','Flywheel / Virtuous Cycle')}${fta('switchingCosts','Switching Costs')}${fta('failurePoints','Failure Points')}`,
-    framework: `<div class="row2">${fi('author','Author / Source')}${fi('year','Year')}</div>
-      ${fta('description','Description')}${fta('keyComponents','Key Components')}${fta('useCases','Use Cases')}`,
-    'case-study': `<div class="row2">${fi('industry','Industry')}${fi('year','Year')}</div>
-      <div class="field"><label>Outcome</label>
-        <select id="ff-outcome">
-          <option value="">Select…</option>
-          ${['Success','Failure','Ongoing','Ambiguous'].map(o=>`<option value="${o}">${o}</option>`).join('')}
-        </select>
-      </div>
-      ${fta('summary','Summary')}${fta('rootCause','Root Cause')}
-      ${fta('warningSignsIgnored','Warning Signs Ignored')}${fta('lessons','Lessons')}`,
-    concept: `${fta('description','Description')}${fta('examples','Examples')}${fta('counterExamples','Counter-examples')}`
+  const fd=S.formData;
+  const tg=['force','factor','company','concept','strategy'].map(t=>`<div class="type-opt t-${t}${S.formType===t?' sel':''}" onclick="setFT('${t}')"><div class="to-icon">${TYPE_CFG[t].icon}</div><div class="to-lbl">${TYPE_CFG[t].label}</div></div>`).join('');
+  const forces=S.data.filter(d=>d.type==='force');
+  const pf=S.formType==='factor'?`<div class="field"><label>Parent Force</label><select id="ff-parent"><option value="">None</option>${forces.map(f=>`<option value="${esca(f.id)}"${fd.parentId===f.id?' selected':''}>${esc(f.name)}</option>`).join('')}</select></div>`:'';
+  const tf={
+    force:`${fa('description','Description')}`,
+    factor:`${pf}${fa('description','Description')}${fa('examples','Examples')}`,
+    company:`${fi('industry','Industry')}${fi('outcome','Outcome')}${fa('description','Description')}${fa('lessons','Lessons')}`,
+    concept:`${fa('description','Description')}${fa('examples','Examples')}${fa('counterExamples','Counter-examples')}`,
+    strategy:`${fa('description','Description')}${fa('examples','Examples')}`,
   };
-
-  q('#fp-body').innerHTML = `
-    <div class="fs-section"><div class="fs-title">Entry Type</div><div class="type-grid">${typeGrid}</div></div>
-    <div class="fs-section"><div class="fs-title">Name</div>${fi('name','Name *')}</div>
-    <div class="fs-section"><div class="fs-title">Details</div>${typeFields[S.formType]||''}</div>
-    <div class="fs-section"><div class="fs-title">Tags</div><div class="tag-grid">${tagGrid}</div></div>
-    <div class="fs-section">
-      <div class="fs-title">Connections</div>
-      <input class="rel-search-input" type="text" placeholder="Search entries…" oninput="filterRelPicker(this.value)">
-      <div class="rel-list" id="rel-picker">${relList}</div>
-    </div>`;
-
-  // Populate all field values from formData AFTER innerHTML is set
-  // This avoids HTML-encoding corruption and timing issues
-  ALL_FIELDS.forEach(f => {
-    const el = document.getElementById('ff-' + f);
-    if (el) el.value = fd[f] || '';
-  });
-  const outEl = document.getElementById('ff-outcome');
-  if (outEl) outEl.value = fd.outcome || '';
+  const others=S.data.filter(e=>e.id!==fd.id);
+  const rl=others.map(e=>{const p=(fd.links||[]).some(l=>l.targetId===e.id);return `<div class="rel-opt${p?' picked':''}" id="ro-${CSS.escape(e.id)}" onclick="toggleLink('${esca(e.id)}')"><span class="rdot" style="background:${nc(e)}"></span><span style="flex:1">${esc(e.name)}</span><span style="font-size:9px;color:var(--text3)">${TYPE_CFG[e.type]?.label||e.type}</span></div>`;}).join('');
+  const cl=(fd.links||[]).map(l=>{const t=S.data.find(x=>x.id===l.targetId); if(!t) return ''; return `<div class="ci"><span class="rdot" style="background:${nc(t)}"></span><span class="ci-name">${esc(t.name)}</span><select class="ci-rel" onchange="updLR('${esca(l.targetId)}',this.value)">${RELS.map(r=>`<option${l.rel===r?' selected':''}>${r}</option>`).join('')}</select><input class="ci-lbl" placeholder="label" value="${esc(l.label||'')}" oninput="updLL('${esca(l.targetId)}',this.value)"><button class="ci-rm" onclick="rmLink('${esca(l.targetId)}')">✕</button></div>`;}).join('');
+  q('#fp-body').innerHTML=`
+    <div class="fs-s"><div class="fs-t">Type</div><div class="type-grid">${tg}</div></div>
+    <div class="fs-s"><div class="fs-t">Name</div>${fi('name','Name *')}</div>
+    <div class="fs-s"><div class="fs-t">Details</div>${tf[S.formType]||''}</div>
+    <div class="fs-s"><div class="fs-t">Add Connections</div><input class="rel-si" placeholder="Search…" oninput="filtRel(this.value)"><div class="rel-list" id="rel-picker">${rl}</div></div>
+    ${cl?`<div class="fs-s"><div class="fs-t">Connection Config</div><div id="conn-list">${cl}</div></div>`:''}
+  `;
+  ['name','description','examples','counterExamples','lessons','industry','outcome','author','year'].forEach(f=>{const el=document.getElementById('ff-'+f); if(el) el.value=fd[f]||'';});
+  const pe=document.getElementById('ff-parent'); if(pe) pe.value=fd.parentId||'';
 }
-
-const fi  = (id, lbl) => `<div class="field"><label>${lbl}</label><input type="text" id="ff-${id}"></div>`;
-const fta = (id, lbl) => `<div class="field"><label>${lbl}</label><textarea id="ff-${id}"></textarea></div>`;
-
-function toggleFormTag(t) {
-  if (!S.formData.tags) S.formData.tags = [];
-  const i = S.formData.tags.indexOf(t);
-  if (i > -1) S.formData.tags.splice(i,1); else S.formData.tags.push(t);
-  const el = document.getElementById('fo-' + CSS.escape(t));
-  if (el) el.classList.toggle('active', S.formData.tags.includes(t));
-}
+const fi=(id,l)=>`<div class="field"><label>${l}</label><input id="ff-${id}" type="text"></div>`;
+const fa=(id,l)=>`<div class="field"><label>${l}</label><textarea id="ff-${id}"></textarea></div>`;
 function toggleLink(id) {
-  if (!S.formData.links) S.formData.links = [];
-  const i = S.formData.links.findIndex(l=>l.targetId===id);
-  if (i > -1) {
-    S.formData.links.splice(i,1);
-  } else {
-    const tgt = S.data.find(e=>e.id===id);
-    const relMap = {company:'involves', framework:'uses_framework', concept:'illustrates', 'case-study':'related_to'};
-    S.formData.links.push({targetId:id, rel:relMap[tgt?.type]||'related_to'});
-  }
-  const el = document.getElementById('ro-' + CSS.escape(id));
-  if (el) el.classList.toggle('picked', S.formData.links.some(l=>l.targetId===id));
+  if(!S.formData.links) S.formData.links=[];
+  const i=S.formData.links.findIndex(l=>l.targetId===id);
+  if(i>-1) S.formData.links.splice(i,1);
+  else { const t=S.data.find(e=>e.id===id); S.formData.links.push({targetId:id,rel:'related_to',label:''}); }
+  renderForm();
 }
-function filterRelPicker(sq) {
-  sq = sq.toLowerCase();
-  qAll('#rel-picker .rel-opt').forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(sq) ? 'flex' : 'none';
-  });
-}
+function rmLink(id) { S.formData.links=(S.formData.links||[]).filter(l=>l.targetId!==id); renderForm(); }
+function updLR(id,v) { const l=S.formData.links?.find(x=>x.targetId===id); if(l) l.rel=v; }
+function updLL(id,v) { const l=S.formData.links?.find(x=>x.targetId===id); if(l) l.label=v; }
+function filtRel(sq) { sq=sq.toLowerCase(); qAll('#rel-picker .rel-opt').forEach(el=>el.style.display=el.textContent.toLowerCase().includes(sq)?'flex':'none'); }
 
-// ══════════════════════════════════════════════════
-// CRUD
-// ══════════════════════════════════════════════════
+// ── CRUD ───────────────────────────────────────
 async function saveEntry() {
-  // Read all current values directly from DOM — the single source of truth at save time
-  ALL_FIELDS.forEach(f => {
-    const el = document.getElementById('ff-' + f);
-    if (el) S.formData[f] = el.value.trim();
-  });
-  const outEl = document.getElementById('ff-outcome');
-  if (outEl) S.formData.outcome = outEl.value;
-  S.formData.type = S.formType;
-
+  ['name','description','examples','counterExamples','lessons','industry','outcome','author','year'].forEach(f=>{const el=document.getElementById('ff-'+f);if(el) S.formData[f]=el.value.trim();});
+  const pe=document.getElementById('ff-parent'); if(pe) S.formData.parentId=pe.value||null;
+  S.formData.type=S.formType;
   if (!S.formData.name) { toast('Name is required.','err'); return; }
-
-  const btn = q('#fp-save');
-  btn.innerHTML = '<span class="spin"></span>Saving…';
-  btn.disabled  = true;
-
+  const btn=q('#fp-save'); btn.innerHTML='<span class="spin"></span>Saving…'; btn.disabled=true;
   try {
-    let savedId;
-    if (S.formData.id) {
-      const idx = S.data.findIndex(x=>x.id===S.formData.id);
-      if (idx > -1) S.data[idx] = {...S.data[idx], ...S.formData};
-      else S.data.push({...S.formData});
-      savedId = S.formData.id;
-    } else {
-      S.formData.id = 'e' + Date.now();
-      S.data.push({...S.formData});
-      savedId = S.formData.id;
-    }
+    let sid;
+    if (S.formData.id) { const i=S.data.findIndex(x=>x.id===S.formData.id); if(i>-1) S.data[i]={...S.data[i],...S.formData}; else S.data.push({...S.formData}); sid=S.formData.id; }
+    else { S.formData.id='n'+Date.now(); S.data.push({...S.formData}); sid=S.formData.id; }
     await ghWrite();
-    closeForm();
-    buildTagFilter();
-    if (S.view==='graph')     renderGraph();
-    if (S.view==='library')   renderLibrary();
-    if (S.view==='analytics') renderAnalytics();
-    const saved = S.data.find(x=>x.id===savedId);
-    if (saved) { S.sel=saved; openDetail(saved); }
-    toast('Saved to GitHub ✓','ok');
-  } catch(e) {
-    toast('Save failed: ' + e.message, 'err');
-  }
-  btn.innerHTML = 'Save';
-  btn.disabled  = false;
+    closeForm(); buildForceFilter();
+    if(S.view==='graph') renderGraph(); if(S.view==='library') renderLibrary();
+    const saved=S.data.find(x=>x.id===sid); if(saved){S.sel=saved;openDetail(saved);}
+    toast('Saved ✓','ok');
+  } catch(e) { toast('Save failed: '+e.message,'err'); }
+  btn.innerHTML='Save'; btn.disabled=false;
 }
-
-function confirmDelete() { if (S.sel) q('#modal-bg').style.display='flex'; }
-function closeModal()     { q('#modal-bg').style.display='none'; }
-
+function confirmDelete() { if(S.sel) q('#modal-bg').style.display='flex'; }
+function closeModal() { q('#modal-bg').style.display='none'; }
 async function doDelete() {
-  closeModal(); if (!S.sel) return;
-  const delId = S.sel.id;
-  const prev  = JSON.parse(JSON.stringify(S.data)); // snapshot for rollback
-  S.data = S.data.filter(x=>x.id!==delId);
-  S.data.forEach(e => { e.links=(e.links||[]).filter(l=>l.targetId!==delId); });
+  closeModal(); if(!S.sel) return;
+  const did=S.sel.id, prev=JSON.parse(JSON.stringify(S.data));
+  S.data=S.data.filter(x=>x.id!==did); S.data.forEach(e=>e.links=(e.links||[]).filter(l=>l.targetId!==did));
   try {
-    await ghWrite();
-    S.sel = null; closeDetail();
-    if (S.view==='graph')     renderGraph();
-    if (S.view==='library')   renderLibrary();
-    if (S.view==='analytics') renderAnalytics();
-    toast('Deleted','ok');
-  } catch(e) {
-    S.data = prev; // Roll back on failure
-    toast('Delete failed: ' + e.message,'err');
-  }
+    await ghWrite(); S.sel=null; closeDetail(); buildForceFilter();
+    if(S.view==='graph') renderGraph(); if(S.view==='library') renderLibrary(); toast('Deleted','ok');
+  } catch(e) { S.data=prev; toast('Delete failed: '+e.message,'err'); }
 }
 
-// ══════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════
-const q    = s => document.querySelector(s);
-const qAll = s => document.querySelectorAll(s);
-const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const esca = s => esc(s).replace(/'/g,'&#39;');
-let _toastTimer;
-function toast(msg, type='') {
-  clearTimeout(_toastTimer);
-  const el = q('#toast');
-  el.textContent = msg; el.className = 'show ' + type;
-  _toastTimer = setTimeout(()=> el.className='', 3200);
-}
+// ── UTILS ──────────────────────────────────────
+const q=s=>document.querySelector(s);
+const qAll=s=>document.querySelectorAll(s);
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esca=s=>esc(s).replace(/'/g,'&#39;');
+let _tt;
+function toast(msg,type='') { clearTimeout(_tt); const el=q('#toast'); el.textContent=msg; el.className='show '+(type||''); _tt=setTimeout(()=>el.className='',3200); }
 
-// ══════════════════════════════════════════════════
-// SEED DATA
-// ══════════════════════════════════════════════════
+// ── SEED DATA ──────────────────────────────────
 const SEED = [
-  {id:'con1',type:'concept',name:"Innovator's Dilemma",
-   description:"Incumbents focus on sustaining innovations for current customers, ignoring disruptive tech that initially underperforms on mainstream metrics but eventually displaces them.",
-   examples:"Kodak ignored digital cameras it invented. Nokia dismissed smartphone as a platform. Blockbuster ignored streaming.",
-   counterExamples:"Amazon cannibalizing its retail with AWS and Kindle. Netflix proactively killing its own DVD business.",
-   tags:['Platform Disruption','Technology','Academic'],links:[]},
-  {id:'con2',type:'concept',name:'Platform Disruption',
-   description:"A challenger builds an ecosystem/platform that enables third parties to create value, eventually outcompeting vertically integrated incumbents on both quality and cost.",
-   examples:"iOS/Android vs Symbian. Stripe vs traditional payment processors. Airbnb vs hotels.",
-   counterExamples:"WeWork tried to claim platform dynamics but had none — pure real estate.",
-   tags:['Platform Disruption','Network Effects','Technology'],links:[{targetId:'con1',rel:'related_to'}]},
-  {id:'con3',type:'concept',name:'Capital Allocation',
-   description:"The single most important function of a CEO: directing resources toward highest-return opportunities. Most value creation and destruction happens here.",
-   examples:"Berkshire's continuous reallocation. Jio's $30B network bet. Buffett's insurance float as perpetual low-cost capital.",
-   counterExamples:"GE Capital under Welch — financial leverage masking industrial decay. Kingfisher Airlines debt-funded expansion.",
-   tags:['Capital Allocation','Financial Services','Academic'],links:[]},
-  {id:'con4',type:'concept',name:'Ecosystem Lock-in',
-   description:"Users face high switching costs not because of the core product but because of the interconnected web of complementary services, data, and network effects around it.",
-   examples:"Apple: iPhone + App Store + iCloud + AirPods + Watch. Salesforce: CRM + integrations + AppExchange.",
-   counterExamples:"BlackBerry OS had no app ecosystem — switching cost was hardware, easily overcome.",
-   tags:['Network Effects','Technology'],links:[{targetId:'con2',rel:'related_to'}]},
-  {id:'fw1',type:'framework',name:"Porter's Five Forces",author:'Michael Porter',year:'1979',
-   description:"Analyzes industry profitability through five structural forces: competitive rivalry, threat of new entrants, threat of substitutes, bargaining power of buyers, and bargaining power of suppliers.",
-   keyComponents:"1. Competitive Rivalry\n2. Threat of New Entrants\n3. Threat of Substitutes\n4. Buyer Power\n5. Supplier Power",
-   useCases:"Industry attractiveness assessment. Pre-entry market analysis. M&A target screening.",
-   tags:['Academic'],links:[]},
-  {id:'fw2',type:'framework',name:"Innovator's Dilemma Framework",author:'Clayton Christensen',year:'1997',
-   description:"Explains why successful companies fail: sustaining innovations serve existing customers well but leave firms vulnerable to disruptive entrants targeting non-consumption or low-end segments.",
-   keyComponents:"1. Sustaining vs Disruptive innovation\n2. Trajectory of improvement vs customer need\n3. Value network analysis\n4. Response strategies: spinout, acquisition",
-   useCases:"Tech disruption analysis. New entrant threat assessment. Portfolio strategy for incumbents.",
-   tags:["Innovator's Dilemma",'Technology','Academic'],links:[{targetId:'con1',rel:'illustrates'},{targetId:'fw1',rel:'related_to'}]},
-  {id:'fw3',type:'framework',name:'Blue Ocean Strategy',author:'Kim & Mauborgne',year:'2005',
-   description:"Create uncontested market space by making the competition irrelevant. ERRC grid to reconstruct market boundaries.",
-   keyComponents:"1. ERRC Grid (Eliminate-Reduce-Raise-Create)\n2. Strategy Canvas\n3. Four Actions Framework\n4. Non-customer analysis",
-   useCases:"New market creation. Product redesign. Competitive positioning reset.",
-   tags:['Academic'],links:[]},
-  {id:'fw4',type:'framework',name:'VRIO Framework',author:'Jay Barney',year:'1991',
-   description:"Evaluates whether a firm's resources are sources of sustained competitive advantage: Valuable, Rare, Inimitable, Organized.",
-   keyComponents:"V - Valuable\nR - Rare\nI - Inimitable (costly to copy)\nO - Organized to capture value",
-   useCases:"Internal analysis. M&A due diligence. Competitive advantage durability assessment.",
-   tags:['Academic'],links:[]},
-  {id:'co1',type:'company',name:'Nokia',sector:'Technology / Telecom',founded:'1865',
-   description:"Finnish multinational that dominated global mobile phone markets in early 2000s before collapsing under iOS/Android disruption. Peak market cap ~$110B in 2000.",
-   revenueEngine:"Hardware device sales. Symbian licensing. Network infrastructure (separate division).",
-   flywheel:"Operator distribution -> volume scale -> component cost advantage -> price competitiveness -> more operator deals. Worked until platform mattered more than hardware.",
-   switchingCosts:"Low consumer switching costs. App ecosystem switching costs near zero on Symbian.",
-   failurePoints:"Symbian too old and fragile. No developer ecosystem. Hardware engineers dominated; software treated as secondary.",
-   tags:['Technology','Telecom','Failure','Platform Disruption','Europe','2000s'],links:[]},
-  {id:'co2',type:'company',name:'Kodak',sector:'Technology / Consumer',founded:'1892',
-   description:"American photography giant. Dominated film and camera markets for a century. Invented the digital camera in 1975 but failed to commercialize it. Filed Chapter 11 in 2012.",
-   revenueEngine:"Film sales (razor/blade — cameras priced low, film at 60%+ gross margin). Chemical processing.",
-   flywheel:"Film manufacturing scale -> cost leadership -> retail distribution -> consumer brand trust -> film repurchase. Destroyed by digital.",
-   failurePoints:"Business model entirely dependent on consumable film. Digital photography eliminated the recurring revenue stream.",
-   tags:['Technology','Failure',"Innovator's Dilemma",'USA','1990s','2000s'],links:[]},
-  {id:'co3',type:'company',name:'Netflix',sector:'Media / Technology',founded:'1997',
-   description:"Streaming giant. Started as DVD-by-mail, proactively cannibalized its own business with streaming. Now a global content platform with 260M+ subscribers.",
-   revenueEngine:"Subscription revenue (monthly recurring). Content amortized over subscriber base.",
-   flywheel:"More subscribers -> more content budget -> better content -> more subscribers. Data advantage informs content investment.",
-   switchingCosts:"Moderate: original content exclusivity creates sticky library.",
-   tags:['Media','Technology','Success','Platform Disruption','USA','2000s','2010s'],links:[]},
-  {id:'co4',type:'company',name:'Reliance Jio',sector:'Telecom / Technology',founded:'2016',
-   description:"Reliance Industries' telecom arm. Launched with free data in 2016, permanently disrupted Indian telecom economics. Built $30B+ network infrastructure.",
-   revenueEngine:"Mobile subscriptions. JioCinema, JioFiber. Ancillary digital services.",
-   flywheel:"Cheapest data -> massive user base -> content/services platform -> monetize at scale -> fund further infrastructure.",
-   switchingCosts:"Growing: JioCinema (IPL rights), JioFiber bundling, digital payments integration.",
-   tags:['Telecom','Technology','Success','Network Effects','India','2010s','2020s'],links:[]},
-  {id:'cs1',type:'case-study',name:'Nokia: Platform Collapse',industry:'Technology / Telecom',year:'2007',outcome:'Failure',
-   summary:"Nokia, holding 40% global handset market share, failed to recognize the iPhone as a platform shift. Its response — Symbian upgrades — was structurally incapable of competing with iOS/Android ecosystems.",
-   rootCause:"1. Symbian unmaintainable (millions of lines of C++, different variants per handset).\n2. Internal silos: software engineers had no power vs hardware.\n3. Incentive structures rewarded hardware volume, not platform adoption.",
-   warningSignsIgnored:"RIM gaining enterprise share through software. iPhone dismissed as 'too expensive.' Android ecosystem growing at 10x Symbian rate. Internal written warnings about Symbian's ceiling (2005-2007).",
-   lessons:"1. Platform beats product — evaluate the ecosystem, not just the device.\n2. Software capability cannot be acquired quickly.\n3. Fear of cannibalization kills faster than external competition.",
-   tags:['Technology','Telecom','Platform Disruption','Failure','Europe','2000s','2010s'],
-   links:[{targetId:'co1',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'},{targetId:'con2',rel:'illustrates'}]},
-  {id:'cs2',type:'case-study',name:"Kodak: Invented It, Couldn't Use It",industry:'Technology / Consumer',year:'1975',outcome:'Failure',
-   summary:"Kodak engineer Steve Sasson invented the digital camera in 1975. The company shelved it for 20 years to protect film margins. Filed Chapter 11 in 2012.",
-   rootCause:"1. Film was 60%+ gross margin — no manager wanted to cannibalize it.\n2. Razor-blade model created structural dependency on consumables.\n3. No software culture — Kodak was a chemistry and manufacturing company.",
-   warningSignsIgnored:"Own internal digital camera project (1975). Japan consumer electronics moving into digital through 1990s. Film volume declining year-on-year from 1999.",
-   lessons:"1. Owning the patent on the future does not mean you'll profit from it.\n2. Margin protection = innovation suppression.\n3. Structural solutions needed — cultural change alone fails.",
-   tags:["Innovator's Dilemma",'Technology','Failure','USA','1990s','2000s'],
-   links:[{targetId:'co2',rel:'involves'},{targetId:'fw2',rel:'uses_framework'},{targetId:'con1',rel:'illustrates'}]},
-  {id:'cs3',type:'case-study',name:'Netflix vs Blockbuster',industry:'Media / Entertainment',year:'2004',outcome:'Success',
-   summary:"Netflix built a subscription DVD-by-mail model eliminating late fees (Blockbuster's key revenue line and biggest customer grievance). When streaming became viable, Netflix proactively cannibalized its own DVD business.",
-   rootCause:"Blockbuster's failure: late fees were 16% of revenue — structurally impossible to eliminate. Store footprint (9,000+ locations) was a liability in streaming era.",
-   warningSignsIgnored:"By Blockbuster: Netflix subscriber growth 2002-2005 was unambiguous. Consumer surveys consistently cited late fees as #1 pain point.",
-   lessons:"1. Willingness to cannibalize yourself is the most powerful strategic weapon.\n2. The incumbent's strength (physical stores) became its prison.\n3. Subscription models that eliminate friction displace transaction models.",
-   tags:['Platform Disruption','Media','Success','USA','2000s','2010s'],
-   links:[{targetId:'co3',rel:'involves'},{targetId:'fw1',rel:'uses_framework'},{targetId:'fw3',rel:'uses_framework'},{targetId:'con2',rel:'illustrates'}]},
-  {id:'cs4',type:'case-study',name:'Jio: Weaponizing Capital',industry:'Telecom / India',year:'2016',outcome:'Success',
-   summary:"Reliance invested $30B+ building India's only pan-India 4G LTE network before launching commercially. Launched with 6 months of free data in 2016. Within 18 months, three incumbents exited.",
-   rootCause:"Patient capital from Mukesh Ambani. Greenfield network on latest technology — no legacy costs. Priced at marginal cost to acquire user base. Government spectrum policy created an entry window.",
-   warningSignsIgnored:"By incumbents: Reliance's spectrum acquisitions 2012–2016 clearly signaled intent. Announced $20B investment publicly. Incumbents assumed it would be another Reliance Communications failure.",
-   lessons:"1. Capital as competitive weapon — incumbents cannot match greenfield economics.\n2. Platform logic: cheap data -> digital services monetization -> the real business.\n3. Regulatory windows are temporary — move when they open.",
-   tags:['Telecom','Capital Allocation','India','Success','2010s'],
-   links:[{targetId:'co4',rel:'involves'},{targetId:'con3',rel:'illustrates'},{targetId:'con4',rel:'illustrates'}]},
-  {id:'cs5',type:'case-study',name:'WeWork: Governance Catastrophe',industry:'Real Estate',year:'2019',outcome:'Failure',
-   summary:"WeWork raised $12.8B at valuations up to $47B by claiming tech platform economics. The 2019 IPO S-1 exposed: $47B in lease liabilities vs $2.4B revenue, Neumann extracting $700M via secondaries.",
-   rootCause:"1. SoftBank Vision Fund with $100B+ enabled ego-driven capital deployment with no governance.\n2. Supervoting shares (20:1) — Neumann had absolute control.\n3. 'Tech premium' on real estate requires demonstrated network effects — WeWork had none.",
-   warningSignsIgnored:"'Community-adjusted EBITDA' invented to exclude actual costs. Neumann trademarked 'We' and licensed it back to WeWork for $5.9M. Lease obligations growing 3x faster than revenue.",
-   lessons:"1. Supervoting share structures enable founder extraction at shareholder expense.\n2. Invented financial metrics almost always conceal something.\n3. 'Tech premium' requires demonstrated network effects or data advantage.",
-   tags:['Governance Failure','Real Estate','Failure','USA','2010s'],
-   links:[{targetId:'con3',rel:'illustrates'},{targetId:'fw4',rel:'uses_framework'}]}
+  // ── 5 FORCES ──
+  {id:'f1',type:'force',name:'Threat of New Entrants',forceColor:'#a78bfa',collapsed:false,
+   description:'Risk that profitable markets attract new competitors, eroding existing firms\' market share and profitability. Determined by the height of barriers to entry.',
+   tags:[],links:[]},
+  {id:'f2',type:'force',name:'Supplier Power',forceColor:'#ec4899',collapsed:false,
+   description:'Ability of input providers to raise prices or reduce quality, squeezing industry margins.',
+   tags:[],links:[]},
+  {id:'f3',type:'force',name:'Buyer Power',forceColor:'#60a5fa',collapsed:false,
+   description:'Ability of customers to drive prices down or demand higher quality, reducing industry profitability.',
+   tags:[],links:[]},
+  {id:'f4',type:'force',name:'Threat of Substitutes',forceColor:'#34d399',collapsed:false,
+   description:'Alternative products fulfilling the same customer need, setting a ceiling on what incumbents can charge.',
+   tags:[],links:[]},
+  {id:'f5',type:'force',name:'Competitive Rivalry',forceColor:'#fb923c',collapsed:false,
+   description:'Intensity of competition among existing players. Determines how much value gets competed away.',
+   tags:[],links:[]},
+
+  // ── FORCE 1 FACTORS: NEW ENTRANTS ──
+  {id:'f1a',type:'factor',parentId:'f1',name:'Capital Requirements',
+   description:'High upfront capital needs deter new entrants. Semiconductor fabs cost $10B+, airline fleets $1B+.',
+   examples:'TSMC fabs, airline fleets, pharma R&D pipelines, oil refineries',tags:[],links:[]},
+  {id:'f1b',type:'factor',parentId:'f1',name:'Economies of Scale',
+   description:'Incumbents produce at lower unit cost. New entrants must enter at scale (risky) or accept cost disadvantage.',
+   examples:'AWS vs private cloud, Walmart vs local retail',tags:[],links:[]},
+  {id:'f1c',type:'factor',parentId:'f1',name:'Switching Costs',
+   description:'High switching costs protect incumbents — new entrants must offer dramatically superior products to overcome inertia.',
+   examples:'Enterprise ERP (SAP), banking relationships, iCloud lock-in',tags:[],links:[]},
+  {id:'f1d',type:'factor',parentId:'f1',name:'Brand Identity',
+   description:'Strong brand loyalty is an intangible moat. Customers prefer known brands even at a premium.',
+   examples:'Coca-Cola, Apple, LVMH, McKinsey',tags:[],links:[]},
+  {id:'f1e',type:'factor',parentId:'f1',name:'Access to Distribution',
+   description:'Control of key distribution channels blocks new entrants from reaching customers.',
+   examples:'Beer distributor networks, pharma sales forces, FMCG shelf space',tags:[],links:[]},
+  {id:'f1f',type:'factor',parentId:'f1',name:'Government Policy',
+   description:'Regulations, licenses, and tariffs can protect incumbents or create windows for new entrants.',
+   examples:'Telecom spectrum licenses, banking charters, pharma approvals, Jio spectrum window',tags:[],links:[]},
+  {id:'f1g',type:'factor',parentId:'f1',name:'Expected Retaliation',
+   description:'History of aggressive incumbent responses deters new entrants from attempting entry.',
+   examples:'Airline price wars, Walmart undercutting entrants, Intel margin wars',tags:[],links:[]},
+
+  // ── FORCE 2 FACTORS: SUPPLIER POWER ──
+  {id:'f2a',type:'factor',parentId:'f2',name:'Supplier Concentration',
+   description:'Few dominant suppliers have pricing power. TSMC controls 90%+ of leading-edge chip manufacturing.',
+   examples:'TSMC in chips, Boeing/Airbus for airlines, NVIDIA GPUs for AI',tags:[],links:[]},
+  {id:'f2b',type:'factor',parentId:'f2',name:'Unique / Differentiated Inputs',
+   description:'Specialized inputs with no substitutes give suppliers significant leverage.',
+   examples:'Rare earth metals, NVIDIA H100s, specific APIs and data',tags:[],links:[]},
+  {id:'f2c',type:'factor',parentId:'f2',name:'Forward Integration Threat',
+   description:'Suppliers who could enter the buyer\'s market hold additional power.',
+   examples:'Apple building M-series chips (vertical integration), suppliers going D2C',tags:[],links:[]},
+  {id:'f2d',type:'factor',parentId:'f2',name:'Switching Costs to Suppliers',
+   description:'High cost to change suppliers gives existing suppliers leverage.',
+   examples:'Proprietary connectors, certified-only components, single-source materials',tags:[],links:[]},
+  {id:'f2e',type:'factor',parentId:'f2',name:'Volume Importance',
+   description:'Buyers representing large share of supplier revenue gain negotiating power.',
+   examples:'Apple\'s iPhone volumes vs component suppliers, Walmart vs P&G',tags:[],links:[]},
+
+  // ── FORCE 3 FACTORS: BUYER POWER ──
+  {id:'f3a',type:'factor',parentId:'f3',name:'Buyer Concentration',
+   description:'Few large buyers have leverage over pricing and terms.',
+   examples:'Walmart negotiating with consumer goods brands, government procurement',tags:[],links:[]},
+  {id:'f3b',type:'factor',parentId:'f3',name:'Price Sensitivity',
+   description:'Commodity purchases where price dominates shift power to buyers.',
+   examples:'Bulk chemical purchases, insurance comparison sites, fuel procurement',tags:[],links:[]},
+  {id:'f3c',type:'factor',parentId:'f3',name:'Backward Integration Threat',
+   description:'Buyers who could produce inputs themselves hold power over suppliers.',
+   examples:'Amazon building logistics, retailers launching private labels, Tesla in-house batteries',tags:[],links:[]},
+  {id:'f3d',type:'factor',parentId:'f3',name:'Product Differentiation',
+   description:'Undifferentiated products increase buyer power; unique products reduce it.',
+   examples:'Generic chemicals vs patented drugs; commodity steel vs specialty alloys',tags:[],links:[]},
+  {id:'f3e',type:'factor',parentId:'f3',name:'Switching Costs (Buyer)',
+   description:'High switching costs reduce buyer power; low switching costs increase it.',
+   examples:'SaaS with data lock-in vs commodity cloud storage',tags:[],links:[]},
+
+  // ── FORCE 4 FACTORS: SUBSTITUTES ──
+  {id:'f4a',type:'factor',parentId:'f4',name:'Relative Price-Performance',
+   description:'If a substitute offers comparable performance at lower cost, it poses a high threat.',
+   examples:'Streaming vs cable TV, EVs vs ICE on total cost, VoIP vs landlines',tags:[],links:[]},
+  {id:'f4b',type:'factor',parentId:'f4',name:'Switching Costs to Substitute',
+   description:'Low friction to switch to the substitute amplifies the threat.',
+   examples:'Telegram vs WhatsApp (frictionless) vs switching EMR systems (painful)',tags:[],links:[]},
+  {id:'f4c',type:'factor',parentId:'f4',name:'Buyer Propensity to Switch',
+   description:'Customer openness to trying substitutes amplifies substitution threat.',
+   examples:'Gen Z adopting neobanks vs older customer loyalty to traditional banks',tags:[],links:[]},
+  {id:'f4d',type:'factor',parentId:'f4',name:'Functional Equivalence',
+   description:'Degree to which the substitute truly meets the same need.',
+   examples:'Video calls as substitute for business travel — often equivalent, sometimes not',tags:[],links:[]},
+
+  // ── FORCE 5 FACTORS: RIVALRY ──
+  {id:'f5a',type:'factor',parentId:'f5',name:'Industry Growth Rate',
+   description:'Slow-growth markets intensify rivalry (fight for share); high-growth markets reduce it.',
+   examples:'Global smartphone market (mature) vs AI infrastructure (explosive)',tags:[],links:[]},
+  {id:'f5b',type:'factor',parentId:'f5',name:'Fixed Costs & Overcapacity',
+   description:'High fixed costs pressure firms to fill capacity, often triggering price wars.',
+   examples:'Airlines, steel mills, semiconductor fabs in downturns',tags:[],links:[]},
+  {id:'f5c',type:'factor',parentId:'f5',name:'Product Differentiation',
+   description:'Commoditized products intensify rivalry; differentiated products insulate from direct competition.',
+   examples:'Branded pharma vs generics, luxury goods vs commodity fashion',tags:[],links:[]},
+  {id:'f5d',type:'factor',parentId:'f5',name:'Exit Barriers',
+   description:'High exit costs keep unprofitable competitors in the market, intensifying rivalry.',
+   examples:'Steel mills (specialized assets), airlines (owned fleets), long-term leases (WeWork)',tags:[],links:[]},
+  {id:'f5e',type:'factor',parentId:'f5',name:'Competitor Concentration',
+   description:'Many equal-sized competitors intensify rivalry; oligopolies with a clear leader reduce it.',
+   examples:'Indian telecom post-Jio (3 players) vs US mobile (AT&T, Verizon, T-Mobile)',tags:[],links:[]},
+
+  // ── COMPANIES ──
+  {id:'co1',type:'company',name:'Reliance Jio',industry:'Telecom',outcome:'Success',
+   description:'Weaponized $30B capital to overcome entry barriers in Indian telecom. Free data launch 2016 collapsed 3 incumbents within 18 months.',
+   lessons:'Capital as competitive weapon. Greenfield network = no legacy cost. Cheap data → digital platform monetization.',
+   tags:[],links:[
+     {targetId:'f1a',rel:'overcame',  label:'$30B network investment as entry weapon'},
+     {targetId:'f1f',rel:'exploited', label:'Government spectrum window 2012–2016'},
+     {targetId:'f5e',rel:'disrupted', label:'Collapsed market from 12 to 3 players'},
+     {targetId:'f5b',rel:'leveraged', label:'No legacy fixed costs vs incumbents'},
+   ]},
+  {id:'co2',type:'company',name:'Nokia',industry:'Technology',outcome:'Failure',
+   description:'40% global handset share in 2007. Failed to recognize iPhone as a platform shift. Dismissed iOS/Android ecosystem dynamics. Sold mobile division to Microsoft 2013.',
+   lessons:'Platform beats product. Software capability cannot be acquired quickly. Fear of cannibalization kills faster than competition.',
+   tags:[],links:[
+     {targetId:'f1d',rel:'had',       label:'Strong brand — insufficient for platform shift'},
+     {targetId:'f4d',rel:'ignored',   label:'Dismissed iPhone as functionally equivalent'},
+     {targetId:'f5c',rel:'lost',      label:'Differentiation collapsed in smartphone era'},
+     {targetId:'f3e',rel:'had',       label:'Symbian had zero ecosystem switching costs for users'},
+   ]},
+  {id:'co3',type:'company',name:'Netflix',industry:'Media',outcome:'Success',
+   description:'Proactively cannibalized DVD business with streaming. Created exclusive originals to raise switching costs. Now 260M+ subscribers globally.',
+   lessons:'Self-cannibalization is the most powerful strategic weapon. Originals create lock-in that catalog cannot.',
+   tags:[],links:[
+     {targetId:'f1d',rel:'built',     label:'Brand = quality originals, not just catalog'},
+     {targetId:'f3e',rel:'created',   label:'Exclusive originals create buyer lock-in'},
+     {targetId:'f4a',rel:'used',      label:'Streaming was cheaper substitute to cable'},
+     {targetId:'f5c',rel:'created',   label:'Originals differentiate in commodity streaming'},
+   ]},
+  {id:'co4',type:'company',name:'Kodak',industry:'Technology',outcome:'Failure',
+   description:'Invented the digital camera in 1975 but shelved it to protect 60%+ gross margin film business. Filed Chapter 11 in 2012.',
+   lessons:'Owning the patent on the future does not guarantee profiting from it. Margin protection = innovation suppression.',
+   tags:[],links:[
+     {targetId:'f4d',rel:'ignored',   label:'Digital photography = functionally equivalent substitute'},
+     {targetId:'f4a',rel:'ignored',   label:'Digital improved faster than film economics declined'},
+     {targetId:'f3b',rel:'faced',     label:'Buyers highly price-sensitive as digital prices fell'},
+   ]},
+  {id:'co5',type:'company',name:'Apple',industry:'Technology',outcome:'Success',
+   description:'Most valuable consumer platform via ecosystem lock-in. iPhone + App Store + iCloud + M-series chips = near-impenetrable moat.',
+   lessons:'Ecosystem switching costs compound over time. Vertical integration on key inputs removes supplier power.',
+   tags:[],links:[
+     {targetId:'f1d',rel:'leveraged', label:'Most valuable brand — commands permanent premium'},
+     {targetId:'f1c',rel:'created',   label:'iCloud + App purchases = ecosystem lock-in'},
+     {targetId:'f2c',rel:'executed',  label:'M-series chips — vertical integration on key input'},
+     {targetId:'f3e',rel:'maximized', label:'Ecosystem dramatically reduces buyer churn'},
+   ]},
+  {id:'co6',type:'company',name:'WeWork',industry:'Real Estate',outcome:'Failure',
+   description:'Claimed tech platform economics on a real estate sub-lease business. $47B valuation collapsed in 2019 IPO. No network effects, no real entry barriers.',
+   lessons:'Supervoting shares enable founder extraction. Invented metrics conceal structural problems. Tech premium requires demonstrated network effects.',
+   tags:[],links:[
+     {targetId:'f1a',rel:'had',       label:'Capital-intensive — long leases vs short subleases'},
+     {targetId:'f5c',rel:'lost',      label:'Commodity office space — no defensible differentiation'},
+     {targetId:'f3b',rel:'exposed',   label:'Corporate buyers highly price-sensitive for real estate'},
+     {targetId:'f5d',rel:'trapped',   label:'Long-term leases = crushing exit barriers in downturn'},
+   ]},
+
+  // ── CONCEPTS ──
+  {id:'cn1',type:'concept',name:"Innovator's Dilemma",
+   description:'Incumbents focus on sustaining innovations for existing customers, ignoring disruptive tech that initially underperforms but eventually displaces them.',
+   examples:'Kodak ignored digital cameras. Nokia dismissed smartphone ecosystem. Blockbuster ignored streaming.',
+   counterExamples:'Amazon cannibalized retail with AWS. Netflix killed its own DVD business.',
+   tags:[],links:[
+     {targetId:'f4d',rel:'illustrates',label:'Substitute dismissed as not functionally equivalent'},
+     {targetId:'f1g',rel:'reduces',    label:'Incumbents too focused on existing customers to retaliate'},
+   ]},
+  {id:'cn2',type:'concept',name:'Network Effects',
+   description:'Each additional user increases product value for all existing users. Strongest barrier to entry in digital markets.',
+   examples:'Visa/Mastercard, WhatsApp, Uber marketplace, LinkedIn, stock exchanges',
+   counterExamples:'Netflix value doesn\'t increase with more subscribers — not all platforms have true network effects',
+   tags:[],links:[
+     {targetId:'f1c',rel:'creates',   label:'Network effects make switching enormously costly'},
+     {targetId:'f1b',rel:'creates',   label:'Scale advantages compound with network density'},
+   ]},
 ];
 
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
+// ── INIT ──────────────────────────────────────
 (function init() {
-  const saved = localStorage.getItem('sia_cfg');
-  if (saved) {
-    try { S.cfg = JSON.parse(saved); boot(); return; }
-    catch(e) { localStorage.removeItem('sia_cfg'); }
-  }
-  q('#setup').style.display = 'flex';
+  const saved=localStorage.getItem('sia_cfg');
+  if (saved) { try { S.cfg=JSON.parse(saved); boot(); return; } catch(e) { localStorage.removeItem('sia_cfg'); } }
+  q('#setup').style.display='flex';
 })();
 </script>
 </body>
