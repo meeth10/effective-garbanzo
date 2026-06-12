@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,32 +8,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#09090f;--bg2:#0d0d18;--surf:#111120;--surf2:#181830;--surf3:#1e1e38;
-  --border:#21213a;--border2:#2c2c50;
-  --text:#e2dff5;--text2:#8a87b8;--text3:#3e3c60;
-  --purple:#a78bfa;--pink:#ec4899;--blue:#60a5fa;
-  --emerald:#34d399;--orange:#fb923c;--amber:#fbbf24;--red:#f87171;
+  --bg:#07070e;--bg2:#0b0b18;--surf:#0f0f1d;--surf2:#131328;--surf3:#18183a;
+  --border:#1c1c32;--border2:#26264a;
+  --text:#d4d0ee;--text2:#6a689a;--text3:#2e2c4a;
+  --cyan:#22d3ee;--amber:#fbbf24;--emerald:#34d399;--red:#f87171;--purple:#a78bfa;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;}
 
+/* SETUP */
 #setup{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:var(--bg);}
-.sbox{width:430px;background:var(--surf);border:1px solid var(--border2);border-radius:12px;padding:36px;box-shadow:0 0 60px rgba(167,139,250,.06);}
-.sbox h1{font-family:'Crimson Pro',serif;font-size:32px;font-weight:700;margin-bottom:3px;}
-.sbox .sub{font-size:10px;color:var(--text2);line-height:1.7;margin-bottom:28px;}
+.sbox{width:420px;background:var(--surf);border:1px solid var(--border2);border-radius:10px;padding:34px;box-shadow:0 0 60px rgba(34,211,238,.04);}
+.sbox h1{font-family:'Crimson Pro',serif;font-size:30px;font-weight:700;margin-bottom:3px;color:var(--text);}
+.sbox .sub{font-size:10px;color:var(--text2);line-height:1.7;margin-bottom:26px;}
 .sbox .note{margin-top:10px;font-size:10px;color:var(--text3);line-height:1.6;}
-.err{display:none;margin-top:10px;padding:8px 12px;border:1px solid var(--red);border-radius:6px;color:var(--red);font-size:10px;}
-.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.err{display:none;margin-top:10px;padding:8px 12px;border:1px solid var(--red);border-radius:5px;color:var(--red);font-size:10px;}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:11px;}
 .field label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);}
-.field input,.field select,.field textarea{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 11px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .15s;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple);}
-.field textarea{min-height:74px;resize:vertical;}
+.field input,.field select,.field textarea{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan);}
+.field textarea{min-height:70px;resize:vertical;line-height:1.6;}
 .field select option{background:var(--bg2);}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.btn{padding:7px 16px;border-radius:6px;border:1px solid;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;transition:all .15s;letter-spacing:.04em;}
-.btn:disabled{opacity:.35;cursor:not-allowed;}
-.btn-p{background:var(--purple);border-color:var(--purple);color:#0a0a14;font-weight:700;}
-.btn-p:hover:not(:disabled){background:#c4b5fd;border-color:#c4b5fd;}
+.btn{padding:7px 14px;border-radius:5px;border:1px solid;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;transition:all .15s;letter-spacing:.04em;}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn-p{background:var(--cyan);border-color:var(--cyan);color:#040c10;font-weight:700;}
+.btn-p:hover:not(:disabled){background:#67e8f9;}
 .btn-s{background:transparent;border-color:var(--border2);color:var(--text2);}
 .btn-s:hover:not(:disabled){border-color:var(--text2);color:var(--text);}
 .btn-d{background:transparent;border-color:var(--red);color:var(--red);}
@@ -40,26 +41,28 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .btn-g{background:transparent;border-color:transparent;color:var(--text3);}
 .btn-g:hover{color:var(--red);}
 .btn-sm{font-size:9px;padding:4px 10px;}
-.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--border2);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px;}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
+/* APP */
 #app{display:none;height:100vh;flex-direction:row;}
 
-#sidebar{width:210px;min-width:210px;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.logo{padding:16px 18px 14px;border-bottom:1px solid var(--border);}
-.logo-t{font-family:'Crimson Pro',serif;font-size:22px;font-weight:700;}
+/* SIDEBAR */
+#sidebar{width:205px;min-width:205px;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.logo{padding:15px 17px 13px;border-bottom:1px solid var(--border);}
+.logo-t{font-family:'Crimson Pro',serif;font-size:21px;font-weight:700;letter-spacing:.02em;}
 .logo-s{font-size:8px;text-transform:uppercase;letter-spacing:.22em;color:var(--text3);margin-top:1px;}
 nav{padding:10px;flex-shrink:0;}
 .ns{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);padding:6px 8px 4px;}
-.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--text2);font-size:10px;transition:all .12s;margin-bottom:1px;user-select:none;}
+.ni{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:5px;cursor:pointer;color:var(--text2);font-size:10px;transition:all .12s;margin-bottom:1px;user-select:none;}
 .ni:hover{background:var(--surf2);color:var(--text);}
-.ni.active{background:var(--surf3);color:var(--purple);}
+.ni.active{background:var(--surf3);color:var(--cyan);}
 .forces-panel{flex:1;overflow-y:auto;border-top:1px solid var(--border);padding:10px;}
 .fp-title{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);padding:4px 6px 10px;}
 .fp-row{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:5px;cursor:pointer;transition:background .1s;margin-bottom:2px;user-select:none;}
 .fp-row:hover{background:var(--surf2);}
-.fp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.fp-name{font-size:10px;color:var(--text2);flex:1;line-height:1.3;}
+.fp-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.fp-name{font-size:10px;color:var(--text2);flex:1;}
 .fp-cnt{font-size:9px;color:var(--text3);}
 .fp-row.off .fp-name{color:var(--text3);text-decoration:line-through;}
 .sidebar-foot{padding:10px;border-top:1px solid var(--border);flex-shrink:0;}
@@ -68,103 +71,127 @@ nav{padding:10px;flex-shrink:0;}
 .sdot.ok{background:var(--emerald);box-shadow:0 0 5px var(--emerald);}
 #repo-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+/* MAIN */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-#topbar{height:46px;display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0;}
+#topbar{height:44px;display:flex;align-items:center;padding:0 14px;gap:10px;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0;}
 .vtabs{display:flex;gap:3px;}
-.vt{padding:5px 12px;border-radius:5px;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border:1px solid transparent;transition:all .12s;}
+.vt{padding:5px 11px;border-radius:5px;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border:1px solid transparent;transition:all .12s;}
 .vt:hover{background:var(--surf2);color:var(--text);}
-.vt.active{background:var(--surf3);border-color:var(--border2);color:var(--purple);}
+.vt.active{background:var(--surf3);border-color:var(--border2);color:var(--cyan);}
 .spacer{flex:1;}
-#search{background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:6px 11px;border-radius:6px;font-size:10px;outline:none;width:170px;font-family:'JetBrains Mono',monospace;}
-#search:focus{border-color:var(--purple);}
+#search{background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:10px;outline:none;width:160px;font-family:'JetBrains Mono',monospace;}
+#search:focus{border-color:var(--cyan);}
 #search::placeholder{color:var(--text3);}
 #content{flex:1;display:flex;overflow:hidden;position:relative;}
 
-#gv{flex:1;position:relative;
-  background-color:var(--bg);
-  background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);
-  background-size:28px 28px;}
+/* GRAPH */
+#gv{flex:1;position:relative;background-color:var(--bg);background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:30px 30px;}
 #graph-svg{width:100%;height:100%;}
-#g-tip{position:absolute;pointer-events:none;background:var(--surf2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;opacity:0;transition:opacity .12s;z-index:10;max-width:230px;box-shadow:0 8px 32px rgba(0,0,0,.65);}
+#g-tip{position:absolute;pointer-events:none;background:var(--surf2);border:1px solid var(--border2);border-radius:7px;padding:10px 13px;opacity:0;transition:opacity .1s;z-index:10;max-width:220px;box-shadow:0 8px 30px rgba(0,0,0,.7);}
 .tip-t{font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
-.tip-n{font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.tip-n{font-family:'Crimson Pro',serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;}
 .tip-d{font-size:10px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
-#g-info{position:absolute;bottom:14px;left:14px;background:var(--surf);border:1px solid var(--border);border-radius:5px;padding:5px 12px;font-size:9px;color:var(--text3);z-index:5;}
-#g-ctrl{position:absolute;top:14px;right:14px;display:flex;gap:6px;z-index:5;}
-.gc-btn{background:var(--surf);border:1px solid var(--border2);color:var(--text2);padding:5px 12px;border-radius:5px;cursor:pointer;font-size:9px;font-family:'JetBrains Mono',monospace;transition:all .12s;text-transform:uppercase;letter-spacing:.04em;}
-.gc-btn:hover{border-color:var(--purple);color:var(--purple);}
-#g-legend{position:absolute;bottom:14px;right:14px;background:var(--surf);border:1px solid var(--border);border-radius:7px;padding:10px 14px;z-index:5;}
-.lr{display:flex;align-items:center;gap:7px;font-size:9px;color:var(--text2);padding:2px 0;text-transform:uppercase;letter-spacing:.08em;}
-.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.lr2{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+#g-info{position:absolute;bottom:12px;left:12px;background:var(--surf);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:9px;color:var(--text3);z-index:5;}
+#g-ctrl{position:absolute;top:12px;right:12px;display:flex;gap:5px;z-index:5;}
+.gc-btn{background:var(--surf);border:1px solid var(--border2);color:var(--text2);padding:5px 11px;border-radius:4px;cursor:pointer;font-size:9px;font-family:'JetBrains Mono',monospace;transition:all .12s;text-transform:uppercase;letter-spacing:.04em;}
+.gc-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+#g-legend{position:absolute;bottom:12px;right:12px;background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:9px 12px;z-index:5;}
+.lr{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text2);padding:2px 0;text-transform:uppercase;letter-spacing:.07em;}
+.ld{width:7px;height:7px;border-radius:50%;border:1.5px solid;flex-shrink:0;}
+.lp{width:18px;height:7px;border-radius:3px;border:1.5px solid;flex-shrink:0;}
+.ls{width:14px;height:7px;border-radius:3px;border:1.5px solid var(--cyan);flex-shrink:0;}
 
-#lv{flex:1;overflow-y:auto;padding:16px;display:none;}
-.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;}
-.lc{background:var(--surf);border:1px solid var(--border);border-left:3px solid;border-radius:7px;padding:13px 15px;cursor:pointer;transition:all .12s;}
-.lc:hover{filter:brightness(1.07);}
-.lc.sel{outline:2px solid var(--purple);outline-offset:1px;}
+/* LIBRARY */
+#lv{flex:1;overflow-y:auto;padding:14px;display:none;}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px;}
+.lc{background:var(--surf);border:1px solid var(--border);border-left:2px solid;border-radius:6px;padding:12px 14px;cursor:pointer;transition:all .12s;}
+.lc:hover{filter:brightness(1.08);}
+.lc.sel{outline:1px solid var(--cyan);outline-offset:1px;}
 .lc-type{font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
-.lc-name{font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;margin-bottom:5px;line-height:1.3;}
+.lc-name{font-family:'Crimson Pro',serif;font-size:14px;font-weight:600;margin-bottom:5px;line-height:1.3;}
 .lc-desc{font-size:10px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 
+/* DETAIL PANEL */
 #dp{width:0;min-width:0;background:var(--surf);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .15s,min-width .15s;}
-#dp.open{width:295px;min-width:295px;}
-#dp-hdr{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
-#dp-body{flex:1;overflow-y:auto;padding:15px;}
+#dp.open{width:290px;min-width:290px;}
+#dp-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+#dp-body{flex:1;overflow-y:auto;padding:14px;}
 .dp-badge{font-size:9px;text-transform:uppercase;letter-spacing:.12em;}
-.dp-name{font-family:'Crimson Pro',serif;font-size:19px;font-weight:700;margin-bottom:3px;line-height:1.25;}
-.dp-meta{font-size:10px;color:var(--text3);margin-bottom:12px;}
-.dp-sec{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin:14px 0 7px;padding-bottom:4px;border-bottom:1px solid var(--border);}
-.dp-f{margin-bottom:10px;}
-.dp-fl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:3px;}
+.dp-name{font-family:'Crimson Pro',serif;font-size:18px;font-weight:700;margin-bottom:3px;line-height:1.25;}
+.dp-meta{font-size:10px;color:var(--text3);margin-bottom:11px;}
+.dp-sec{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin:13px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.dp-f{margin-bottom:9px;}
+.dp-fl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:2px;}
 .dp-fv{font-size:11px;color:var(--text);line-height:1.65;white-space:pre-wrap;}
-.dp-cr{display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding-left .1s;}
+.dp-cr{display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding-left .1s;}
 .dp-cr:hover{padding-left:4px;}
 .dp-cr:last-child{border-bottom:none;}
-.dp-cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.dp-cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;border:1.5px solid;}
 .dp-cname{font-size:11px;color:var(--text);line-height:1.4;}
 .dp-crel{font-size:9px;color:var(--text2);font-style:italic;}
 .dp-ctype{font-size:9px;color:var(--text3);}
 
+/* FLASHCARD MODAL */
+#fc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
+#fc-card{width:360px;background:var(--surf);border:1px solid var(--border2);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+#fc-color-bar{height:4px;width:100%;}
+#fc-inner{padding:22px;}
+.fc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.fc-type-badge{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);}
+.fc-outcome{font-size:9px;text-transform:uppercase;letter-spacing:.1em;padding:3px 9px;border-radius:10px;border:1px solid;}
+.fc-outcome.success{color:var(--emerald);border-color:var(--emerald);background:rgba(52,211,153,.08);}
+.fc-outcome.failure{color:var(--red);border-color:var(--red);background:rgba(248,113,113,.08);}
+.fc-outcome.ongoing{color:var(--cyan);border-color:var(--cyan);background:rgba(34,211,238,.08);}
+.fc-name{font-family:'Crimson Pro',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.2;}
+.fc-industry{font-size:10px;color:var(--text2);margin-bottom:14px;}
+.fc-st{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:var(--text3);margin:12px 0 5px;padding-bottom:3px;border-bottom:1px solid var(--border);}
+.fc-txt{font-size:11px;color:var(--text);line-height:1.65;}
+.fc-lesson{color:var(--amber);font-style:italic;}
+.fc-conns{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.fc-conn-tag{font-size:9px;padding:2px 8px;border-radius:4px;border:1px solid var(--border2);color:var(--text2);}
+.fc-actions{display:flex;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+
+/* FORM PANEL */
 #fp{position:absolute;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column;}
-#fp-hdr{padding:13px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surf);flex-shrink:0;}
-#fp-title{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;}
-#fp-body{flex:1;overflow-y:auto;padding:22px 26px;}
-.fs-s{margin-bottom:20px;}
-.fs-t{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border);}
-.type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
-.type-opt{border:1px solid var(--border);border-radius:6px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .12s;}
+#fp-hdr{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surf);flex-shrink:0;}
+#fp-title{font-family:'Crimson Pro',serif;font-size:16px;font-weight:600;}
+#fp-body{flex:1;overflow-y:auto;padding:20px 24px;}
+.fs-s{margin-bottom:18px;}
+.fs-t{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3);margin-bottom:9px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
+.type-opt{border:1px solid var(--border);border-radius:5px;padding:9px 5px;text-align:center;cursor:pointer;transition:all .12s;}
 .type-opt:hover{border-color:var(--border2);}
 .type-opt.sel{border-width:2px;}
-.type-opt.sel.t-force{border-color:var(--purple);background:rgba(167,139,250,.08);}
-.type-opt.sel.t-factor{border-color:var(--text2);background:rgba(138,135,181,.07);}
+.type-opt.sel.t-force{border-color:var(--purple);background:rgba(167,139,250,.07);}
+.type-opt.sel.t-strategy{border-color:var(--cyan);background:rgba(34,211,238,.06);}
+.type-opt.sel.t-factor{border-color:var(--text2);background:rgba(106,104,154,.07);}
 .type-opt.sel.t-company{border-color:var(--amber);background:rgba(251,191,36,.06);}
 .type-opt.sel.t-concept{border-color:var(--emerald);background:rgba(52,211,153,.06);}
-.type-opt.sel.t-strategy{border-color:var(--blue);background:rgba(96,165,250,.06);}
-.to-icon{font-size:16px;margin-bottom:3px;}
+.to-icon{font-size:15px;margin-bottom:2px;}
 .to-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);}
 .rel-si{width:100%;background:var(--surf2);border:none;border-bottom:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;}
-.rel-list{background:var(--surf2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;max-height:150px;overflow-y:auto;}
-.rel-opt{display:flex;align-items:center;gap:7px;padding:7px 10px;cursor:pointer;font-size:10px;color:var(--text2);transition:background .1s;}
+.rel-list{background:var(--surf2);border:1px solid var(--border);border-top:none;border-radius:0 0 5px 5px;max-height:140px;overflow-y:auto;}
+.rel-opt{display:flex;align-items:center;gap:7px;padding:6px 10px;cursor:pointer;font-size:10px;color:var(--text2);transition:background .1s;}
 .rel-opt:hover{background:var(--surf);color:var(--text);}
-.rel-opt.picked{background:rgba(167,139,250,.08);color:var(--purple);}
-.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-#conn-list .ci{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);}
+.rel-opt.picked{background:rgba(34,211,238,.07);color:var(--cyan);}
+.rdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;border:1.5px solid;}
+#conn-list .ci{display:flex;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid var(--border);}
 #conn-list .ci:last-child{border:none;}
-.ci-name{font-size:10px;flex:1;color:var(--text);}
-.ci-rel{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:3px 6px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;outline:none;}
-.ci-lbl{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:3px 6px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;outline:none;flex:1;}
-.ci-rm{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 4px;}
+.ci-name{font-size:10px;flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ci-rel{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:3px 5px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;outline:none;}
+.ci-lbl{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:3px 5px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;outline:none;flex:1;min-width:0;}
+.ci-rm{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0 3px;flex-shrink:0;}
 .ci-rm:hover{color:var(--red);}
 
-#toast{position:fixed;bottom:16px;right:16px;background:var(--surf2);border:1px solid var(--border2);padding:7px 16px;border-radius:6px;font-size:10px;opacity:0;transform:translateY(20px);transition:all .2s;z-index:9999;pointer-events:none;}
+/* MISC */
+#toast{position:fixed;bottom:14px;right:14px;background:var(--surf2);border:1px solid var(--border2);padding:7px 14px;border-radius:5px;font-size:10px;opacity:0;transform:translateY(20px);transition:all .2s;z-index:9999;pointer-events:none;}
 #toast.show{opacity:1;transform:translateY(0);}
 #toast.ok{border-color:var(--emerald);color:var(--emerald);}
 #toast.err{border-color:var(--red);color:var(--red);}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;align-items:center;justify-content:center;}
-.modal{width:330px;background:var(--surf);border:1px solid var(--border2);border-radius:10px;padding:24px;}
-.modal h3{font-family:'Crimson Pro',serif;font-size:16px;margin-bottom:7px;}
-.modal p{font-size:10px;color:var(--text2);line-height:1.65;margin-bottom:16px;}
+.modal{width:320px;background:var(--surf);border:1px solid var(--border2);border-radius:9px;padding:22px;}
+.modal h3{font-family:'Crimson Pro',serif;font-size:15px;margin-bottom:6px;}
+.modal p{font-size:10px;color:var(--text2);line-height:1.65;margin-bottom:14px;}
 .modal-acts{display:flex;gap:8px;justify-content:flex-end;}
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -176,7 +203,7 @@ nav{padding:10px;flex-shrink:0;}
 <div id="setup">
   <div class="sbox">
     <h1>SIA</h1>
-    <p class="sub">Strategic Intelligence Architecture — Porter's Five Forces knowledge graph.<br>Data lives in your GitHub repo.</p>
+    <p class="sub">Strategic Intelligence Architecture — Porter's Five Forces · Generic Strategies · Companies<br>Data lives in your GitHub repo.</p>
     <div class="field"><label>Personal Access Token (repo scope)</label><input type="password" id="s-tok" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
     <div class="row2">
       <div class="field"><label>Owner</label><input id="s-own" placeholder="username"></div>
@@ -184,7 +211,7 @@ nav{padding:10px;flex-shrink:0;}
     </div>
     <button class="btn btn-p" id="s-btn" style="width:100%" onclick="connectGH()">Connect Repository</button>
     <div class="err" id="s-err"></div>
-    <p class="note">Create a private repo first. Token stored in localStorage only. Writes to <code>sia/data.json</code>.</p>
+    <p class="note">Create a private repo first. Token stored in localStorage. Writes to <code>sia/data.json</code>.</p>
   </div>
 </div>
 
@@ -193,7 +220,7 @@ nav{padding:10px;flex-shrink:0;}
     <div class="logo"><div class="logo-t">SIA</div><div class="logo-s">Intelligence Architecture</div></div>
     <nav>
       <div class="ns">Views</div>
-      <div class="ni active" id="ni-graph"   onclick="setView('graph')">⬡ &nbsp;Graph</div>
+      <div class="ni active" id="ni-graph"   onclick="setView('graph')">⬡ &nbsp;Board</div>
       <div class="ni"        id="ni-library" onclick="setView('library')">▤ &nbsp;Library</div>
       <div class="ns">Actions</div>
       <div class="ni" onclick="openForm(null)">+ &nbsp;Add Node</div>
@@ -213,7 +240,7 @@ nav{padding:10px;flex-shrink:0;}
   <div id="main">
     <div id="topbar">
       <div class="vtabs">
-        <div class="vt active" id="vt-graph"   onclick="setView('graph')">Graph</div>
+        <div class="vt active" id="vt-graph"   onclick="setView('graph')">Board</div>
         <div class="vt"        id="vt-library" onclick="setView('library')">Library</div>
       </div>
       <div class="spacer"></div>
@@ -232,29 +259,32 @@ nav{padding:10px;flex-shrink:0;}
         </div>
         <div id="g-info"></div>
         <div id="g-legend">
-          <div class="lr"><span class="lr2" style="background:rgba(167,139,250,.2);border:1.5px solid var(--purple)"></span>Force</div>
-          <div class="lr"><span class="ld" style="background:var(--text3)"></span>Factor</div>
-          <div class="lr"><span class="ld" style="background:var(--amber)"></span>Company</div>
-          <div class="lr"><span class="ld" style="background:var(--emerald)"></span>Concept</div>
+          <div class="lr"><span class="lp" style="border-color:var(--purple)"></span>Force</div>
+          <div class="lr"><span class="ls"></span>Strategy</div>
+          <div class="lr"><span class="lp" style="border-color:var(--text3);width:12px"></span>Factor</div>
+          <div class="lr"><span class="ld" style="border-color:var(--amber)"></span>Company</div>
+          <div class="lr"><span class="ld" style="border-color:var(--emerald)"></span>Concept</div>
         </div>
       </div>
       <div id="lv"><div class="lib-grid" id="lib-grid"></div></div>
     </div>
   </div>
 
+  <!-- DETAIL PANEL -->
   <div id="dp">
     <div id="dp-hdr">
       <span id="dp-badge" class="dp-badge"></span>
-      <div style="margin-left:auto;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
-        <button class="btn btn-s btn-sm" onclick="focusSelected()">⊙ Focus</button>
+      <div style="margin-left:auto;display:flex;gap:5px">
+        <button class="btn btn-s btn-sm" onclick="focusSelected()">⊙</button>
         <button class="btn btn-s btn-sm" id="dp-coll-btn" onclick="toggleCollapseSelected()" style="display:none"></button>
         <button class="btn btn-s btn-sm" onclick="openForm(S.sel)">Edit</button>
-        <button class="btn btn-g" style="padding:4px 8px;font-size:11px" onclick="confirmDelete()">✕</button>
+        <button class="btn btn-g" style="padding:4px 7px;font-size:11px" onclick="confirmDelete()">✕</button>
       </div>
     </div>
     <div id="dp-body"></div>
   </div>
 
+  <!-- FORM PANEL -->
   <div id="fp">
     <div id="fp-hdr">
       <div id="fp-title">New Node</div>
@@ -264,6 +294,14 @@ nav{padding:10px;flex-shrink:0;}
       </div>
     </div>
     <div id="fp-body"></div>
+  </div>
+</div>
+
+<!-- FLASHCARD MODAL -->
+<div id="fc-overlay" onclick="closeFC()">
+  <div id="fc-card" onclick="event.stopPropagation()">
+    <div id="fc-color-bar"></div>
+    <div id="fc-inner"></div>
   </div>
 </div>
 
@@ -281,23 +319,29 @@ nav{padding:10px;flex-shrink:0;}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script>
-// ── CONSTANTS ──────────────────────────────
-const GH_API='https://api.github.com', PENT_R=220;
+// ── CONSTANTS ─────────────────────────────────
+const GH_API='https://api.github.com', PENT_R=235;
+// Card / pill dimensions
+const FC={w:170,h:66,r:62};   // Force card
+const SC={w:142,h:52,r:56};   // Strategy card
+const FP={w:114,h:26,r:40};   // Factor pill
+const CO={r:13,cr:22};         // Company circle
+const CN={r:11,cr:20};         // Concept circle
+
 const TYPE_CFG={
   force:   {label:'Force',   icon:'⬡',color:'#a78bfa'},
-  factor:  {label:'Factor',  icon:'◉',color:'#6060a0'},
-  company: {label:'Company', icon:'◈',color:'#fbbf24'},
-  concept: {label:'Concept', icon:'◆',color:'#34d399'},
-  strategy:{label:'Strategy',icon:'▶',color:'#60a5fa'},
+  strategy:{label:'Strategy',icon:'◈',color:'#22d3ee'},
+  factor:  {label:'Factor',  icon:'◉',color:'#5a5880'},
+  company: {label:'Company', icon:'◆',color:'#fbbf24'},
+  concept: {label:'Concept', icon:'▶',color:'#34d399'},
 };
-const RELS=['overcame','exploited','leveraged','disrupted','created','illustrates','related_to','reduces','caused_by','had','lost','faced','ignored','used'];
-// Card dims for force nodes
-const CW=158, CH=56;
+const RELS=['counters','creates','reduces','illustrates','overcame','exploited','leveraged','disrupted','had','lost','ignored','used','related_to','caused_by'];
+const ALL_FIELDS=['name','description','corePhilosophy','howToExecute','forcesCountered','flywheel','commitments','risks','tradeoffs','whenToUse','implications','examples','counterExamples','industry','outcome','whatHappened','lessons','author','year'];
 
-// ── STATE ──────────────────────────────────
+// ── STATE ─────────────────────────────────────
 const S={cfg:null,view:'graph',sel:null,data:[],sha:null,searchQ:'',showLabels:true,formData:{},formType:'factor',hiddenForces:new Set()};
 
-// ── GITHUB ─────────────────────────────────
+// ── GITHUB API ────────────────────────────────
 const ghHdr=()=>({'Authorization':'token '+S.cfg.token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'});
 const b64enc=s=>btoa(unescape(encodeURIComponent(s)));
 const b64dec=s=>decodeURIComponent(escape(atob(s)));
@@ -305,7 +349,7 @@ const ghPath=()=>`${GH_API}/repos/${S.cfg.owner}/${S.cfg.repo}/contents/sia/data
 async function ghRead(){const r=await fetch(ghPath(),{headers:ghHdr()});if(r.status===404)return{data:[],sha:null};const f=await r.json();if(!f.content)return{data:[],sha:null};return{data:JSON.parse(b64dec(f.content.replace(/\n/g,''))),sha:f.sha};}
 async function ghWrite(){const c=await fetch(ghPath(),{headers:ghHdr()});if(c.ok){const f=await c.json();if(f.sha)S.sha=f.sha;}else if(c.status===404)S.sha=null;else throw new Error('HTTP '+c.status);const body={message:'sia: update',content:b64enc(JSON.stringify(S.data,null,2))};if(S.sha)body.sha=S.sha;const r=await fetch(ghPath(),{method:'PUT',headers:ghHdr(),body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw new Error(j.message||'Write failed');S.sha=j.content?.sha||S.sha;}
 
-// ── SETUP / BOOT ───────────────────────────
+// ── SETUP / BOOT ──────────────────────────────
 async function connectGH(){
   const token=q('#s-tok').value.trim(),owner=q('#s-own').value.trim(),repo=q('#s-rep').value.trim();
   if(!token||!owner||!repo){setErr('All fields required.');return;}
@@ -318,15 +362,15 @@ function showSetup(){q('#setup').style.display='flex';q('#s-err').style.display=
 async function boot(){
   q('#setup').style.display='none';q('#app').style.display='flex';
   q('#repo-lbl').textContent=S.cfg.owner+'/'+S.cfg.repo;q('#sdot').className='sdot ok';
-  try{const{data,sha}=await ghRead();S.data=data;S.sha=sha;if(!S.data.length&&sha===null){S.data=JSON.parse(JSON.stringify(SEED));await ghWrite();toast("Seeded with Porter's Five Forces ✓",'ok');}}
+  try{const{data,sha}=await ghRead();S.data=data;S.sha=sha;if(!S.data.length&&sha===null){S.data=JSON.parse(JSON.stringify(SEED));await ghWrite();toast("Seeded with Porter's Five Forces + Generic Strategies ✓",'ok');}}
   catch(e){toast('Load error: '+e.message,'err');S.data=JSON.parse(JSON.stringify(SEED));S.sha=null;}
   buildForceFilter();setView('graph');
 }
 
-// ── NAVIGATION ─────────────────────────────
+// ── NAVIGATION ────────────────────────────────
 function setView(v){S.view=v;['graph','library'].forEach(n=>{q('#ni-'+n)?.classList.toggle('active',n===v);q('#vt-'+n)?.classList.toggle('active',n===v);});q('#gv').style.display=v==='graph'?'block':'none';q('#lv').style.display=v==='library'?'block':'none';if(v==='graph')renderGraph();if(v==='library')renderLibrary();}
 
-// ── FORCE FILTER ───────────────────────────
+// ── FORCE FILTER ──────────────────────────────
 function buildForceFilter(){
   const forces=S.data.filter(d=>d.type==='force');
   q('#fp-list').innerHTML=forces.map(f=>{
@@ -340,22 +384,15 @@ function buildForceFilter(){
 }
 function toggleForceViz(id){S.hiddenForces.has(id)?S.hiddenForces.delete(id):S.hiddenForces.add(id);buildForceFilter();if(S.view==='graph')renderGraph();}
 
-// ── COLLAPSE (animated) ────────────────────
+// ── COLLAPSE (animated, with company hiding) ──
 function toggleCollapse(id){
   const n=S.data.find(d=>d.id===id);if(!n)return;
   if(!n.collapsed){
-    // Animate factors out, then collapse
-    if(gNodeG){
-      gNodeG.selectAll('g').filter(d=>d.parentId===id)
-        .transition().duration(200).attr('opacity',0);
-      setTimeout(()=>{n.collapsed=true;renderGraph();if(S.sel?.id===id)openDetail(n);},220);
-    } else {n.collapsed=true;renderGraph();}
+    if(gNodeG){gNodeG.selectAll('g').filter(d=>d.parentId===id).transition().duration(200).attr('opacity',0);}
+    setTimeout(()=>{n.collapsed=true;renderGraph();if(S.sel?.id===id)openDetail(n);},220);
   } else {
-    // Expand then animate in
     n.collapsed=false;renderGraph();
-    setTimeout(()=>{
-      if(gNodeG) gNodeG.selectAll('g').filter(d=>d.parentId===id).attr('opacity',0).transition().duration(300).attr('opacity',1);
-    },20);
+    setTimeout(()=>{if(gNodeG)gNodeG.selectAll('g').filter(d=>d.parentId===id).attr('opacity',0).transition().duration(300).attr('opacity',1);},20);
     if(S.sel?.id===id)openDetail(n);
   }
 }
@@ -363,33 +400,46 @@ function toggleCollapseSelected(){if(S.sel?.type==='force')toggleCollapse(S.sel.
 function expandAll(){S.data.filter(d=>d.type==='force').forEach(d=>d.collapsed=false);if(S.view==='graph')renderGraph();}
 function collapseAll(){S.data.filter(d=>d.type==='force').forEach(d=>d.collapsed=true);if(S.view==='graph')renderGraph();}
 
-// ── D3 GRAPH ───────────────────────────────
-let gSim=null,gSvg=null,gZoom=null,gNodeG=null,gLinkG=null;
-
+// ── VIS DATA (company hides when force collapses) ──
 function visData(){
+  const hf=new Set();
+  S.data.filter(n=>n.type==='factor').forEach(n=>{const p=S.data.find(x=>x.id===n.parentId);if(!p||S.hiddenForces.has(p.id)||p.collapsed)hf.add(n.id);});
   const nodes=S.data.filter(n=>{
     if(S.hiddenForces.has(n.id))return false;
-    if(n.type==='factor'){const p=S.data.find(x=>x.id===n.parentId);return p&&!S.hiddenForces.has(p.id)&&!p.collapsed;}
+    if(n.type==='factor')return!hf.has(n.id);
+    if(n.type==='company'){
+      const fl=(n.links||[]).filter(l=>{const t=S.data.find(x=>x.id===l.targetId);return t&&t.type==='factor';});
+      if(!fl.length)return true;
+      return fl.some(l=>!hf.has(l.targetId));
+    }
     return true;
   });
   const ids=new Set(nodes.map(n=>n.id));
   const links=[];
   nodes.forEach(n=>{
-    if(n.type==='factor'&&n.parentId&&ids.has(n.parentId)) links.push({source:n.id,target:n.parentId,lt:'parent'});
-    (n.links||[]).forEach(l=>{if(ids.has(l.targetId)) links.push({source:n.id,target:l.targetId,lt:n.type,rel:l.rel,lbl:l.label});});
+    if(n.type==='factor'&&n.parentId&&ids.has(n.parentId))links.push({source:n.id,target:n.parentId,lt:'parent'});
+    (n.links||[]).forEach(l=>{if(ids.has(l.targetId))links.push({source:n.id,target:l.targetId,lt:n.type,rel:l.rel,lbl:l.label});});
   });
   return{nodes,links};
 }
 
-function nc(d){if(d.type==='force')return d.forceColor||'#a78bfa';if(d.type==='factor'){const p=S.data.find(x=>x.id===d.parentId);return p?(p.forceColor||'#a78bfa'):'#6060a0';}return TYPE_CFG[d.type]?.color||'#888';}
-function nr(d){return d.type==='force'?62:d.type==='company'?22:16;}
-
-function splitName(name){
-  const words=name.split(' ');
-  if(words.length<=2||name.length<=16)return[name];
-  const mid=Math.ceil(words.length/2);
-  return[words.slice(0,mid).join(' '),words.slice(mid).join(' ')];
+// ── NODE COLOR & RADIUS ───────────────────────
+function nc(d){
+  if(d.type==='force')return d.forceColor||'#a78bfa';
+  if(d.type==='strategy')return'#22d3ee';
+  if(d.type==='factor'){const p=S.data.find(x=>x.id===d.parentId);return p?(p.forceColor||'#a78bfa'):'#5a5880';}
+  if(d.type==='company')return'#fbbf24';
+  return'#34d399';
 }
+function cr(d){if(d.type==='force')return FC.r;if(d.type==='strategy')return SC.r;if(d.type==='factor')return FP.r;if(d.type==='company')return CO.cr;return CN.cr;}
+
+function splitName(name,maxLine=16){
+  const w=name.split(' ');if(w.length<=1||name.length<=maxLine)return[name];
+  const m=Math.ceil(w.length/2);return[w.slice(0,m).join(' '),w.slice(m).join(' ')];
+}
+
+// ── D3 GRAPH ──────────────────────────────────
+let gSim=null,gSvg=null,gZoom=null,gNodeG=null,gLinkG=null;
 
 function renderGraph(){
   if(gSim){gSim.stop();gSim=null;}
@@ -401,16 +451,17 @@ function renderGraph(){
   const fns=nodes.filter(n=>n.type==='force');
   fns.forEach((fn,i)=>{if(fn.x===undefined){const a=(i*2*Math.PI/fns.length)-Math.PI/2;fn.x=cx+PENT_R*Math.cos(a);fn.y=cy+PENT_R*Math.sin(a);}});
   nodes.forEach(n=>{
-    if(n.x===undefined||n.y===undefined){
-      if(n.type==='factor'&&n.parentId){const p=nodes.find(x=>x.id===n.parentId);if(p){n.x=p.x+(Math.random()-.5)*70;n.y=p.y+(Math.random()-.5)*70;return;}}
-      n.x=cx+(Math.random()-.5)*280;n.y=cy+(Math.random()-.5)*280;
-    }
+    if(n.x!==undefined&&n.y!==undefined)return;
+    if(n.type==='factor'&&n.parentId){const p=nodes.find(x=>x.id===n.parentId);if(p){n.x=p.x+(Math.random()-.5)*70;n.y=p.y+(Math.random()-.5)*70;return;}}
+    if(n.type==='strategy'){n.x=cx+(Math.random()-.5)*120;n.y=cy+(Math.random()-.5)*120;return;}
+    if(n.type==='company'&&(n.links||[]).length){const tgt=nodes.find(x=>x.id===(n.links[0].targetId));if(tgt){n.x=tgt.x+(Math.random()-.5)*60;n.y=tgt.y+(Math.random()-.5)*60;return;}}
+    n.x=cx+(Math.random()-.5)*260;n.y=cy+(Math.random()-.5)*260;
   });
 
   // Pre-color links
   links.forEach(l=>{
-    if(l.lt==='parent'){const t=nodes.find(n=>n.id===l.target);l._c=t?nc(t):'#2c2c50';}
-    else{const s=nodes.find(n=>n.id===l.source);l._c=s?nc(s):'#2c2c50';}
+    if(l.lt==='parent'){const t=nodes.find(n=>n.id===l.target);l._c=t?nc(t)+'60':'#1c1c32';}
+    else{const s=nodes.find(n=>n.id===l.source);l._c=s?nc(s):'#1c1c32';}
   });
 
   gZoom=d3.zoom().scaleExtent([.07,5]).on('zoom',ev=>grp.attr('transform',ev.transform));
@@ -420,142 +471,152 @@ function renderGraph(){
   // Arrow markers
   const defs=svg.append('defs');
   ['company','concept','strategy'].forEach(t=>{
-    defs.append('marker').attr('id','a-'+t).attr('viewBox','0 -4 8 8').attr('refX',28).attr('markerWidth',5).attr('markerHeight',5).attr('orient','auto')
-      .append('path').attr('d','M0,-4L8,0L0,4').attr('fill',TYPE_CFG[t].color).attr('fill-opacity',.5);
+    defs.append('marker').attr('id','a-'+t).attr('viewBox','0 -4 8 8').attr('refX',30).attr('markerWidth',5).attr('markerHeight',5).attr('orient','auto')
+      .append('path').attr('d','M0,-4L8,0L0,4').attr('fill',TYPE_CFG[t]?.color||'#888').attr('fill-opacity',.5);
   });
 
   // Links
   gLinkG=grp.append('g');
   const lsel=gLinkG.selectAll('line').data(links).join('line')
-    .attr('stroke',d=>d._c).attr('stroke-dasharray',d=>d.lt==='parent'?'3,5':null)
-    .attr('stroke-width',d=>d.lt==='parent'?1:1.5)
-    .attr('stroke-opacity',d=>d.lt==='parent'?.2:.4)
-    .attr('fill','none')
+    .attr('stroke',d=>d._c).attr('stroke-dasharray',d=>d.lt==='parent'?'3,6':null)
+    .attr('stroke-width',d=>d.lt==='parent'?1:1.5).attr('stroke-opacity',d=>d.lt==='parent'?.25:.45)
+    .attr('fill','none').attr('cursor',d=>d.lt!=='parent'?'crosshair':'default')
     .attr('marker-end',d=>['company','concept','strategy'].includes(d.lt)?`url(#a-${d.lt})`:null)
-    .attr('cursor',d=>d.lt!=='parent'?'crosshair':'default')
     .on('mouseover',(ev,d)=>{if(d.lt!=='parent')showEdgeTip(ev,d);})
     .on('mouseout',()=>hideTip());
 
-  // Node groups
+  // Nodes
   gNodeG=grp.append('g');
-  const nsel=gNodeG.selectAll('g').data(nodes).join('g')
-    .attr('cursor','pointer')
+  const nsel=gNodeG.selectAll('g').data(nodes).join('g').attr('cursor','pointer')
     .call(d3.drag()
       .on('start',(ev,d)=>{if(!ev.active)gSim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;})
       .on('drag', (ev,d)=>{d.fx=ev.x;d.fy=ev.y;})
-      .on('end',  (ev,d)=>{if(!ev.active)gSim.alphaTarget(0);if(d.type!=='force'){d.fx=null;d.fy=null;}})
-    )
+      .on('end',  (ev,d)=>{if(!ev.active)gSim.alphaTarget(0);if(d.type!=='force'){d.fx=null;d.fy=null;}}))
     .on('click',(ev,d)=>{ev.stopPropagation();onNodeClick(d);})
     .on('mouseover',(ev,d)=>{
       const sel=d3.select(ev.currentTarget);
-      if(d.type==='force') sel.select('.fcard').attr('filter',`drop-shadow(0 0 14px ${nc(d)})`);
-      else sel.select('circle').attr('filter',`drop-shadow(0 0 9px ${nc(d)})`);
+      sel.select('.ncard,.npill').attr('filter',`drop-shadow(0 0 10px ${nc(d)})`);
+      sel.select('circle').attr('filter',`drop-shadow(0 0 7px ${nc(d)})`);
       showTip(ev,d);
     })
-    .on('mouseout',(ev,d)=>{
-      d3.select(ev.currentTarget).select('.fcard').attr('filter',null);
-      d3.select(ev.currentTarget).select('circle').attr('filter',null);
+    .on('mouseout',(ev)=>{
+      const sel=d3.select(ev.currentTarget);
+      sel.select('.ncard,.npill').attr('filter',null);sel.select('circle').attr('filter',null);
       hideTip();
     });
 
-  // ── FORCE NODES (cards) ──
+  // ── FORCE CARDS (largest) ──
   const fg=nsel.filter(d=>d.type==='force');
-
-  // Card background
-  fg.append('rect').attr('class','fcard')
-    .attr('width',CW).attr('height',CH).attr('x',-CW/2).attr('y',-CH/2).attr('rx',9).attr('ry',9)
-    .attr('fill',d=>d.forceColor||'#a78bfa').attr('fill-opacity',.09)
-    .attr('stroke',d=>d.forceColor||'#a78bfa').attr('stroke-width',1.5);
-
-  // Top accent bar
-  fg.append('rect')
-    .attr('width',CW).attr('height',3).attr('x',-CW/2).attr('y',-CH/2).attr('rx',9)
-    .attr('fill',d=>d.forceColor||'#a78bfa').attr('fill-opacity',.85);
-
-  // Force name (split into 1–2 lines)
+  fg.append('rect').attr('class','ncard')
+    .attr('width',FC.w).attr('height',FC.h).attr('x',-FC.w/2).attr('y',-FC.h/2).attr('rx',8)
+    .attr('fill','#0c0c1e').attr('stroke',d=>nc(d)).attr('stroke-width',1.5);
+  fg.append('rect').attr('width',4).attr('height',FC.h).attr('x',-FC.w/2).attr('y',-FC.h/2).attr('rx',3)
+    .attr('fill',d=>nc(d));
   fg.each(function(d){
-    const lines=splitName(d.name);
-    const t=d3.select(this).append('text')
-      .attr('text-anchor','middle').attr('pointer-events','none')
-      .attr('font-family',"'Crimson Pro',serif").attr('font-size','13px').attr('font-weight','700').attr('fill','var(--text)');
-    if(lines.length===1){
-      t.attr('y',-5).attr('dominant-baseline','central').text(lines[0]);
-    } else {
-      t.append('tspan').attr('x',0).attr('y',-15).text(lines[0]);
-      t.append('tspan').attr('x',0).attr('dy','16').text(lines[1]);
-    }
+    const lines=splitName(d.name,18);
+    const t=d3.select(this).append('text').attr('text-anchor','middle').attr('pointer-events','none')
+      .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','10px').attr('letter-spacing','.04em')
+      .attr('fill','var(--text)').attr('font-weight','500');
+    if(lines.length===1){t.attr('y',-8).attr('dominant-baseline','central').text(lines[0].toUpperCase());}
+    else{t.append('tspan').attr('x',6).attr('y',-18).text(lines[0].toUpperCase());t.append('tspan').attr('x',6).attr('dy','14').text(lines[1].toUpperCase());}
   });
+  // Collapse toggle
+  const ct=fg.append('g').attr('class','ctog').attr('transform',`translate(${FC.w/2-30},${FC.h/2-11})`)
+    .attr('cursor','pointer').on('click',(ev,d)=>{ev.stopPropagation();toggleCollapse(d.id);});
+  ct.append('rect').attr('width',44).attr('height',14).attr('x',0).attr('y',0).attr('rx',7)
+    .attr('fill','var(--bg)').attr('stroke',d=>nc(d)).attr('stroke-width',1).attr('stroke-opacity',.6);
+  ct.append('text').attr('x',22).attr('y',7).attr('text-anchor','middle').attr('dominant-baseline','central')
+    .attr('font-size','8px').attr('fill',d=>nc(d)).attr('font-family',"'JetBrains Mono',monospace").attr('pointer-events','none')
+    .text(d=>{const c=S.data.filter(x=>x.type==='factor'&&x.parentId===d.id).length;return d.collapsed?`+${c}`:'▼ hide';});
 
-  // Collapse toggle (pill at card bottom)
-  const ctog=fg.append('g').attr('class','ctog').attr('transform',`translate(0,${CH/2-10})`)
-    .attr('cursor','pointer')
-    .on('click',(ev,d)=>{ev.stopPropagation();toggleCollapse(d.id);});
-  ctog.append('rect').attr('width',52).attr('height',14).attr('x',-26).attr('y',-7).attr('rx',7)
-    .attr('fill','var(--bg)').attr('stroke',d=>d.forceColor||'#a78bfa').attr('stroke-width',1).attr('stroke-opacity',.65);
-  ctog.append('text').attr('text-anchor','middle').attr('dominant-baseline','central')
-    .attr('font-size','8px').attr('fill',d=>d.forceColor||'#a78bfa')
-    .attr('font-family',"'JetBrains Mono',monospace").attr('pointer-events','none')
-    .text(d=>{const c=S.data.filter(x=>x.type==='factor'&&x.parentId===d.id).length;return d.collapsed?`▶ ${c} show`:'▼ hide';});
+  // ── STRATEGY CARDS (medium) ──
+  const sg=nsel.filter(d=>d.type==='strategy');
+  sg.append('rect').attr('class','ncard')
+    .attr('width',SC.w).attr('height',SC.h).attr('x',-SC.w/2).attr('y',-SC.h/2).attr('rx',7)
+    .attr('fill','#071216').attr('stroke','#22d3ee').attr('stroke-width',1.5).attr('stroke-dasharray','5,3');
+  sg.each(function(d){
+    const lines=splitName(d.name,18);
+    const t=d3.select(this).append('text').attr('text-anchor','middle').attr('pointer-events','none')
+      .attr('font-family',"'Crimson Pro',serif").attr('font-size','12px').attr('fill','#22d3ee').attr('font-weight','600');
+    if(lines.length===1){t.attr('y',0).attr('dominant-baseline','central').text(lines[0]);}
+    else{t.append('tspan').attr('x',0).attr('y',-9).text(lines[0]);t.append('tspan').attr('x',0).attr('dy','16').text(lines[1]);}
+  });
+  sg.append('text').attr('text-anchor','middle').attr('y',SC.h/2-9).attr('font-size','8px')
+    .attr('fill','#22d3ee').attr('fill-opacity',.5).attr('font-family',"'JetBrains Mono',monospace")
+    .attr('pointer-events','none').attr('letter-spacing','.06em').text('STRATEGY');
 
-  // ── FACTOR / COMPANY / CONCEPT NODES (circles) ──
-  nsel.filter(d=>d.type!=='force').append('circle').attr('r',nr)
-    .attr('fill',d=>nc(d)+'18').attr('stroke',nc).attr('stroke-width',1.5).attr('stroke-opacity',.9);
+  // ── FACTOR PILLS (small) ──
+  const fac=nsel.filter(d=>d.type==='factor');
+  fac.append('rect').attr('class','npill')
+    .attr('width',FP.w).attr('height',FP.h).attr('x',-FP.w/2).attr('y',-FP.h/2).attr('rx',FP.h/2)
+    .attr('fill','#0a0a18').attr('stroke',d=>nc(d)).attr('stroke-width',1).attr('stroke-opacity',.6);
+  fac.append('text').attr('text-anchor','middle').attr('dominant-baseline','central').attr('pointer-events','none')
+    .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','8px').attr('letter-spacing','.04em')
+    .attr('fill',d=>nc(d)).attr('fill-opacity',.9)
+    .text(d=>d.name.length>15?d.name.slice(0,13)+'…':d.name.toUpperCase());
 
-  // Labels — only for non-force nodes (name is on the card for forces)
-  nsel.filter(d=>d.type!=='force').append('text').attr('class','nlbl')
-    .attr('text-anchor','middle').attr('pointer-events','none')
-    .attr('y',d=>nr(d)+13)
-    .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','9px').attr('fill','var(--text2)')
+  // ── COMPANY & CONCEPT CIRCLES (small) ──
+  const sm=nsel.filter(d=>['company','concept'].includes(d.type));
+  sm.append('circle').attr('r',d=>d.type==='company'?CO.r:CN.r)
+    .attr('fill','none').attr('stroke',nc).attr('stroke-width',1.5);
+  sm.filter(d=>d.type==='company').append('text').attr('text-anchor','middle').attr('dominant-baseline','central')
+    .attr('font-size','7px').attr('fill',d=>nc(d)).attr('pointer-events','none')
+    .text(d=>d.name.slice(0,1));
+
+  // Labels below small nodes
+  nsel.filter(d=>['company','concept'].includes(d.type)).append('text').attr('class','nlbl')
+    .attr('text-anchor','middle').attr('pointer-events','none').attr('y',d=>d.type==='company'?CO.r+10:CN.r+10)
+    .attr('font-family',"'JetBrains Mono',monospace").attr('font-size','8px').attr('fill','var(--text2)')
     .style('display',S.showLabels?null:'none')
-    .text(d=>d.name.length>22?d.name.slice(0,20)+'…':d.name);
+    .text(d=>d.name.length>16?d.name.slice(0,14)+'…':d.name);
 
   // Simulation
   const nmap=new Map(nodes.map(n=>[n.id,n]));
   gSim=d3.forceSimulation(nodes).alpha(.3)
-    .force('link',d3.forceLink(links).id(d=>d.id).distance(d=>d.lt==='parent'?120:145).strength(d=>d.lt==='parent'?.45:.18))
-    .force('charge',d3.forceManyBody().strength(d=>d.type==='force'?-650:d.type==='company'?-200:-150))
-    .force('collision',d3.forceCollide().radius(d=>nr(d)+20))
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(d=>d.lt==='parent'?130:160).strength(d=>d.lt==='parent'?.4:.15))
+    .force('charge',d3.forceManyBody().strength(d=>{if(d.type==='force')return-700;if(d.type==='strategy')return-300;if(d.type==='factor')return-200;return-120;}))
+    .force('collision',d3.forceCollide().radius(cr))
     .force('orbit',forceOrbit(nmap))
-    .force('cx',d3.forceX(cx).strength(.012)).force('cy',d3.forceY(cy).strength(.012))
-    .on('tick',()=>{
-      lsel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-      nsel.attr('transform',d=>`translate(${d.x},${d.y})`);
-    });
+    .force('cx',d3.forceX(cx).strength(.01)).force('cy',d3.forceY(cy).strength(.01))
+    .on('tick',()=>{lsel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nsel.attr('transform',d=>`translate(${d.x},${d.y})`);});
 
   svg.on('click',()=>{if(S.sel){S.sel=null;resetHL();closeDetail();}});
-  gSvg=svg;
-  q('#g-info').textContent=`${nodes.length} nodes · ${links.length} links`;
+  gSvg=svg;q('#g-info').textContent=`${nodes.length} nodes · ${links.length} links`;
 }
 
 function forceOrbit(nm){
-  const td=125,k=.32;
+  const td=130,k=.3;
   return function(a){nm.forEach(n=>{if(n.type!=='factor')return;const p=nm.get(n.parentId);if(!p)return;const dx=n.x-p.x,dy=n.y-p.y,d=Math.hypot(dx,dy)||1,f=(d-td)/d*a*k;n.vx-=dx*f;n.vy-=dy*f;});};
 }
 
-// ── TOOLTIPS ───────────────────────────────
+// ── TOOLTIPS ──────────────────────────────────
 function showTip(ev,d){
   const tip=q('#g-tip');
   const pname=d.parentId?(' · '+(S.data.find(x=>x.id===d.parentId)?.name||'')):'';
   tip.innerHTML=`<div class="tip-t" style="color:${nc(d)}">${TYPE_CFG[d.type]?.label||d.type}${pname}</div>
     <div class="tip-n">${esc(d.name)}</div>
-    ${d.description?`<div class="tip-d">${esc(d.description.slice(0,130)+(d.description.length>130?'…':''))}</div>`:''}`;
+    ${d.description?`<div class="tip-d">${esc(d.description.slice(0,120)+(d.description.length>120?'…':''))}</div>`:''}`;
   const x=ev.layerX||ev.offsetX||0,y=ev.layerY||ev.offsetY||0;
   tip.style.cssText+=`;opacity:1;left:${x+14}px;top:${y-10}px`;
 }
 function showEdgeTip(ev,d){
   const tip=q('#g-tip');
-  const sname=typeof d.source==='object'?d.source.name:(S.data.find(x=>x.id===d.source)?.name||'');
-  const tname=typeof d.target==='object'?d.target.name:(S.data.find(x=>x.id===d.target)?.name||'');
+  const sn=typeof d.source==='object'?d.source.name:'',tn=typeof d.target==='object'?d.target.name:'';
   tip.innerHTML=`<div class="tip-t" style="color:${d._c||'var(--text2)'}">${d.rel||'connection'}</div>
-    <div style="font-size:10px;color:var(--text);margin-bottom:${d.lbl?'5px':'0'}">${esc(sname)} → ${esc(tname)}</div>
+    <div style="font-size:10px;color:var(--text);margin-bottom:${d.lbl?'5px':'0'}">${esc(sn)} → ${esc(tn)}</div>
     ${d.lbl?`<div class="tip-d">${esc(d.lbl)}</div>`:''}`;
   const x=ev.layerX||ev.offsetX||0,y=ev.layerY||ev.offsetY||0;
   tip.style.cssText+=`;opacity:1;left:${x+14}px;top:${y-10}px`;
 }
 function hideTip(){q('#g-tip').style.opacity='0';}
 
-// ── NODE SELECTION & HIGHLIGHT ─────────────
-function onNodeClick(d){S.sel=S.data.find(x=>x.id===d.id);hlNode(d);openDetail(S.sel);}
+// ── NODE CLICK → ROUTES TO FLASHCARD OR PANEL ─
+function onNodeClick(d){
+  S.sel=S.data.find(x=>x.id===d.id);
+  hlNode(d);
+  if(S.sel.type==='company'){openFlashcard(S.sel);}
+  else{openDetail(S.sel);}
+}
 function hlNode(d){
   if(!gNodeG||!gLinkG)return;
   const rel=new Set([d.id]);
@@ -564,20 +625,17 @@ function hlNode(d){
   if(d.type==='factor'&&d.parentId)rel.add(d.parentId);
   if(d.type==='force')S.data.filter(x=>x.type==='factor'&&x.parentId===d.id).forEach(x=>rel.add(x.id));
   gNodeG.selectAll('g').attr('opacity',nd=>rel.has(nd.id)?1:.06);
-  gLinkG.selectAll('line').attr('opacity',l=>{const s=l.source?.id||l.source,t=l.target?.id||l.target;return(rel.has(s)&&rel.has(t))?.75:.03;});
-  // Glow on selected
+  gLinkG.selectAll('line').attr('opacity',l=>{const s=l.source?.id||l.source,t=l.target?.id||l.target;return(rel.has(s)&&rel.has(t))?.7:.03;});
   gNodeG.selectAll('g').filter(nd=>nd.id===d.id).each(function(nd){
-    d3.select(this).select(nd.type==='force'?'.fcard':'circle').attr('filter',`drop-shadow(0 0 16px ${nc(nd)})`);
+    d3.select(this).select('.ncard,.npill').attr('filter',`drop-shadow(0 0 14px ${nc(nd)})`);
+    d3.select(this).select('circle').attr('filter',`drop-shadow(0 0 10px ${nc(nd)})`);
   });
 }
-function resetHL(){if(!gNodeG||!gLinkG)return;gNodeG.selectAll('g').attr('opacity',1);gLinkG.selectAll('line').attr('opacity',null);gNodeG.selectAll('.fcard,circle').attr('filter',null);}
+function resetHL(){if(!gNodeG||!gLinkG)return;gNodeG.selectAll('g').attr('opacity',1);gLinkG.selectAll('line').attr('opacity',null);gNodeG.selectAll('.ncard,.npill,circle').attr('filter',null);}
 function onSearch(){S.searchQ=q('#search').value.toLowerCase();if(S.view==='graph')hlSearch();if(S.view==='library')renderLibrary();}
 function hlSearch(){if(!gNodeG)return;if(!S.searchQ){resetHL();return;}gNodeG.selectAll('g').attr('opacity',d=>((d.name||'').toLowerCase().includes(S.searchQ)||(d.description||'').toLowerCase().includes(S.searchQ))?1:.06);}
-
-// ── ZOOM TO CLUSTER ────────────────────────
 function zoomToNode(id){
-  const node=S.data.find(d=>d.id===id);
-  if(!node||!gSvg||!gZoom||!gNodeG)return;
+  const node=S.data.find(d=>d.id===id);if(!node||!gSvg||!gZoom||!gNodeG)return;
   const ids=new Set([id]);
   if(node.type==='force')S.data.filter(d=>d.type==='factor'&&d.parentId===id&&!node.collapsed).forEach(d=>ids.add(d.id));
   (node.links||[]).forEach(l=>ids.add(l.targetId));
@@ -586,17 +644,44 @@ function zoomToNode(id){
   const nd=gNodeG.selectAll('g').filter(d=>ids.has(d.id)).data();
   if(!nd.length)return;
   const xs=nd.map(d=>d.x),ys=nd.map(d=>d.y);
-  const x0=Math.min(...xs)-110,x1=Math.max(...xs)+110,y0=Math.min(...ys)-90,y1=Math.max(...ys)+90;
+  const x0=Math.min(...xs)-120,x1=Math.max(...xs)+120,y0=Math.min(...ys)-90,y1=Math.max(...ys)+90;
   const W=q('#gv').clientWidth,H=q('#gv').clientHeight;
-  const s=Math.min(.82*W/(x1-x0),.82*H/(y1-y0),1.9);
+  const s=Math.min(.8*W/(x1-x0),.8*H/(y1-y0),1.8);
   gSvg.transition().duration(650).call(gZoom.transform,d3.zoomIdentity.translate(W/2-s*(x0+x1)/2,H/2-s*(y0+y1)/2).scale(s));
 }
 function focusSelected(){if(S.sel)zoomToNode(S.sel.id);}
 function resetZoom(){if(gSvg&&gZoom)gSvg.transition().duration(500).call(gZoom.transform,d3.zoomIdentity);}
 function toggleLabels(){S.showLabels=!S.showLabels;if(gNodeG)gNodeG.selectAll('.nlbl').style('display',S.showLabels?null:'none');}
 
-// ── DETAIL PANEL ───────────────────────────
+// ── FLASHCARD MODAL (companies) ───────────────
+function openFlashcard(e){
+  const c=nc(e);
+  const oc=e.outcome==='Success'?'success':e.outcome==='Failure'?'failure':'ongoing';
+  const conns=(e.links||[]).map(l=>{const t=S.data.find(x=>x.id===l.targetId);return t?esc(t.name):null;}).filter(Boolean);
+  q('#fc-color-bar').style.background=e.outcome==='Success'?'var(--emerald)':e.outcome==='Failure'?'var(--red)':'var(--cyan)';
+  q('#fc-inner').innerHTML=`
+    <div class="fc-header">
+      <span class="fc-type-badge" style="color:${c}">Company</span>
+      ${e.outcome?`<span class="fc-outcome ${oc}">${esc(e.outcome)}</span>`:''}
+    </div>
+    <div class="fc-name">${esc(e.name)}</div>
+    <div class="fc-industry">${[e.industry].filter(Boolean).join(' · ')}</div>
+    ${e.description?`<div class="fc-st">What it is</div><div class="fc-txt">${esc(e.description)}</div>`:''}
+    ${e.whatHappened?`<div class="fc-st">What Happened</div><div class="fc-txt">${esc(e.whatHappened)}</div>`:''}
+    ${e.lessons?`<div class="fc-st">Key Lesson</div><div class="fc-txt fc-lesson">${esc(e.lessons)}</div>`:''}
+    ${conns.length?`<div class="fc-st">Connected to</div><div class="fc-conns">${conns.map(c=>`<span class="fc-conn-tag">${c}</span>`).join('')}</div>`:''}
+    <div class="fc-actions">
+      <button class="btn btn-s btn-sm" onclick="openForm(S.sel)">Edit</button>
+      <button class="btn btn-s btn-sm" onclick="focusSelected()">⊙ Focus</button>
+      <button class="btn btn-g btn-sm" onclick="closeFC()">Close</button>
+    </div>`;
+  q('#fc-overlay').style.display='flex';
+}
+function closeFC(){q('#fc-overlay').style.display='none';}
+
+// ── DETAIL PANEL (non-company nodes) ─────────
 function openDetail(e){
+  if(e.type==='company'){openFlashcard(e);return;}
   const panel=q('#dp');panel.classList.add('open');
   const c=nc(e);q('#dp-badge').textContent=TYPE_CFG[e.type]?.label||e.type;q('#dp-badge').style.color=c;
   const cb=q('#dp-coll-btn');
@@ -606,19 +691,21 @@ function openDetail(e){
   const allConn=[...connOut,...connIn];
   const children=e.type==='force'?S.data.filter(x=>x.type==='factor'&&x.parentId===e.id):[];
   const df=(l,v)=>v?`<div class="dp-f"><div class="dp-fl">${l}</div><div class="dp-fv">${esc(v)}</div></div>`:'';
+  const stratFields=e.type==='strategy'?
+    df('Core Philosophy',e.corePhilosophy)+df('How to Execute',e.howToExecute)+df('Forces Countered',e.forcesCountered)+df('Flywheel',e.flywheel)+df('Commitments Required',e.commitments)+df('Key Risks',e.risks)+df('Trade-offs',e.tradeoffs)+df('When to Use',e.whenToUse):'';
   q('#dp-body').innerHTML=`
-    <div style="margin-bottom:13px"><div class="dp-name">${esc(e.name)}</div><div class="dp-meta">${[e.industry,e.outcome,e.year,e.author].filter(Boolean).join(' · ')}</div></div>
-    ${df('Description',e.description)}${df('Examples',e.examples)}${df('Counter-examples',e.counterExamples)}${df('Lessons',e.lessons)}
-    ${children.length?`<div class="dp-sec">Factors (${children.length})</div>${children.map(ch=>`<div class="dp-cr" onclick="navTo('${esca(ch.id)}')"><span class="dp-cdot" style="background:${nc(ch)}"></span><div><div class="dp-cname">${esc(ch.name)}</div></div></div>`).join('')}`:''}
-    ${allConn.length?`<div class="dp-sec">Connections (${allConn.length})</div>${allConn.map(ch=>`<div class="dp-cr" onclick="navTo('${esca(ch.id)}')"><span class="dp-cdot" style="background:${nc(ch)}"></span><div><div class="dp-cname">${esc(ch.name)}</div><div class="dp-crel">${esc(ch._rel||'')}${ch._lbl?' — '+esc(ch._lbl):''}</div><div class="dp-ctype">${TYPE_CFG[ch.type]?.label||ch.type}</div></div></div>`).join('')}`:`<div class="dp-sec">Connections</div><div style="font-size:10px;color:var(--text3);padding:8px 0">No connections yet.</div>`}
+    <div style="margin-bottom:12px"><div class="dp-name">${esc(e.name)}</div><div class="dp-meta">${[e.industry,e.outcome,e.year,e.author].filter(Boolean).join(' · ')}</div></div>
+    ${df('Description',e.description)}${df('Implications',e.implications)}${df('Examples',e.examples)}${df('Counter-examples',e.counterExamples)}${stratFields}
+    ${children.length?`<div class="dp-sec">Factors (${children.length})</div>${children.map(ch=>`<div class="dp-cr" onclick="navTo('${esca(ch.id)}')"><span class="dp-cdot" style="border-color:${nc(ch)}"></span><div><div class="dp-cname">${esc(ch.name)}</div></div></div>`).join('')}`:''}
+    ${allConn.length?`<div class="dp-sec">Connections (${allConn.length})</div>${allConn.map(ch=>`<div class="dp-cr" onclick="navTo('${esca(ch.id)}')"><span class="dp-cdot" style="border-color:${nc(ch)}"></span><div><div class="dp-cname">${esc(ch.name)}</div><div class="dp-crel">${esc(ch._rel||'')}${ch._lbl?' — '+esc(ch._lbl):''}</div><div class="dp-ctype">${TYPE_CFG[ch.type]?.label||ch.type}</div></div></div>`).join('')}`:`<div class="dp-sec">Connections</div><div style="font-size:10px;color:var(--text3);padding:8px 0">No connections yet.</div>`}
   `;
 }
 function closeDetail(){q('#dp').classList.remove('open');}
-function navTo(id){const e=S.data.find(x=>x.id===id);if(!e)return;S.sel=e;openDetail(e);if(S.view==='graph'&&gNodeG){const nd=gNodeG.data().find(d=>d.id===id);if(nd)hlNode(nd);}if(S.view==='library')qAll('.lc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));}
+function navTo(id){const e=S.data.find(x=>x.id===id);if(!e)return;S.sel=e;if(e.type==='company'){if(gNodeG){const nd=gNodeG.data().find(d=>d.id===id);if(nd)hlNode(nd);}openFlashcard(e);}else{openDetail(e);if(gNodeG){const nd=gNodeG.data().find(d=>d.id===id);if(nd)hlNode(nd);}}if(S.view==='library')qAll('.lc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));}
 
-// ── LIBRARY ────────────────────────────────
+// ── LIBRARY ───────────────────────────────────
 function renderLibrary(){
-  const ORDER=['force','factor','company','concept','strategy'];
+  const ORDER=['force','strategy','factor','company','concept'];
   const items=S.data.filter(e=>!S.searchQ||((e.name||'').toLowerCase().includes(S.searchQ)||(e.description||'').toLowerCase().includes(S.searchQ)));
   items.sort((a,b)=>ORDER.indexOf(a.type)-ORDER.indexOf(b.type)||(a.name>b.name?1:-1));
   const g=q('#lib-grid');
@@ -626,47 +713,75 @@ function renderLibrary(){
   g.innerHTML=items.map(e=>`<div class="lc${S.sel?.id===e.id?' sel':''}" data-id="${esca(e.id)}" style="border-left-color:${nc(e)}" onclick="selectLC('${esca(e.id)}')">
     <div class="lc-type" style="color:${nc(e)}">${TYPE_CFG[e.type]?.label||e.type}</div>
     <div class="lc-name">${esc(e.name)}</div>
-    <div class="lc-desc">${esc((e.description||'').slice(0,110))}</div>
+    <div class="lc-desc">${esc((e.description||e.corePhilosophy||'').slice(0,110))}</div>
   </div>`).join('');
 }
-function selectLC(id){S.sel=S.data.find(x=>x.id===id);if(S.sel){openDetail(S.sel);qAll('.lc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));}}
+function selectLC(id){S.sel=S.data.find(x=>x.id===id);if(S.sel){navTo(S.sel.id);qAll('.lc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));}}
 
-// ── FORM ───────────────────────────────────
-function openForm(entry){S.formData=entry?JSON.parse(JSON.stringify(entry)):{type:'factor',links:[]};S.formType=S.formData.type||'factor';q('#fp-title').textContent=entry?'Edit Node':'New Node';q('#fp').style.display='flex';renderForm();}
+// ── FORM ──────────────────────────────────────
+// Critical fix: save current DOM values before any re-render
+function saveFieldValues(){
+  ALL_FIELDS.forEach(f=>{const el=document.getElementById('ff-'+f);if(el)S.formData[f]=el.value;});
+  const pe=document.getElementById('ff-parent');if(pe)S.formData.parentId=pe.value||null;
+}
+
+function openForm(entry){
+  S.formData=entry?JSON.parse(JSON.stringify(entry)):{type:'factor',links:[]};
+  if(!S.formData.links)S.formData.links=[];
+  S.formType=S.formData.type||'factor';
+  q('#fp-title').textContent=entry?'Edit Node':'New Node';
+  q('#fp').style.display='flex';renderForm();
+}
 function closeForm(){q('#fp').style.display='none';}
-function setFT(t){S.formType=t;S.formData.type=t;renderForm();}
+function setFT(t){saveFieldValues();S.formType=t;S.formData.type=t;renderForm();}
+
 function renderForm(){
   const fd=S.formData;
-  const tg=['force','factor','company','concept','strategy'].map(t=>`<div class="type-opt t-${t}${S.formType===t?' sel':''}" onclick="setFT('${t}')"><div class="to-icon">${TYPE_CFG[t].icon}</div><div class="to-lbl">${TYPE_CFG[t].label}</div></div>`).join('');
+  const types=['force','strategy','factor','company','concept'];
+  const tg=types.map(t=>`<div class="type-opt t-${t}${S.formType===t?' sel':''}" onclick="setFT('${t}')"><div class="to-icon">${TYPE_CFG[t].icon}</div><div class="to-lbl">${TYPE_CFG[t].label}</div></div>`).join('');
   const forces=S.data.filter(d=>d.type==='force');
   const pf=S.formType==='factor'?`<div class="field"><label>Parent Force</label><select id="ff-parent"><option value="">None</option>${forces.map(f=>`<option value="${esca(f.id)}"${fd.parentId===f.id?' selected':''}>${esc(f.name)}</option>`).join('')}</select></div>`:'';
-  const tf={force:`${fa('description','Description')}`,factor:`${pf}${fa('description','Description')}${fa('examples','Examples')}`,company:`${fi('industry','Industry')}${fi('outcome','Outcome')}${fa('description','Description')}${fa('lessons','Lessons')}`,concept:`${fa('description','Description')}${fa('examples','Examples')}${fa('counterExamples','Counter-examples')}`,strategy:`${fa('description','Description')}${fa('examples','Examples')}`};
-  const rl=S.data.filter(e=>e.id!==fd.id).map(e=>{const p=(fd.links||[]).some(l=>l.targetId===e.id);return`<div class="rel-opt${p?' picked':''}" onclick="toggleLink('${esca(e.id)}')"><span class="rdot" style="background:${nc(e)}"></span><span style="flex:1">${esc(e.name)}</span><span style="font-size:9px;color:var(--text3)">${TYPE_CFG[e.type]?.label||e.type}</span></div>`;}).join('');
-  const cl=(fd.links||[]).map(l=>{const t=S.data.find(x=>x.id===l.targetId);if(!t)return'';return`<div class="ci"><span class="rdot" style="background:${nc(t)}"></span><span class="ci-name">${esc(t.name)}</span><select class="ci-rel" onchange="updLR('${esca(l.targetId)}',this.value)">${RELS.map(r=>`<option${l.rel===r?' selected':''}>${r}</option>`).join('')}</select><input class="ci-lbl" placeholder="label" value="${esc(l.label||'')}" oninput="updLL('${esca(l.targetId)}',this.value)"><button class="ci-rm" onclick="rmLink('${esca(l.targetId)}')">✕</button></div>`;}).join('');
+  const tf={
+    force:`${fa('description','Description')}${fa('implications','Strategic Implications')}${fa('examples','Industry Examples')}`,
+    strategy:`${fa('corePhilosophy','Core Philosophy')}${fa('howToExecute','How to Execute')}${fa('forcesCountered','Forces This Counters')}${fa('flywheel','Flywheel / Self-Reinforcing Loop')}${fa('commitments','Commitments Required')}${fa('risks','Key Risks')}${fa('tradeoffs','Trade-offs')}${fa('whenToUse','When to Use')}`,
+    factor:`${pf}${fa('description','Description')}${fa('examples','Examples')}`,
+    company:`${fi('industry','Industry')}${fi('outcome','Outcome (Success / Failure / Ongoing)')}${fa('description','Brief Description')}${fa('whatHappened','What Happened')}${fa('lessons','Key Lesson')}`,
+    concept:`${fa('description','Description')}${fa('examples','Examples')}${fa('counterExamples','Counter-examples')}`,
+  };
+  const others=S.data.filter(e=>e.id!==fd.id);
+  const rl=others.map(e=>{const p=(fd.links||[]).some(l=>l.targetId===e.id);return`<div class="rel-opt${p?' picked':''}" onclick="toggleLink('${esca(e.id)}')"><span class="rdot" style="border-color:${nc(e)}"></span><span style="flex:1">${esc(e.name)}</span><span style="font-size:9px;color:var(--text3)">${TYPE_CFG[e.type]?.label||e.type}</span></div>`;}).join('');
+  const cl=(fd.links||[]).map(l=>{const t=S.data.find(x=>x.id===l.targetId);if(!t)return'';return`<div class="ci"><span class="rdot" style="border-color:${nc(t)}"></span><span class="ci-name">${esc(t.name)}</span><select class="ci-rel" onchange="updLR('${esca(l.targetId)}',this.value)">${RELS.map(r=>`<option${l.rel===r?' selected':''}>${r}</option>`).join('')}</select><input class="ci-lbl" placeholder="label…" value="${esc(l.label||'')}" oninput="updLL('${esca(l.targetId)}',this.value)"><button class="ci-rm" onclick="toggleLink('${esca(l.targetId)}')">✕</button></div>`;}).join('');
   q('#fp-body').innerHTML=`
     <div class="fs-s"><div class="fs-t">Type</div><div class="type-grid">${tg}</div></div>
     <div class="fs-s"><div class="fs-t">Name</div>${fi('name','Name *')}</div>
     <div class="fs-s"><div class="fs-t">Details</div>${tf[S.formType]||''}</div>
-    <div class="fs-s"><div class="fs-t">Add Connections</div><input class="rel-si" placeholder="Search…" oninput="filtRel(this.value)"><div class="rel-list" id="rel-picker">${rl}</div></div>
-    ${cl?`<div class="fs-s"><div class="fs-t">Connection Config</div><div id="conn-list">${cl}</div></div>`:''}
+    <div class="fs-s"><div class="fs-t">Add Connections — click to toggle</div><input class="rel-si" placeholder="Search…" oninput="filtRel(this.value)"><div class="rel-list" id="rel-picker">${rl}</div></div>
+    ${cl?`<div class="fs-s"><div class="fs-t">Connection Details — rel · label</div><div id="conn-list">${cl}</div></div>`:''}
   `;
-  ['name','description','examples','counterExamples','lessons','industry','outcome','author','year'].forEach(f=>{const el=document.getElementById('ff-'+f);if(el)el.value=fd[f]||'';});
+  ALL_FIELDS.forEach(f=>{const el=document.getElementById('ff-'+f);if(el)el.value=fd[f]||'';});
   const pe=document.getElementById('ff-parent');if(pe)pe.value=fd.parentId||'';
 }
 const fi=(id,l)=>`<div class="field"><label>${l}</label><input id="ff-${id}" type="text"></div>`;
 const fa=(id,l)=>`<div class="field"><label>${l}</label><textarea id="ff-${id}"></textarea></div>`;
-function toggleLink(id){if(!S.formData.links)S.formData.links=[];const i=S.formData.links.findIndex(l=>l.targetId===id);if(i>-1)S.formData.links.splice(i,1);else S.formData.links.push({targetId:id,rel:'related_to',label:''});renderForm();}
-function rmLink(id){S.formData.links=(S.formData.links||[]).filter(l=>l.targetId!==id);renderForm();}
+
+function toggleLink(id){
+  saveFieldValues(); // ← KEY FIX: preserve typed content before re-render
+  if(!S.formData.links)S.formData.links=[];
+  const i=S.formData.links.findIndex(l=>l.targetId===id);
+  if(i>-1)S.formData.links.splice(i,1);
+  else S.formData.links.push({targetId:id,rel:'related_to',label:''});
+  renderForm();
+}
 function updLR(id,v){const l=S.formData.links?.find(x=>x.targetId===id);if(l)l.rel=v;}
 function updLL(id,v){const l=S.formData.links?.find(x=>x.targetId===id);if(l)l.label=v;}
 function filtRel(sq){sq=sq.toLowerCase();qAll('#rel-picker .rel-opt').forEach(el=>el.style.display=el.textContent.toLowerCase().includes(sq)?'flex':'none');}
 
-// ── CRUD ───────────────────────────────────
+// ── CRUD ──────────────────────────────────────
 async function saveEntry(){
-  ['name','description','examples','counterExamples','lessons','industry','outcome','author','year'].forEach(f=>{const el=document.getElementById('ff-'+f);if(el)S.formData[f]=el.value.trim();});
-  const pe=document.getElementById('ff-parent');if(pe)S.formData.parentId=pe.value||null;
+  saveFieldValues(); // always collect current DOM values
   S.formData.type=S.formType;
-  if(!S.formData.name){toast('Name is required.','err');return;}
+  if(!S.formData.name?.trim()){toast('Name is required.','err');return;}
+  S.formData.name=S.formData.name.trim();
   const btn=q('#fp-save');btn.innerHTML='<span class="spin"></span>Saving…';btn.disabled=true;
   try{
     let sid;
@@ -674,7 +789,7 @@ async function saveEntry(){
     else{S.formData.id='n'+Date.now();S.data.push({...S.formData});sid=S.formData.id;}
     await ghWrite();closeForm();buildForceFilter();
     if(S.view==='graph')renderGraph();if(S.view==='library')renderLibrary();
-    const saved=S.data.find(x=>x.id===sid);if(saved){S.sel=saved;openDetail(saved);}
+    const saved=S.data.find(x=>x.id===sid);if(saved){S.sel=saved;if(saved.type==='company')openFlashcard(saved);else openDetail(saved);}
     toast('Saved ✓','ok');
   }catch(e){toast('Save failed: '+e.message,'err');}
   btn.innerHTML='Save';btn.disabled=false;
@@ -685,157 +800,124 @@ async function doDelete(){
   closeModal();if(!S.sel)return;
   const did=S.sel.id,prev=JSON.parse(JSON.stringify(S.data));
   S.data=S.data.filter(x=>x.id!==did);S.data.forEach(e=>e.links=(e.links||[]).filter(l=>l.targetId!==did));
-  try{await ghWrite();S.sel=null;closeDetail();buildForceFilter();if(S.view==='graph')renderGraph();if(S.view==='library')renderLibrary();toast('Deleted','ok');}
+  try{await ghWrite();S.sel=null;closeDetail();closeFC();buildForceFilter();if(S.view==='graph')renderGraph();if(S.view==='library')renderLibrary();toast('Deleted','ok');}
   catch(e){S.data=prev;toast('Delete failed: '+e.message,'err');}
 }
 
-// ── UTILS ──────────────────────────────────
+// ── UTILS ─────────────────────────────────────
 const q=s=>document.querySelector(s);
 const qAll=s=>document.querySelectorAll(s);
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const esca=s=>esc(s).replace(/'/g,'&#39;');
 let _tt;function toast(msg,type=''){clearTimeout(_tt);const el=q('#toast');el.textContent=msg;el.className='show '+(type||'');_tt=setTimeout(()=>el.className='',3200);}
 
-// ── SEED DATA ──────────────────────────────
+// ── SEED DATA ─────────────────────────────────
 const SEED=[
   // 5 FORCES
-  {id:'f1',type:'force',name:'Threat of New Entrants',forceColor:'#a78bfa',collapsed:false,description:'Risk that profitable markets attract new competitors, eroding market share. Determined by the height of entry barriers.',tags:[],links:[]},
-  {id:'f2',type:'force',name:'Supplier Power',forceColor:'#ec4899',collapsed:false,description:'Ability of input providers to raise prices or cut quality, squeezing industry margins.',tags:[],links:[]},
-  {id:'f3',type:'force',name:'Buyer Power',forceColor:'#60a5fa',collapsed:false,description:'Ability of customers to drive prices down or demand higher quality, reducing industry profitability.',tags:[],links:[]},
-  {id:'f4',type:'force',name:'Threat of Substitutes',forceColor:'#34d399',collapsed:false,description:'Alternative products fulfilling the same need, setting a ceiling on what incumbents can charge.',tags:[],links:[]},
-  {id:'f5',type:'force',name:'Competitive Rivalry',forceColor:'#fb923c',collapsed:false,description:'Intensity of competition among existing players — determines how much value gets competed away.',tags:[],links:[]},
+  {id:'f1',type:'force',name:'Threat of New Entrants',forceColor:'#a78bfa',collapsed:false,description:'Risk that profitable markets attract new competitors, eroding market share. Determined by height of entry barriers.',implications:'High entry barriers = sustained profitability. Low barriers = constant competitive erosion from new players.',examples:'Semiconductor fabs (capital barrier), banking (regulatory barrier), FMCG (distribution barrier)',tags:[],links:[]},
+  {id:'f2',type:'force',name:'Supplier Power',forceColor:'#ec4899',collapsed:false,description:'Ability of input providers to raise prices or cut quality, squeezing industry margins.',implications:'High supplier power compresses margins. Low-cost structure strategy neutralizes this. Vertical integration eliminates it.',examples:'TSMC in chips, Boeing/Airbus for airlines, NVIDIA GPUs for AI',tags:[],links:[]},
+  {id:'f3',type:'force',name:'Buyer Power',forceColor:'#60a5fa',collapsed:false,description:'Ability of customers to drive prices down or demand higher quality, reducing industry profitability.',implications:'Differentiation and switching costs reduce buyer power. Commodity products maximize it.',examples:'Walmart vs CPG brands, government procurement, B2B bulk purchasing',tags:[],links:[]},
+  {id:'f4',type:'force',name:'Threat of Substitutes',forceColor:'#34d399',collapsed:false,description:'Alternative products fulfilling the same need — set a ceiling on what incumbents can charge.',implications:'If substitutes offer better price-performance, the industry ceiling drops. Differentiation is the main defense.',examples:'Streaming vs cable, EVs vs ICE, VoIP vs landlines, digital cameras vs film',tags:[],links:[]},
+  {id:'f5',type:'force',name:'Competitive Rivalry',forceColor:'#fb923c',collapsed:false,description:'Intensity of competition among existing players. Determines how much value gets competed away.',implications:'High rivalry = price wars, eroding margins. Brand loyalty, niche focus, and cost leadership all counter this.',examples:'Indian telecom post-Jio, global airline industry, commoditized cloud storage',tags:[],links:[]},
 
   // FORCE 1 FACTORS
-  {id:'f1a',type:'factor',parentId:'f1',name:'Capital Requirements',description:'High upfront capital needs deter new entrants. Semiconductor fabs cost $10B+; airline fleets $1B+.',examples:'TSMC fabs, airline fleets, pharma R&D, oil refineries',tags:[],links:[]},
-  {id:'f1b',type:'factor',parentId:'f1',name:'Economies of Scale',description:'Incumbents produce at lower unit cost. New entrants must enter at scale or accept cost disadvantage.',examples:'AWS vs private cloud, Walmart vs local retail',tags:[],links:[]},
-  {id:'f1c',type:'factor',parentId:'f1',name:'Switching Costs',description:'High switching costs protect incumbents — new entrants must offer dramatically superior products.',examples:'Enterprise ERP (SAP), banking relationships, Apple ecosystem',tags:[],links:[]},
-  {id:'f1d',type:'factor',parentId:'f1',name:'Brand Identity',description:'Strong brand loyalty is an intangible moat. Customers pay a premium for trusted brands.',examples:'Coca-Cola, Apple, LVMH, McKinsey',tags:[],links:[]},
-  {id:'f1e',type:'factor',parentId:'f1',name:'Access to Distribution',description:'Control of distribution channels blocks new entrants from reaching customers.',examples:'Beer distributor networks, pharma sales forces, FMCG shelf space',tags:[],links:[]},
-  {id:'f1f',type:'factor',parentId:'f1',name:'Government Policy',description:'Regulations, licenses, and tariffs protect incumbents or create windows for new entrants.',examples:'Telecom spectrum licenses, banking charters, pharma approvals',tags:[],links:[]},
-  {id:'f1g',type:'factor',parentId:'f1',name:'Expected Retaliation',description:'History of aggressive incumbent responses deters entry attempts.',examples:'Airline price wars, Walmart undercutting local entrants, Intel margin wars',tags:[],links:[]},
+  {id:'f1a',type:'factor',parentId:'f1',name:'Capital Requirements',description:'High upfront capital needs deter new entrants. Semiconductor fabs $10B+, airline fleets $1B+.',examples:'TSMC fabs, airline fleets, pharma R&D, oil refineries',tags:[],links:[]},
+  {id:'f1b',type:'factor',parentId:'f1',name:'Economies of Scale',description:'Incumbents produce at lower unit cost. Entrants must enter at scale or accept cost disadvantage.',examples:'AWS vs private cloud, Walmart vs local retail, Jio network build',tags:[],links:[]},
+  {id:'f1c',type:'factor',parentId:'f1',name:'Switching Costs',description:'High switching costs protect incumbents — entrants must offer dramatically superior products.',examples:'Enterprise ERP, banking relationships, Apple ecosystem, Stripe API integrations',tags:[],links:[]},
+  {id:'f1d',type:'factor',parentId:'f1',name:'Brand Identity',description:'Strong brand loyalty is an intangible moat. Customers pay a premium for trusted brands.',examples:'Coca-Cola, Apple, LVMH, McKinsey, Goldman Sachs',tags:[],links:[]},
+  {id:'f1e',type:'factor',parentId:'f1',name:'Access to Distribution',description:'Control of distribution channels blocks new entrants from reaching customers.',examples:'Beer distributor networks, pharma sales forces, Amazon logistics, FMCG shelf space',tags:[],links:[]},
+  {id:'f1f',type:'factor',parentId:'f1',name:'Government Policy',description:'Regulations, licenses, and tariffs protect incumbents or create entry windows.',examples:'Telecom spectrum licenses, banking charters, pharma approvals, Jio spectrum window',tags:[],links:[]},
+  {id:'f1g',type:'factor',parentId:'f1',name:'Expected Retaliation',description:'History of aggressive incumbent responses deters entry attempts.',examples:'Airline price wars, Intel margin wars, Walmart undercutting local entrants',tags:[],links:[]},
 
   // FORCE 2 FACTORS
   {id:'f2a',type:'factor',parentId:'f2',name:'Supplier Concentration',description:'Few dominant suppliers have pricing power. TSMC controls 90%+ of leading-edge chips.',examples:'TSMC in chips, Boeing/Airbus for airlines, NVIDIA GPUs for AI',tags:[],links:[]},
-  {id:'f2b',type:'factor',parentId:'f2',name:'Unique Inputs',description:'Specialized inputs with no substitutes give suppliers leverage.',examples:'Rare earth metals, NVIDIA H100s, proprietary APIs',tags:[],links:[]},
-  {id:'f2c',type:'factor',parentId:'f2',name:'Forward Integration',description:'Suppliers who could enter the buyer\'s market hold additional power.',examples:'Apple building M-series chips, suppliers going D2C',tags:[],links:[]},
-  {id:'f2d',type:'factor',parentId:'f2',name:'Switching Costs (Supplier)',description:'High cost to change suppliers gives existing suppliers leverage.',examples:'Proprietary connectors, certified-only components',tags:[],links:[]},
-  {id:'f2e',type:'factor',parentId:'f2',name:'Volume Importance',description:'Buyers representing large share of supplier revenue gain negotiating power.',examples:'Apple\'s volumes vs component suppliers, Walmart vs P&G',tags:[],links:[]},
+  {id:'f2b',type:'factor',parentId:'f2',name:'Unique Inputs',description:'Specialized inputs with no substitutes give suppliers leverage.',examples:'Rare earth metals, NVIDIA H100s, proprietary APIs, cobalt for EV batteries',tags:[],links:[]},
+  {id:'f2c',type:'factor',parentId:'f2',name:'Forward Integration',description:'Suppliers who could enter the buyer\'s market hold additional power.',examples:'Apple building M-series chips, suppliers going D2C, NVIDIA moving into services',tags:[],links:[]},
+  {id:'f2d',type:'factor',parentId:'f2',name:'Switching Costs (Supplier)',description:'High cost to change suppliers gives existing suppliers leverage.',examples:'Proprietary connectors, certified-only components, single-source materials',tags:[],links:[]},
+  {id:'f2e',type:'factor',parentId:'f2',name:'Volume Importance',description:'Buyers representing large share of supplier revenue gain negotiating power.',examples:'Apple vs component suppliers, Walmart vs P&G, Amazon vs publishers',tags:[],links:[]},
 
   // FORCE 3 FACTORS
-  {id:'f3a',type:'factor',parentId:'f3',name:'Buyer Concentration',description:'Few large buyers have leverage over pricing and terms.',examples:'Walmart negotiating with consumer goods brands, government procurement',tags:[],links:[]},
-  {id:'f3b',type:'factor',parentId:'f3',name:'Price Sensitivity',description:'Commodity purchases where price dominates shift power to buyers.',examples:'Bulk chemicals, insurance price comparisons, fuel procurement',tags:[],links:[]},
-  {id:'f3c',type:'factor',parentId:'f3',name:'Backward Integration',description:'Buyers who could produce inputs themselves hold power over suppliers.',examples:'Amazon building logistics, retailers launching private labels',tags:[],links:[]},
-  {id:'f3d',type:'factor',parentId:'f3',name:'Product Differentiation',description:'Undifferentiated products increase buyer power; unique products reduce it.',examples:'Generic chemicals vs patented drugs; commodity steel vs specialty alloys',tags:[],links:[]},
-  {id:'f3e',type:'factor',parentId:'f3',name:'Switching Costs (Buyer)',description:'High switching costs reduce buyer power; low costs increase it.',examples:'SaaS with data lock-in vs commodity cloud storage',tags:[],links:[]},
+  {id:'f3a',type:'factor',parentId:'f3',name:'Buyer Concentration',description:'Few large buyers have leverage over pricing and terms.',examples:'Walmart vs CPG brands, government defence procurement, hospital systems vs pharma',tags:[],links:[]},
+  {id:'f3b',type:'factor',parentId:'f3',name:'Price Sensitivity',description:'Commodity purchases where price dominates shift power to buyers.',examples:'Bulk chemicals, insurance comparison, fuel procurement, cloud compute',tags:[],links:[]},
+  {id:'f3c',type:'factor',parentId:'f3',name:'Backward Integration',description:'Buyers who could produce inputs themselves hold power over suppliers.',examples:'Amazon logistics, retailers launching private labels, Tesla in-house batteries',tags:[],links:[]},
+  {id:'f3d',type:'factor',parentId:'f3',name:'Product Differentiation',description:'Undifferentiated products increase buyer power; unique products reduce it.',examples:'Generic chemicals vs patented drugs, commodity steel vs specialty alloys',tags:[],links:[]},
+  {id:'f3e',type:'factor',parentId:'f3',name:'Switching Costs (Buyer)',description:'High switching costs reduce buyer power; low costs increase it.',examples:'SaaS with data lock-in vs commodity cloud storage, Stripe API depth',tags:[],links:[]},
 
   // FORCE 4 FACTORS
-  {id:'f4a',type:'factor',parentId:'f4',name:'Relative Price-Performance',description:'If a substitute offers comparable performance at lower cost, it poses a high threat.',examples:'Streaming vs cable TV, EVs vs ICE on total cost',tags:[],links:[]},
-  {id:'f4b',type:'factor',parentId:'f4',name:'Switching Cost to Substitute',description:'Low friction to switch amplifies the substitution threat.',examples:'Telegram vs WhatsApp (frictionless) vs switching EMR systems (painful)',tags:[],links:[]},
+  {id:'f4a',type:'factor',parentId:'f4',name:'Relative Price-Performance',description:'Substitute offering comparable performance at lower cost poses a high threat.',examples:'Streaming vs cable TV, EVs vs ICE on TCO, VoIP vs landlines',tags:[],links:[]},
+  {id:'f4b',type:'factor',parentId:'f4',name:'Switching Cost to Substitute',description:'Low friction to switch amplifies the substitution threat.',examples:'Telegram vs WhatsApp frictionless; switching EMR systems is painful',tags:[],links:[]},
   {id:'f4c',type:'factor',parentId:'f4',name:'Buyer Propensity',description:'Customer openness to trying substitutes amplifies the threat.',examples:'Gen Z adopting neobanks vs older loyalty to traditional banks',tags:[],links:[]},
   {id:'f4d',type:'factor',parentId:'f4',name:'Functional Equivalence',description:'Degree to which the substitute truly meets the same need.',examples:'Video calls as substitute for business travel — often equivalent, sometimes not',tags:[],links:[]},
 
   // FORCE 5 FACTORS
-  {id:'f5a',type:'factor',parentId:'f5',name:'Industry Growth Rate',description:'Slow-growth markets intensify rivalry; high-growth markets reduce it.',examples:'Global smartphone market (mature) vs AI infrastructure (explosive)',tags:[],links:[]},
-  {id:'f5b',type:'factor',parentId:'f5',name:'Fixed Costs & Overcapacity',description:'High fixed costs pressure firms to fill capacity, often triggering price wars.',examples:'Airlines, steel mills, semiconductor fabs in downturns',tags:[],links:[]},
-  {id:'f5c',type:'factor',parentId:'f5',name:'Product Differentiation',description:'Commoditized products intensify rivalry; differentiated ones insulate from direct competition.',examples:'Branded pharma vs generics; luxury goods vs commodity fashion',tags:[],links:[]},
+  {id:'f5a',type:'factor',parentId:'f5',name:'Industry Growth Rate',description:'Slow-growth markets intensify rivalry; high-growth markets reduce it.',examples:'Global smartphone (mature) vs AI infrastructure (explosive)',tags:[],links:[]},
+  {id:'f5b',type:'factor',parentId:'f5',name:'Fixed Costs & Overcapacity',description:'High fixed costs pressure firms to fill capacity, triggering price wars.',examples:'Airlines, steel mills, semiconductor fabs in downturns',tags:[],links:[]},
+  {id:'f5c',type:'factor',parentId:'f5',name:'Product Differentiation',description:'Commoditized products intensify rivalry; differentiated ones insulate from direct competition.',examples:'Branded pharma vs generics, luxury goods vs commodity fashion',tags:[],links:[]},
   {id:'f5d',type:'factor',parentId:'f5',name:'Exit Barriers',description:'High exit costs keep unprofitable competitors in market, intensifying rivalry.',examples:'Steel mills (specialized assets), airlines (owned fleets), WeWork leases',tags:[],links:[]},
   {id:'f5e',type:'factor',parentId:'f5',name:'Competitor Concentration',description:'Many equal-sized competitors intensify rivalry; oligopolies with a clear leader reduce it.',examples:'Indian telecom post-Jio (3 players) vs US mobile (AT&T, Verizon, T-Mobile)',tags:[],links:[]},
 
-  // COMPANIES (14 total)
-  {id:'co1',type:'company',name:'Reliance Jio',industry:'Telecom',outcome:'Success',description:'Weaponized $30B capital to overcome entry barriers in Indian telecom. Free data launch 2016 collapsed 3 incumbents within 18 months.',lessons:'Capital as weapon. Greenfield = no legacy cost. Cheap data → platform monetization.',tags:[],links:[
-    {targetId:'f1a',rel:'overcame',label:'$30B network investment as entry weapon'},
-    {targetId:'f1f',rel:'exploited',label:'Government spectrum window 2012–2016'},
-    {targetId:'f5e',rel:'disrupted',label:'Collapsed market from 12 to 3 players'},
-    {targetId:'f5b',rel:'leveraged',label:'No legacy fixed costs vs incumbents'},
-  ]},
-  {id:'co2',type:'company',name:'Nokia',industry:'Technology',outcome:'Failure',description:'40% global handset share in 2007. Failed to recognize iPhone as a platform shift. Sold mobile division to Microsoft 2013.',lessons:'Platform beats product. Software capability cannot be acquired quickly.',tags:[],links:[
-    {targetId:'f1d',rel:'had',label:'Strong brand — insufficient for platform shift'},
-    {targetId:'f4d',rel:'ignored',label:'Dismissed iPhone as functionally equivalent'},
-    {targetId:'f5c',rel:'lost',label:'Differentiation collapsed in smartphone era'},
-  ]},
-  {id:'co3',type:'company',name:'Netflix',industry:'Media',outcome:'Success',description:'Proactively cannibalized DVD business with streaming. Originals to raise switching costs. 260M+ subscribers.',lessons:'Self-cannibalization is the strongest strategic weapon. Originals create lock-in that catalog cannot.',tags:[],links:[
-    {targetId:'f1d',rel:'built',label:'Brand = quality originals'},
-    {targetId:'f3e',rel:'created',label:'Exclusive originals create buyer lock-in'},
-    {targetId:'f4a',rel:'used',label:'Streaming was cheaper substitute to cable'},
-    {targetId:'f5c',rel:'created',label:'Originals differentiate in commodity streaming'},
-  ]},
-  {id:'co4',type:'company',name:'Kodak',industry:'Technology',outcome:'Failure',description:'Invented the digital camera in 1975 but shelved it to protect 60%+ gross margin film business. Filed Chapter 11 in 2012.',lessons:'Owning the patent on the future doesn\'t guarantee profiting from it. Margin protection = innovation suppression.',tags:[],links:[
-    {targetId:'f4d',rel:'ignored',label:'Digital photography = functionally equivalent substitute'},
-    {targetId:'f4a',rel:'ignored',label:'Digital improved faster than film economics declined'},
-    {targetId:'f3b',rel:'faced',label:'Buyers highly price-sensitive as digital prices fell'},
-  ]},
-  {id:'co5',type:'company',name:'Apple',industry:'Technology',outcome:'Success',description:'Most valuable consumer platform via ecosystem lock-in. iPhone + App Store + iCloud + M-series chips = near-impenetrable moat.',lessons:'Ecosystem switching costs compound over time. Vertical integration on key inputs removes supplier power.',tags:[],links:[
-    {targetId:'f1d',rel:'leveraged',label:'Most valuable brand — commands permanent premium'},
-    {targetId:'f1c',rel:'created',label:'iCloud + App purchases = ecosystem lock-in'},
-    {targetId:'f2c',rel:'executed',label:'M-series chips — vertical integration on key input'},
-    {targetId:'f3e',rel:'maximized',label:'Ecosystem dramatically reduces buyer churn'},
-  ]},
-  {id:'co6',type:'company',name:'WeWork',industry:'Real Estate',outcome:'Failure',description:'Claimed tech platform economics on a real estate sub-lease business. $47B valuation collapsed in 2019 IPO.',lessons:'Tech premium requires demonstrated network effects. Invented metrics conceal structural problems.',tags:[],links:[
-    {targetId:'f5c',rel:'lost',label:'Commodity office space — no defensible differentiation'},
-    {targetId:'f3b',rel:'exposed',label:'Corporate buyers highly price-sensitive for real estate'},
-    {targetId:'f5d',rel:'trapped',label:'Long-term leases = crushing exit barriers in downturn'},
-  ]},
-  {id:'co7',type:'company',name:'Amazon',industry:'Technology',outcome:'Success',description:'Built the most powerful distribution moat in retail. Backward integrated into logistics, cloud (AWS), and chips. Uses AWS profits to subsidize retail price wars.',lessons:'Distribution as an insurmountable moat. Cross-subsidize market entry with profits from cash-cow business units.',tags:[],links:[
-    {targetId:'f1e',rel:'built',label:'Own logistics network — blocks new retail entrants'},
-    {targetId:'f3c',rel:'executed',label:'AWS, logistics, private labels — full backward integration'},
-    {targetId:'f1b',rel:'leveraged',label:'Scale economics across retail + cloud'},
-    {targetId:'f3a',rel:'became',label:'Massive buyer leverage over third-party sellers'},
-  ]},
-  {id:'co8',type:'company',name:'Blockbuster',industry:'Media',outcome:'Failure',description:'9,000 stores, dominant video rental brand. Late fees were 16% of revenue — structurally impossible to eliminate. Filed for bankruptcy 2010.',lessons:'The incumbent\'s strength (physical stores) became its prison. Subscription models that eliminate friction displace transaction models.',tags:[],links:[
-    {targetId:'f4a',rel:'ignored',label:'Streaming was cheaper + more convenient'},
-    {targetId:'f4b',rel:'ignored',label:'Switching to Netflix was completely frictionless'},
-    {targetId:'f5d',rel:'trapped',label:'9,000 store leases = catastrophic exit barrier'},
-    {targetId:'f5b',rel:'crushed',label:'Massive fixed cost base in streaming era'},
-  ]},
-  {id:'co9',type:'company',name:'Airbnb',industry:'Hospitality',outcome:'Success',description:'Built a $75B+ hospitality platform with near-zero capital. Bypassed hotel entry barriers by leveraging existing housing stock.',lessons:'Asset-light platforms can bypass traditional capital barriers entirely. Supply-side network effects create compounding defensibility.',tags:[],links:[
-    {targetId:'f1a',rel:'bypassed',label:'Zero capital: hosts own the assets'},
-    {targetId:'f1b',rel:'achieved',label:'Platform scale without owning a single property'},
-    {targetId:'f5c',rel:'created',label:'Trust + reviews create differentiation over hotels'},
-  ]},
-  {id:'co10',type:'company',name:'Uber',industry:'Transport',outcome:'Success',description:'Marketplace platform disrupting regulated taxi incumbents globally. Network effects on both rider and driver sides.',lessons:'Regulatory arbitrage as entry strategy. Two-sided network effects create compounding defensibility in each city.',tags:[],links:[
-    {targetId:'f1f',rel:'disrupted',label:'Bypassed taxi licensing via regulatory arbitrage'},
-    {targetId:'f1c',rel:'created',label:'Rider/driver switching costs via ratings and history'},
-    {targetId:'f5e',rel:'intensified',label:'Hyper-competitive in each city market'},
-    {targetId:'f3b',rel:'exploited',label:'Riders highly price-sensitive — surge pricing as lever'},
-  ]},
-  {id:'co11',type:'company',name:'Stripe',industry:'Fintech',outcome:'Success',description:'API-first payments infrastructure. Developer experience as a moat — made switching costs near-infinite by becoming infrastructure.',lessons:'Become infrastructure, not a product. Developer experience is a strategic weapon. Switching costs grow with every integration.',tags:[],links:[
-    {targetId:'f1c',rel:'maximized',label:'Every integration deepens switching cost for customers'},
-    {targetId:'f3e',rel:'created',label:'API integrations make switching nearly impossible'},
-    {targetId:'f2b',rel:'became',label:'Became unique infrastructure input for modern businesses'},
-  ]},
-  {id:'co12',type:'company',name:'Samsung',industry:'Technology',outcome:'Success',description:'World\'s largest smartphone maker. Unique in that it both competes with Apple AND supplies it. Vertical integration across chips, displays, and assembly.',lessons:'Vertical integration can be a weapon and a hedge simultaneously. Scale at every layer of the supply chain.',tags:[],links:[
-    {targetId:'f1b',rel:'leveraged',label:'Scale advantages across semiconductor, display, assembly'},
-    {targetId:'f2a',rel:'became',label:'Became key supplier to own competitors (Apple)'},
-    {targetId:'f2e',rel:'exploited',label:'Apple\'s volume dependence = Samsung leverage'},
-  ]},
-  {id:'co13',type:'company',name:'Walmart',industry:'Retail',outcome:'Success',description:'Largest company by revenue. Built an unassailable distribution and buying-power moat. Suppliers have no leverage; buyers get lowest prices.',lessons:'Buying power at scale is a self-reinforcing moat. Distribution infrastructure is the true barrier, not the stores.',tags:[],links:[
-    {targetId:'f3a',rel:'created',label:'Largest buyer — extracts maximum supplier concessions'},
-    {targetId:'f1e',rel:'built',label:'Distribution network is the real barrier to entry'},
-    {targetId:'f2e',rel:'leveraged',label:'Volume = near-total supplier power extraction'},
-    {targetId:'f1b',rel:'maximized',label:'Scale economies across logistics and procurement'},
-  ]},
-  {id:'co14',type:'company',name:'BlackBerry',industry:'Technology',outcome:'Failure',description:'Dominated enterprise mobile with physical keyboard and BBM. Dismissed the touchscreen smartphone as inferior UX. Lost enterprise to iPhone by 2012.',lessons:'Enterprise lock-in is not permanent if the consumer product is better. Security moats erode when the ecosystem shifts.',tags:[],links:[
-    {targetId:'f4d',rel:'ignored',label:'Dismissed iPhone touchscreen as functionally inferior'},
-    {targetId:'f1d',rel:'lost',label:'Enterprise brand eroded as consumer preference shifted'},
-    {targetId:'f5c',rel:'lost',label:'iOS became more differentiated in enterprise over time'},
-  ]},
+  // 3 GENERIC STRATEGIES (from your notes)
+  {id:'s1',type:'strategy',name:'Cost Leadership',description:'Operating the business at lower cost than any competitor in the industry. The strategy of being the cheapest — not the best.',
+   corePhilosophy:'Redesign the business to make it easy and quick, not necessarily best. Capture markets with "low cost" position, then use margins to maintain and reinvest.',
+   howToExecute:'Efficient scale facilities. Tight cost and overhead control. Reduce MS&A spend. Aggressive pricing to gain market share. Reinvest profits into further cost reduction.',
+   forcesCountered:'Buyer Power → Can always undercut, neutralizes price pressure. Supplier Power → Low-cost structure gives flexibility, suppliers become "a lost piece." Entry → Economies of scale and switching costs become barriers. Rivalry → Wins on price, sustains margin through scale.',
+   flywheel:'Entry → Market Share → Low Cost → High Margins → Reinvested → More Scale → Lower Cost → Repeat. This becomes a self-feeding machine.',
+   commitments:'Reinvest profits for modern requirements. Scrap obsolete assets. Avoid product line proliferation. Stay constantly alert. Commit to "competitive advantage leaning," up-front capital, and aggressive pricing.',
+   risks:'Technology change that nullifies leadership. Inability to see change in product or marketing. Low-cost learning by newcomers. Inflation eroding the advantage.',
+   tradeoffs:'Not the best product. Sacrifices premium positioning. Hard to pivot to differentiation once cost-focused. Requires discipline to avoid feature creep.',
+   whenToUse:'Commodity industries. Price-sensitive buyers. Low differentiation possible. High economies of scale available. When you can be meaningfully cheaper than everyone.',
+   tags:[],links:[
+     {targetId:'f1',rel:'counters',label:'Economies of scale become an entry barrier'},
+     {targetId:'f2',rel:'counters',label:'Low-cost structure — suppliers become "a lost piece"'},
+     {targetId:'f3',rel:'counters',label:'Can always undercut — buyer price pressure neutralized'},
+     {targetId:'f5',rel:'counters',label:'Cost advantage wins rivalry; margin reinvested'},
+   ]},
+  {id:'s2',type:'strategy',name:'Differentiation',description:'Being "unique" in the industry in ways buyers value — across design, brand image, technology, features, customer service, or dealer network.',
+   corePhilosophy:'Command premium prices by offering something competitors cannot easily replicate. Brand loyalty insulates you from every competitive force.',
+   howToExecute:'Invest in design, brand, technology, features, customer service, dealer network. Build emotional connection. Accept higher costs as the price of uniqueness. Differentiation happens in various forms — pick where you can truly be unique.',
+   forcesCountered:'Rivalry → Brand loyalty means rivalry does not affect you. Buyer Power → Loyal buyers are less price-sensitive. Entry → Brand loyalty is a strong barrier. Substitutes → Unique positioning makes substitution less attractive.',
+   flywheel:'Uniqueness → Brand Loyalty → Less Price Sensitivity → Premium Margins → Fund More Differentiation → Wider Moat',
+   commitments:'Sustained R&D and brand investment. Maintaining perceived difference. Avoiding cost pressures that erode uniqueness. Resisting the temptation to commoditize for volume.',
+   risks:'Imitation lowers perceived difference. Buyers no longer value the differentiating factor. Cost differential between broad competitors and differentiator becomes too great for brand loyalty to overcome. Market commoditizes.',
+   tradeoffs:'Higher cost structure than cost leaders. Trade-off: more unique = more cost vs cost leadership. Hard to pull off — a market with too many differentiators becomes a free market. Cannot compete on pure price.',
+   whenToUse:'Industries where buyers value uniqueness. Where brand loyalty is buildable. Where R&D or design creates lasting advantage. Not in pure commodity markets.',
+   tags:[],links:[
+     {targetId:'f1',rel:'creates',label:'Brand loyalty = strong entry barrier'},
+     {targetId:'f3',rel:'counters',label:'Loyal buyers are less price-sensitive'},
+     {targetId:'f4',rel:'counters',label:'Unique positioning reduces substitution threat'},
+     {targetId:'f5',rel:'counters',label:'Brand loyalty — rivalry does not affect you'},
+   ]},
+  {id:'s3',type:'strategy',name:'Focus / Niche',description:'Choosing a specific market, segment, geography, or product line and serving it better than anyone who tries to serve everyone.',
+   corePhilosophy:'Be the best for your niche — not the best overall. Serve one group better than any broad player. Can achieve either low cost OR differentiation within the niche.',
+   howToExecute:'Choose your focus: buyers (niche customer type), segment (product line), or geography. Aim and cater specifically for that group. Eliminate SG&A on non-niche activities. Makes you lean. Can both focus on a segment and differentiate within it.',
+   forcesCountered:'Rivalry → Niche insulation reduces direct rivalry. Substitutes → Deep niche understanding reduces substitution risk within segment. Supplier/Buyer → Niche loyalty can reduce power of both.',
+   flywheel:'Niche Focus → Deep Understanding → Superior Product for Segment → Loyalty → Niche Dominance → Lean Cost Structure → Reinvest → Deeper Expertise',
+   commitments:'Resist the urge to expand beyond the niche prematurely. Stay disciplined to the chosen segment. Build deep expertise. Accept smaller total addressable market.',
+   risks:'Competitors find and enter the niche. Cost or differential between broad and narrow markets disappears. Niche itself disappears or gets absorbed into a larger market. No difference remains between segments.',
+   tradeoffs:'Smaller total addressable market. Vulnerable if niche disappears. Harder to scale than broad strategies. Must avoid "stuck in the middle" — focus can\'t do both without discipline.',
+   whenToUse:'When a niche has unique needs not served by broad players. When you can serve that niche at lower cost or higher differentiation. NVIDIA started here — gamers — before scaling the whole market.',
+   tags:[],links:[
+     {targetId:'f1',rel:'creates',label:'Niche specialization = effective entry barrier'},
+     {targetId:'f4',rel:'counters',label:'Deep niche understanding reduces substitution risk'},
+     {targetId:'f5',rel:'counters',label:'Niche insulation reduces direct rivalry'},
+   ]},
+
+  // COMPANIES
+  {id:'co1',type:'company',name:'Reliance Jio',industry:'Telecom',outcome:'Success',description:'Indian telecom giant. Weaponized $30B capital to overcome entry barriers. Free data 2016.',whatHappened:'Launched with 6 months free data, collapsing 3 incumbent telecoms within 18 months. Built India\'s first pan-India 4G LTE network before commercial launch.',lessons:'Capital as competitive weapon. Greenfield network = no legacy cost. Cheap data → platform monetization → real business.',tags:[],links:[{targetId:'f1a',rel:'overcame',label:'$30B investment turned capital barrier into weapon'},{targetId:'f1f',rel:'exploited',label:'Government spectrum window 2012–2016'},{targetId:'f5e',rel:'disrupted',label:'Collapsed market from 12 to 3 players'},{targetId:'s1',rel:'illustrates',label:'Cost leadership via scale — then reinvested margins'}]},
+  {id:'co2',type:'company',name:'Nokia',industry:'Technology',outcome:'Failure',description:'Finnish mobile giant. 40% global handset share in 2007. Missed the smartphone platform shift.',whatHappened:'Dismissed iPhone as "too expensive." Symbian OS was unmaintainable. Software engineers had no power vs hardware teams. Sold mobile division to Microsoft 2013.',lessons:'Platform beats product. Software capability cannot be acquired quickly. Fear of cannibalization kills faster than external competition.',tags:[],links:[{targetId:'f1d',rel:'had',label:'Strong brand — insufficient for platform shift'},{targetId:'f4d',rel:'ignored',label:'Dismissed iPhone as functionally equivalent'},{targetId:'f5c',rel:'lost',label:'Differentiation collapsed in smartphone era'}]},
+  {id:'co3',type:'company',name:'Netflix',industry:'Media',outcome:'Success',description:'Streaming giant. Proactively cannibalized DVD business with streaming. Now 260M+ subscribers.',whatHappened:'Started DVD-by-mail, eliminated late fees (Blockbuster\'s revenue line), moved to streaming, then created originals to build switching costs and brand.',lessons:'Self-cannibalization is the strongest strategic weapon. Originals create lock-in that catalog cannot.',tags:[],links:[{targetId:'f1d',rel:'built',label:'Brand = quality originals'},{targetId:'f3e',rel:'created',label:'Exclusive originals create buyer lock-in'},{targetId:'f4a',rel:'used',label:'Streaming was cheaper substitute to cable'},{targetId:'s2',rel:'illustrates',label:'Differentiation through original content'}]},
+  {id:'co4',type:'company',name:'Kodak',industry:'Technology',outcome:'Failure',description:'Photography giant. Invented the digital camera in 1975 but shelved it to protect film margins.',whatHappened:'Film was 60%+ gross margin — no manager would cannibalize it. Digital shelved for 20 years. Filed Chapter 11 in 2012.',lessons:'Owning the patent on the future doesn\'t guarantee profiting from it. Margin protection = innovation suppression.',tags:[],links:[{targetId:'f4d',rel:'ignored',label:'Digital photography = functionally equivalent substitute'},{targetId:'f4a',rel:'ignored',label:'Digital improved faster than film economics declined'},{targetId:'f3b',rel:'faced',label:'Buyers became highly price-sensitive as digital fell'}]},
+  {id:'co5',type:'company',name:'Apple',industry:'Technology',outcome:'Success',description:'Most valuable consumer platform. iPhone + App Store + iCloud + M-series chips = near-impenetrable moat.',whatHappened:'Built an ecosystem where switching costs compound over time. Vertical integration on chips (M-series) removed supplier dependency on Intel. Premium brand allows ~40% gross margins.',lessons:'Ecosystem switching costs compound over time. Vertical integration on key inputs removes supplier power.',tags:[],links:[{targetId:'f1d',rel:'leveraged',label:'Most valuable brand — permanent premium'},{targetId:'f1c',rel:'created',label:'iCloud + App purchases = ecosystem lock-in'},{targetId:'f2c',rel:'executed',label:'M-series chips — forward integration on key input'},{targetId:'s2',rel:'illustrates',label:'Differentiation through ecosystem and brand'}]},
+  {id:'co6',type:'company',name:'WeWork',industry:'Real Estate',outcome:'Failure',description:'Claimed tech platform economics on a real estate sub-lease business. $47B valuation → bankruptcy.',whatHappened:'IPO S-1 exposed $47B in lease liabilities vs $2.4B revenue. Neumann extracted $700M. No network effects. Long-term leases became catastrophic in downturn.',lessons:'Tech premium requires demonstrated network effects. Invented metrics conceal structural problems. Exit barriers matter.',tags:[],links:[{targetId:'f5c',rel:'lost',label:'Commodity office space — no differentiation'},{targetId:'f3b',rel:'exposed',label:'Corporate buyers highly price-sensitive for real estate'},{targetId:'f5d',rel:'trapped',label:'Long-term leases = crushing exit barriers'}]},
+  {id:'co7',type:'company',name:'Amazon',industry:'Technology',outcome:'Success',description:'Built the most powerful distribution moat in retail. AWS profits subsidize retail price wars.',whatHappened:'Built own logistics network, backward integrated into cloud (AWS), launched private labels, became dominant buyer of shipping capacity. Each business unit subsidizes another.',lessons:'Distribution as an insurmountable moat. Cross-subsidize market entry with profits from cash-cow businesses.',tags:[],links:[{targetId:'f1e',rel:'built',label:'Own logistics network — blocks retail entrants'},{targetId:'f3c',rel:'executed',label:'AWS, logistics, private labels — full backward integration'},{targetId:'s1',rel:'illustrates',label:'Cost leadership at scale across all categories'}]},
+  {id:'co8',type:'company',name:'NVIDIA',industry:'Technology',outcome:'Success',description:'Started as niche GPU maker for gamers. Became critical AI infrastructure. Textbook focus → scale play.',whatHappened:'Began capturing gamer niche needs. Later turned gaming GPU expertise into AI compute dominance. CUDA ecosystem created near-total switching costs. Now 90%+ AI chip market share.',lessons:'Start in a niche, build deep expertise, then capture the whole market when the niche becomes the mainstream.',tags:[],links:[{targetId:'f2b',rel:'created',label:'CUDA + H100 = unique input with no substitute'},{targetId:'f3e',rel:'maximized',label:'CUDA ecosystem — near-infinite switching cost'},{targetId:'s3',rel:'illustrates',label:'Focus on gamers → scaled to whole AI market'}]},
 
   // CONCEPTS
-  {id:'cn1',type:'concept',name:"Innovator's Dilemma",description:'Incumbents focus on sustaining innovations for existing customers, ignoring disruptive tech that initially underperforms but eventually displaces them.',examples:'Kodak ignored digital cameras. Nokia dismissed smartphone ecosystem. Blockbuster ignored streaming.',counterExamples:'Amazon cannibalized retail with AWS. Netflix killed its own DVD business.',tags:[],links:[
-    {targetId:'f4d',rel:'illustrates',label:'Substitute dismissed as not functionally equivalent'},
-    {targetId:'f1g',rel:'reduces',label:'Incumbents too complacent to retaliate effectively'},
-  ]},
-  {id:'cn2',type:'concept',name:'Network Effects',description:'Each additional user increases product value for all existing users. Strongest barrier to entry in digital markets.',examples:'Visa/Mastercard, WhatsApp, Uber marketplace, LinkedIn, stock exchanges',counterExamples:'Netflix value doesn\'t increase with more subscribers — not all platforms have true network effects',tags:[],links:[
-    {targetId:'f1c',rel:'creates',label:'Network effects make switching enormously costly'},
-    {targetId:'f1b',rel:'amplifies',label:'Scale advantages compound with network density'},
-  ]},
-  {id:'cn3',type:'concept',name:'Switching Cost Lock-in',description:'When customers face high costs (financial, time, psychological) to switch providers, they remain even with inferior products. Basis of many durable moats.',examples:'Microsoft Office file formats, Apple ecosystem, banking relationships, SAP ERP',counterExamples:'Social networks — low switching cost allowed TikTok to displace Instagram for Gen Z',tags:[],links:[
-    {targetId:'f1c',rel:'illustrates',label:'Switching costs are a form of entry barrier'},
-    {targetId:'f3e',rel:'illustrates',label:'High buyer switching costs reduce buyer power'},
-  ]},
+  {id:'cn1',type:'concept',name:"Innovator's Dilemma",description:'Incumbents focus on sustaining innovations for existing customers, ignoring disruptive tech that initially underperforms but eventually displaces them.',examples:'Kodak ignored digital cameras. Nokia dismissed smartphones. Blockbuster ignored streaming.',counterExamples:'Netflix cannibalized its own DVD business. Amazon cannibalized retail with AWS.',tags:[],links:[{targetId:'f4d',rel:'illustrates',label:'Substitute dismissed as not functionally equivalent'},{targetId:'f1g',rel:'reduces',label:'Complacent incumbents fail to retaliate effectively'}]},
+  {id:'cn2',type:'concept',name:'Stuck in the Middle',description:'A firm that fails to commit to any generic strategy — not cost leader, not differentiated, not focused. Almost guaranteed low profitability.',examples:'Loses high-volume customers demanding low prices AND loses low-volume customers demanding high prices. Capital investments made without commitment.',counterExamples:'Some firms briefly straddle strategies during transition — but sustained performance requires commitment.',tags:[],links:[{targetId:'s1',rel:'related_to',label:'Opposite of cost leadership commitment'},{targetId:'s2',rel:'related_to',label:'Opposite of differentiation commitment'},{targetId:'s3',rel:'related_to',label:'Opposite of focus commitment'}]},
 ];
 
-// ── INIT ───────────────────────────────────
+// ── INIT ──────────────────────────────────────
 (function init(){
   const saved=localStorage.getItem('sia_cfg');
   if(saved){try{S.cfg=JSON.parse(saved);boot();return;}catch(e){localStorage.removeItem('sia_cfg');}}
