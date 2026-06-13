@@ -1812,9 +1812,8 @@ const SIA_SEED=[
    counterExamples:'Netflix: value does not increase with more subscribers. Dropbox: mostly individual storage. Most SaaS tools have no real network effects.',
    links:[{targetId:'f1',rel:'creates',label:'Network effects make switching enormously costly'},{targetId:'f5',rel:'reduces',label:'Network effects reduce rivalry by creating natural monopolies'}]},
 ];
-"""
 
-print(SIA_JS)
+
 /* ══ REGISTRY ══ */
 function openAddCo(){ $('coEditId').value='';$('coModalTitle').innerHTML='Add <em>Company</em>';['coName','coSector','coTicker','coTarget','coCurr','coUpside','coMetrics','coValuation','coThesis','coRisk','coTags','coNotes'].forEach(id=>{$(id).value='';});$('coType').value='Equity';$('coStage').value='';$('coStatus').value='Watching';$('coDelBtn').style.display='none';_convRating=3;setStar(3,false);toggleCoFields();$('coModal').classList.add('on');setTimeout(()=>$('coName').focus(),60); }
 function openEditCo(id){ const co=STATE.registry.find(c=>c.id===id);if(!co)return;$('coEditId').value=id;$('coModalTitle').innerHTML='Edit <em>Company</em>';$('coName').value=co.name||'';$('coType').value=co.type||'Equity';$('coSector').value=co.sector||'';$('coStage').value=co.stage||'';$('coStatus').value=co.status||'Watching';$('coTicker').value=co.ticker||'';$('coTarget').value=co.target||'';$('coCurr').value=co.curr||'';$('coUpside').value=co.upside||'';$('coMetrics').value=co.metrics||'';$('coValuation').value=co.valuation||'';$('coThesis').value=co.thesis||'';$('coRisk').value=co.risk||'';$('coTags').value=(co.tags||[]).join(', ');$('coNotes').value=co.notes||'';$('coDelBtn').style.display='inline-flex';_convRating=co.rating||3;setStar(_convRating,false);toggleCoFields();$('coModal').classList.add('on'); }
