@@ -688,45 +688,39 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:14px
 <!-- BOARD -->
 <div class="tc" id="tab-board">
 <div class="board">
+  ... (everything down to) ...
+</div>
+</div>
+ 
+REPLACE the WHOLE THING with the block below:
+-->
+ 
+<!-- BOARD -->
+<div class="tc" id="tab-board">
+<div class="board" style="position:relative">
   <div class="board-top">
-    <button class="btn-g" onclick="addCard('sticky')">+ Sticky</button>
-    <button class="btn-g" onclick="addCard('quote')">+ Quote</button>
-    <button class="btn-g" onclick="addCard('link')">+ Link</button>
-    <button class="btn-g" onclick="addCard('node')">⬡ Node</button>
+    <button class="btn-g" onclick="siaOpenForm(null,'force')">+ Force</button>
+    <button class="btn-g" onclick="siaOpenForm(null,'strategy')">+ Strategy</button>
+    <button class="btn-g" onclick="siaOpenForm(null,'company')">+ Company</button>
+    <button class="btn-g" onclick="siaOpenForm(null,'concept')">+ Concept</button>
+    <button class="btn-g" onclick="siaAddSticky()">+ Sticky</button>
     <div style="width:1px;height:16px;background:var(--b2);margin:0 2px;flex-shrink:0"></div>
-    <button class="btn-g" id="connectBtn" onclick="toggleConnectMode()" title="Draw connection arrows between cards">⟶ Connect</button>
-    <div class="connect-bar" id="connectBar">
-      <span class="connect-bar-msg" id="connectMsg">● Select source card</span>
-      <button class="connect-cancel" onclick="toggleConnectMode()">Cancel ✕</button>
-    </div>
+    <button class="btn-g" onclick="siaExpandAll()">Expand All</button>
+    <button class="btn-g" onclick="siaCollapseAll()">Collapse</button>
     <button class="btn-d" onclick="clearBoard()">Clear</button>
     <div class="zoom-ctrl">
-      <button class="zoom-btn" onclick="zoomBoard(-.1)">−</button>
-      <span class="zoom-label" id="zoomLabel">100%</span>
-      <button class="zoom-btn" onclick="zoomBoard(.1)">+</button>
-      <button class="zoom-btn" onclick="resetZoom()" style="font-size:9px;padding:0 6px">↺</button>
+      <button class="zoom-btn" onclick="siaZoom(-.2)">−</button>
+      <span class="zoom-label" id="sia-info">0 nodes</span>
+      <button class="zoom-btn" onclick="siaZoom(.2)">+</button>
+      <button class="zoom-btn" onclick="siaResetZoom()" style="font-size:9px;padding:0 6px">↺</button>
     </div>
-    <span class="board-hint">Drag cards · pan empty space · ⟶ to connect</span>
+    <span class="board-hint">Drag to pin · scroll to zoom · click to open</span>
   </div>
-  <div class="canvas-wrap" id="canvasWrap">
-    <div class="canvas" id="boardCanvas">
-      <!-- SVG overlay for connection arrows -->
-      <svg id="connectionSVG" xmlns="http://www.w3.org/2000/svg"
-           style="position:absolute;top:0;left:0;width:6000px;height:5000px;pointer-events:none;z-index:5;overflow:visible">
-        <defs>
-          <marker id="arrowGold" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-            <polygon points="0 0, 9 3.5, 0 7" fill="rgba(200,168,74,0.65)"/>
-          </marker>
-          <marker id="arrowGoldHover" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-            <polygon points="0 0, 9 3.5, 0 7" fill="rgba(200,168,74,1)"/>
-          </marker>
-          <marker id="arrowPreview" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-            <polygon points="0 0, 9 3.5, 0 7" fill="rgba(200,168,74,0.4)"/>
-          </marker>
-        </defs>
-      </svg>
-    </div>
+  <div id="siaWrap" class="canvas-wrap" style="cursor:default">
+    <svg id="sia-svg" style="width:100%;height:100%"></svg>
+    <div id="sia-tip" style="display:none"></div>
   </div>
+  <div id="sia-stickies" style="position:absolute;top:54px;right:14px;width:230px;display:flex;flex-direction:column;gap:8px;max-height:calc(100% - 70px);overflow-y:auto;z-index:20"></div>
 </div>
 </div>
 
@@ -1041,9 +1035,69 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:14px
   </div>
 </div>
 </div>
+<!-- SIA: NODE FORM MODAL -->
+<div class="overlay" id="siaNodeModal">
+<div class="modal" style="width:560px">
+  <h2 id="siaModalTitle">Add <em>Node</em></h2>
+  <input type="hidden" id="siaEditId">
+  <div class="fg"><label>Name *</label><input class="fi-in" type="text" id="siaName" placeholder="Name…"></div>
+  <div class="fg"><label>Description</label><textarea class="fta" id="siaDesc" rows="3" placeholder="Description…"></textarea></div>
+  <div id="siaExtraFields"></div>
+  <div class="field-accent"><span class="field-accent-lbl">Connections</span></div>
+  <div class="fg">
+    <input class="fi-in" type="text" id="siaConnSearch" placeholder="Search nodes to connect…" oninput="siaFilterConn(this.value)" style="margin-bottom:6px">
+    <div id="siaConnPicker" style="max-height:140px;overflow-y:auto;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);margin-bottom:8px"></div>
+    <div id="siaConnList"></div>
+  </div>
+  <div class="modal-acts">
+    <div class="modal-acts-l"><button class="btn-mdel" id="siaDelBtn" onclick="siaDeleteNode()" style="display:none">Delete</button></div>
+    <button class="btn-mg" onclick="closeModal('siaNodeModal')">Cancel</button>
+    <button class="btn-mgo" id="siaSaveBtn" onclick="siaSaveNode()">Save Node</button>
+  </div>
+</div>
+</div>
+ 
+<!-- SIA: COMPANY FLASHCARD -->
+<div class="overlay" id="siaFlashcard">
+<div class="modal" style="width:420px;padding:0;overflow:hidden">
+  <div id="siaFcBar" style="height:3px;width:100%"></div>
+  <div id="siaFcContent" style="padding:24px"></div>
+  <div class="modal-acts" style="padding:0 24px 20px;margin-top:0">
+    <div class="modal-acts-l"><button class="btn-mdel" onclick="siaDeleteFromFC()">Delete</button></div>
+    <button class="btn-mg" onclick="siaEditFromFC()">Edit</button>
+    <button class="btn-mgo" onclick="closeModal('siaFlashcard')">Close</button>
+  </div>
+</div>
+</div>
+ 
+<!-- SIA: FORCE / STRATEGY / CONCEPT DETAIL -->
+<div class="overlay" id="siaDetail">
+<div class="modal" style="width:580px">
+  <div id="siaDetailContent"></div>
+  <div class="modal-acts">
+    <div class="modal-acts-l"><button class="btn-mdel" onclick="siaDeleteFromDetail()">Delete</button></div>
+    <button class="btn-mg" onclick="siaEditFromDetail()">Edit</button>
+    <button class="btn-mgo" onclick="closeModal('siaDetail')">Close</button>
+  </div>
+</div>
+</div>
+ 
+<!-- SIA: STICKY NOTE -->
+<div class="overlay" id="siaStickyModal">
+<div class="modal" style="width:420px">
+  <h2>Sticky <em>Note</em></h2>
+  <input type="hidden" id="siaStickyId">
+  <div class="fg"><label>Title</label><input class="fi-in" type="text" id="siaStickyTitle" placeholder="Note title…"></div>
+  <div class="fg"><label>Content</label><textarea class="fta" id="siaStickyContent" rows="6" placeholder="Anything you want pinned to the board — quotes, todos, references…"></textarea></div>
+  <div class="modal-acts">
+    <button class="btn-mg" onclick="closeModal('siaStickyModal')">Cancel</button>
+    <button class="btn-mgo" onclick="siaSaveSticky()">Save</button>
+  </div>
+</div>
+</div>
 
-<div class="toast" id="toast"></div>
-
+ <div class="toast" id="toast"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script>
 'use strict';
 
@@ -1123,6 +1177,7 @@ function normaliseState(){
   STATE.products=STATE.products||[];
   STATE.bizmodels=STATE.bizmodels||[];
   STATE.connections=STATE.connections||[];
+  STATE.sia=STATE.sia||{nodes:[],stickies:[]};
 }
 
 /* ══ TABS ══ */
@@ -2507,5 +2562,510 @@ function seedDemo(){
   ];
 }
 </script>
-</body>
-</html>
+    <script>
+    /* ═══════════════════════════════════════════════════════
+   SIA — Strategic Intelligence Architecture
+   Board Integration for FOLIO v5
+   Data stored in STATE.sia.nodes + STATE.sia.stickies
+   ═══════════════════════════════════════════════════════ */
+
+// Override FOLIO board functions
+function renderBoard(){
+  if(!STATE.sia)STATE.sia={nodes:[],stickies:[]};
+  if(!STATE.sia.nodes||!STATE.sia.nodes.length){
+    STATE.sia.nodes=JSON.parse(JSON.stringify(SIA_SEED));
+    saveAll();
+  }
+  siaRenderGraph();
+  siaRenderStickies();
+}
+function clearBoard(){
+  if(!confirm('Clear all SIA board nodes and stickies?'))return;
+  STATE.sia={nodes:[],stickies:[]};saveAll();renderBoard();toast('Board cleared');
+}
+// Override FOLIO addCard (board buttons call this via old code paths)
+function addCard(t){ siaOpenForm(null,t==='node'?'force':t==='sticky'?'sticky':t); }
+
+/* ── Constants ── */
+const SP=215; // pentagon radius
+const SCFG={
+  force:   {label:'Force',   icon:'⬡',color:'#C8A84A'},
+  strategy:{label:'Strategy',icon:'◈',color:'#C8A84A'},
+  company: {label:'Company', icon:'◆',color:'#D8702C'},
+  concept: {label:'Concept', icon:'▶',color:'#5BC98A'},
+};
+const SRELS=['counters','creates','overcame','exploited','leveraged','disrupted','illustrates','related_to','had','lost','used','reduces'];
+const SFLDS=['name','description','corePhilosophy','howToExecute','forcesCountered','flywheel','commitments','risks','tradeoffs','whenToUse','implications','examples','counterExamples','industry','outcome','whatHappened','lessons'];
+// Card dims
+const SF={w:160,h:60,r:55},SS={w:136,h:48,r:48},SCo={r:13,cr:22},SCn={r:11,cr:19};
+
+// Graph handles
+let _sg=null,_sv=null,_sz=null,_sng=null,_slg=null,_cur=null,_sfm={};
+
+function snodes(){return(STATE.sia||{}).nodes||[];}
+function sstick(){return(STATE.sia||{}).stickies||[];}
+function siaSave(){if(!STATE.sia)STATE.sia={nodes:[],stickies:[]};saveAll();}
+
+function sC(d){
+  if(d.type==='force')return d.forceColor||'#C8A84A';
+  if(d.type==='strategy')return'#C8A84A';
+  if(d.type==='company')return'#D8702C';
+  return'#5BC98A';
+}
+function sCr(d){if(d.type==='force')return SF.r;if(d.type==='strategy')return SS.r;if(d.type==='company')return SCo.cr;return SCn.cr;}
+function sSpl(nm){const w=nm.split(' ');if(w.length<=2||nm.length<=14)return[nm];const m=Math.ceil(w.length/2);return[w.slice(0,m).join(' '),w.slice(m).join(' ')];}
+
+/* ── Visibility (collapse) ── */
+function sVis(){
+  const all=snodes();
+  const cf=new Set(all.filter(n=>n.type==='force'&&n.collapsed).map(n=>n.id));
+  const nodes=all.filter(n=>{
+    if(n.type==='company'){
+      const fl=(n.links||[]).filter(l=>{const t=all.find(x=>x.id===l.targetId);return t&&t.type==='force';});
+      if(!fl.length)return true;
+      return fl.some(l=>!cf.has(l.targetId));
+    }
+    return true;
+  });
+  const ids=new Set(nodes.map(n=>n.id));
+  const links=[];
+  nodes.forEach(n=>(n.links||[]).forEach(l=>{
+    if(ids.has(l.targetId))links.push({source:n.id,target:l.targetId,lt:n.type,rel:l.rel,lbl:l.label});
+  }));
+  return{nodes,links};
+}
+
+/* ── Main Graph Render ── */
+function siaRenderGraph(){
+  if(_sg){_sg.stop();_sg=null;}
+  const wrap=document.getElementById('siaWrap');if(!wrap)return;
+  const W=wrap.clientWidth||800,H=wrap.clientHeight||600,cx=W/2,cy=H/2;
+  const svg=d3.select('#sia-svg');svg.selectAll('*').remove();
+  const{nodes,links}=sVis();
+
+  // Init positions
+  const fns=nodes.filter(n=>n.type==='force');
+  fns.forEach((fn,i)=>{
+    if(fn.x===undefined){const a=(i*2*Math.PI/fns.length)-Math.PI/2;fn.x=cx+SP*Math.cos(a);fn.y=cy+SP*Math.sin(a);}
+    if(fn.pinned)fn.fx=fn.x,fn.fy=fn.y;
+  });
+  nodes.forEach(n=>{
+    if(n.x===undefined||n.y===undefined){
+      if(n.type==='strategy'){n.x=cx+(Math.random()-.5)*110;n.y=cy+(Math.random()-.5)*110;}
+      else if((n.links||[]).length){const t=nodes.find(x=>x.id===n.links[0].targetId);if(t){n.x=t.x+(Math.random()-.5)*90;n.y=t.y+(Math.random()-.5)*90;}else{n.x=cx+(Math.random()-.5)*250;n.y=cy+(Math.random()-.5)*250;}}
+      else{n.x=cx+(Math.random()-.5)*250;n.y=cy+(Math.random()-.5)*250;}
+    }
+    if(n.pinned&&n.x!==undefined)n.fx=n.x,n.fy=n.y;
+  });
+  links.forEach(l=>{const s=nodes.find(n=>n.id===l.source);l._c=s?sC(s):'var(--b3)';});
+
+  _sz=d3.zoom().scaleExtent([.05,4]).on('zoom',ev=>grp.attr('transform',ev.transform));
+  svg.call(_sz);
+  const grp=svg.append('g');
+
+  // Markers
+  const defs=svg.append('defs');
+  ['company','concept','strategy'].forEach(t=>{
+    defs.append('marker').attr('id','sm-'+t).attr('viewBox','0 -4 8 8').attr('refX',28).attr('markerWidth',5).attr('markerHeight',5).attr('orient','auto')
+      .append('path').attr('d','M0,-4L8,0L0,4').attr('fill',SCFG[t]?.color||'#888').attr('fill-opacity',.55);
+  });
+
+  // Links
+  _slg=grp.append('g');
+  const lsel=_slg.selectAll('line').data(links).join('line')
+    .attr('stroke',d=>d._c).attr('stroke-dasharray',d=>d.lt==='strategy'?'5,3':null)
+    .attr('stroke-width',1.4).attr('stroke-opacity',.35).attr('fill','none')
+    .attr('marker-end',d=>['company','concept','strategy'].includes(d.lt)?`url(#sm-${d.lt})`:null)
+    .on('mouseover',(ev,d)=>{if(d.rel||d.lbl)sETip(ev,d);})
+    .on('mouseout',sHTip);
+
+  // Nodes
+  _sng=grp.append('g');
+  const nsel=_sng.selectAll('g').data(nodes).join('g').attr('cursor','pointer')
+    .call(d3.drag()
+      .on('start',(ev,d)=>{if(!ev.active)_sg?.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;})
+      .on('drag', (ev,d)=>{d.fx=ev.x;d.fy=ev.y;})
+      .on('end',  (ev,d)=>{
+        if(!ev.active)_sg?.alphaTarget(0);
+        d.fx=d.x;d.fy=d.y;d.pinned=true;
+        const n=snodes().find(x=>x.id===d.id);
+        if(n){n.x=d.x;n.y=d.y;n.pinned=true;siaSave();}
+      })
+    )
+    .on('click',(ev,d)=>{ev.stopPropagation();sClick(d);})
+    .on('mouseover',(ev,d)=>{
+      d3.select(ev.currentTarget).select('.sc').attr('filter',`drop-shadow(0 0 9px ${sC(d)})`);
+      d3.select(ev.currentTarget).select('circle').attr('filter',`drop-shadow(0 0 7px ${sC(d)})`);
+      sTip(ev,d);
+    })
+    .on('mouseout',ev=>{
+      d3.select(ev.currentTarget).select('.sc').attr('filter',null);
+      d3.select(ev.currentTarget).select('circle').attr('filter',null);
+      sHTip();
+    });
+
+  // Force cards
+  const fg=nsel.filter(d=>d.type==='force');
+  fg.append('rect').attr('class','sc').attr('width',SF.w).attr('height',SF.h).attr('x',-SF.w/2).attr('y',-SF.h/2).attr('rx',6)
+    .attr('fill','var(--s2)').attr('stroke',d=>d.forceColor||'var(--gold)').attr('stroke-width',1.5);
+  fg.append('rect').attr('width',3).attr('height',SF.h).attr('x',-SF.w/2).attr('y',-SF.h/2).attr('rx',2).attr('fill',d=>d.forceColor||'var(--gold)');
+  fg.each(function(d){
+    const L=sSpl(d.name);
+    const t=d3.select(this).append('text').attr('text-anchor','middle').attr('pointer-events','none')
+      .attr('font-family',"'Playfair Display',Georgia,serif").attr('font-size','11px').attr('font-weight','500').attr('fill','var(--white)');
+    if(L.length===1){t.attr('y',-5).attr('dominant-baseline','central').text(L[0]);}
+    else{t.append('tspan').attr('x',5).attr('y',-17).text(L[0]);t.append('tspan').attr('x',5).attr('dy','14').text(L[1]);}
+  });
+  // Collapse toggle
+  const ct=fg.append('g').attr('transform',`translate(${SF.w/2-25},${SF.h/2-10})`).attr('cursor','pointer')
+    .on('click',(ev,d)=>{ev.stopPropagation();sTogCol(d.id);});
+  ct.append('rect').attr('width',36).attr('height',12).attr('rx',6)
+    .attr('fill','var(--bg)').attr('stroke',d=>d.forceColor||'var(--gold)').attr('stroke-width',1).attr('stroke-opacity',.7);
+  ct.append('text').attr('x',18).attr('y',6).attr('text-anchor','middle').attr('dominant-baseline','central')
+    .attr('font-size','7.5px').attr('fill',d=>d.forceColor||'var(--gold)').attr('font-family',"'DM Mono',monospace").attr('pointer-events','none')
+    .text(d=>{const c=snodes().filter(x=>x.type==='company'&&(x.links||[]).some(l=>l.targetId===d.id)).length;return d.collapsed?`+${c}`:'▼';});
+
+  // Strategy cards
+  const sg2=nsel.filter(d=>d.type==='strategy');
+  sg2.append('rect').attr('class','sc').attr('width',SS.w).attr('height',SS.h).attr('x',-SS.w/2).attr('y',-SS.h/2).attr('rx',6)
+    .attr('fill','var(--s1)').attr('stroke','var(--gold)').attr('stroke-width',1.5).attr('stroke-dasharray','5,3');
+  sg2.each(function(d){
+    const L=sSpl(d.name);
+    const t=d3.select(this).append('text').attr('text-anchor','middle').attr('pointer-events','none')
+      .attr('font-family',"'Playfair Display',Georgia,serif").attr('font-size','11px').attr('font-weight','500').attr('fill','var(--gold2)');
+    if(L.length===1){t.attr('y',0).attr('dominant-baseline','central').text(L[0]);}
+    else{t.append('tspan').attr('x',0).attr('y',-8).text(L[0]);t.append('tspan').attr('x',0).attr('dy','15').text(L[1]);}
+  });
+  sg2.append('text').attr('text-anchor','middle').attr('y',SS.h/2-8).attr('font-size','6.5px').attr('letter-spacing','.1em')
+    .attr('fill','var(--gold)').attr('fill-opacity',.5).attr('font-family',"'DM Mono',monospace").attr('pointer-events','none').text('STRATEGY');
+
+  // Company & Concept circles
+  const sm=nsel.filter(d=>['company','concept'].includes(d.type));
+  sm.append('circle').attr('r',d=>d.type==='company'?SCo.r:SCn.r).attr('fill',d=>sC(d)+'18').attr('stroke',sC).attr('stroke-width',1.5);
+  sm.filter(d=>d.type==='company').append('text').attr('text-anchor','middle').attr('dominant-baseline','central')
+    .attr('font-size','8px').attr('font-family',"'Playfair Display',serif").attr('fill',sC).attr('pointer-events','none').text(d=>d.name[0]);
+  sm.filter(d=>d.type==='concept').append('text').attr('text-anchor','middle').attr('dominant-baseline','central')
+    .attr('font-size','8px').attr('font-family',"'DM Mono',monospace").attr('fill',sC).attr('pointer-events','none').text('◆');
+  sm.append('text').attr('text-anchor','middle').attr('y',d=>d.type==='company'?SCo.r+11:SCn.r+11)
+    .attr('font-family',"'DM Mono',monospace").attr('font-size','8px').attr('fill','var(--muted)').attr('pointer-events','none')
+    .text(d=>d.name.length>18?d.name.slice(0,16)+'…':d.name);
+
+  // Simulation
+  _sg=d3.forceSimulation(nodes).alpha(.35)
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(170).strength(.12))
+    .force('charge',d3.forceManyBody().strength(d=>d.type==='force'?-620:d.type==='strategy'?-280:-160))
+    .force('collision',d3.forceCollide().radius(sCr))
+    .force('cx',d3.forceX(cx).strength(.01)).force('cy',d3.forceY(cy).strength(.01))
+    .on('tick',()=>{lsel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nsel.attr('transform',d=>`translate(${d.x},${d.y})`);})
+    .on('end',()=>{nodes.forEach(n=>{if(!n.pinned){n.fx=n.x;n.fy=n.y;n.pinned=true;}});});
+
+  svg.on('click',sDesel);
+  _sv=svg;
+  const inf=document.getElementById('sia-info');
+  if(inf)inf.textContent=`${nodes.length} nodes · ${links.length} links`;
+}
+
+/* ── Tooltips ── */
+function _tipPos(ev){const b=document.getElementById('siaWrap').getBoundingClientRect();return{x:ev.clientX-b.left+12,y:ev.clientY-b.top-10};}
+function _showTipEl(html,ev){
+  const t=document.getElementById('sia-tip');if(!t)return;
+  t.innerHTML=html;const p=_tipPos(ev);
+  t.style.cssText=`display:block;position:absolute;background:var(--s3);border:1px solid var(--b3);border-radius:6px;padding:9px 12px;pointer-events:none;z-index:30;max-width:200px;box-shadow:0 4px 20px rgba(0,0,0,.6);left:${p.x}px;top:${p.y}px`;
+}
+function sTip(ev,d){
+  _showTipEl(`<div style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:${sC(d)};margin-bottom:4px">${SCFG[d.type]?.label||d.type}</div><div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:500;color:var(--white);margin-bottom:4px;line-height:1.3">${esc(d.name)}</div>${d.description?`<div style="font-size:10px;color:var(--text2);line-height:1.5">${esc(d.description.slice(0,110)+(d.description.length>110?'…':''))}</div>`:''}`,ev);
+}
+function sETip(ev,d){
+  const sn=typeof d.source==='object'?d.source.name:'',tn=typeof d.target==='object'?d.target.name:'';
+  _showTipEl(`<div style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:${d._c||'var(--gold)'};margin-bottom:4px">${d.rel||'connection'}</div><div style="font-size:10px;color:var(--text2)">${esc(sn)} → ${esc(tn)}</div>${d.lbl?`<div style="font-size:10px;color:var(--muted);font-style:italic;margin-top:3px">${esc(d.lbl)}</div>`:''}`,ev);
+}
+function sHTip(){const t=document.getElementById('sia-tip');if(t)t.style.display='none';}
+
+/* ── Highlight / Select ── */
+function sHL(d){
+  if(!_sng||!_slg)return;
+  const rel=new Set([d.id]);
+  (d.links||[]).forEach(l=>rel.add(l.targetId));
+  snodes().forEach(n=>(n.links||[]).forEach(l=>{if(l.targetId===d.id)rel.add(n.id);}));
+  if(d.type==='force')snodes().filter(x=>x.type==='company'&&(x.links||[]).some(l=>l.targetId===d.id)).forEach(x=>rel.add(x.id));
+  _sng.selectAll('g').attr('opacity',nd=>rel.has(nd.id)?1:.06);
+  _slg.selectAll('line').attr('opacity',l=>{const s=l.source?.id||l.source,t=l.target?.id||l.target;return(rel.has(s)&&rel.has(t))?.7:.03;});
+  _sng.selectAll('g').filter(nd=>nd.id===d.id).each(function(nd){
+    d3.select(this).select('.sc').attr('filter',`drop-shadow(0 0 14px ${sC(nd)})`);
+    d3.select(this).select('circle').attr('filter',`drop-shadow(0 0 10px ${sC(nd)})`);
+  });
+}
+function sDesel(){_cur=null;if(!_sng||!_slg)return;_sng.selectAll('g').attr('opacity',1);_slg.selectAll('line').attr('opacity',null);_sng.selectAll('.sc,circle').attr('filter',null);}
+function sClick(d){
+  _cur=snodes().find(x=>x.id===d.id);sHL(d);
+  if(_cur.type==='company')sFC(_cur);else sDet(_cur);
+}
+
+/* ── Flashcard (Company) ── */
+function sFC(e){
+  const c=sC(e);
+  const oc=e.outcome==='Success'?'#5BC98A':e.outcome==='Failure'?'#E87272':'var(--gold)';
+  const conns=(e.links||[]).map(l=>{const t=snodes().find(x=>x.id===l.targetId);return t?`<span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border:1px solid var(--b3);border-radius:3px;color:var(--muted)">${esc(t.name)}</span>`:null;}).filter(Boolean).join('');
+  document.getElementById('siaFcBar').style.background=oc;
+  document.getElementById('siaFcContent').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+      <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:${c}">Company</span>
+      ${e.outcome?`<span style="font-family:'DM Mono',monospace;font-size:8.5px;padding:3px 9px;border-radius:10px;border:1px solid ${oc};color:${oc}">${esc(e.outcome)}</span>`:''}
+    </div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;font-style:italic;color:var(--white);margin-bottom:2px">${esc(e.name)}</h2>
+    <div style="font-family:'DM Mono',monospace;font-size:9.5px;color:var(--muted);margin-bottom:13px">${esc(e.industry||'')}</div>
+    ${e.description?`<div style="font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--b1)">Overview</div><div style="font-family:'EB Garamond',serif;font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:11px">${esc(e.description)}</div>`:''}
+    ${e.whatHappened?`<div style="font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--b1)">What Happened</div><div style="font-family:'EB Garamond',serif;font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:11px">${esc(e.whatHappened)}</div>`:''}
+    ${e.lessons?`<div style="font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--b1)">Key Lesson</div><div style="font-family:'EB Garamond',serif;font-style:italic;font-size:13px;color:var(--gold2);line-height:1.75;margin-bottom:11px">${esc(e.lessons)}</div>`:''}
+    ${conns?`<div style="font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:7px;padding-bottom:3px;border-bottom:1px solid var(--b1)">Connected Forces</div><div style="display:flex;flex-wrap:wrap;gap:5px">${conns}</div>`:''}
+  `;
+  document.getElementById('siaFlashcard').classList.add('on');
+}
+function siaDeleteFromFC(){if(_cur&&confirm('Delete?')){sDel(_cur.id);closeModal('siaFlashcard');}}
+function siaEditFromFC(){closeModal('siaFlashcard');siaOpenForm(_cur);}
+
+/* ── Detail (Force/Strategy/Concept) ── */
+function sDet(e){
+  const c=sC(e);
+  const connOut=(e.links||[]).map(l=>{const t=snodes().find(x=>x.id===l.targetId);return t?`<div style="display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:1px solid var(--b1);cursor:pointer" onclick="sNavTo('${l.targetId}')"><span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${sC(t)};margin-top:4px;display:inline-block"></span><div><div style="font-size:11.5px;color:var(--text2)">${esc(t.name)}</div><div style="font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);font-style:italic">${esc(l.rel||'')}${l.label?' — '+esc(l.label):''}</div></div></div>`:null;}).filter(Boolean).join('');
+  const connIn=snodes().filter(x=>x.id!==e.id&&(x.links||[]).some(l=>l.targetId===e.id)).map(x=>{const lk=x.links.find(l=>l.targetId===e.id);return`<div style="display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:1px solid var(--b1);cursor:pointer" onclick="sNavTo('${x.id}')"><span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${sC(x)};margin-top:4px;display:inline-block"></span><div><div style="font-size:11.5px;color:var(--text2)">${esc(x.name)}</div><div style="font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted)">${SCFG[x.type]?.label||x.type} · ${esc(lk?.rel||'')}</div></div></div>`;}).join('');
+  const df=(l,v)=>v?`<div style="margin-bottom:12px"><div style="font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:4px">${l}</div><div style="font-family:'EB Garamond',serif;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap">${esc(v)}</div></div>`:'';
+  const strat=e.type==='strategy'?df('Core Philosophy',e.corePhilosophy)+df('How to Execute',e.howToExecute)+df('Forces Countered',e.forcesCountered)+df('Flywheel',e.flywheel)+df('Commitments',e.commitments)+df('Key Risks',e.risks)+df('Trade-offs',e.tradeoffs)+df('When to Use',e.whenToUse):'';
+  document.getElementById('siaDetailContent').innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:${c}">${SCFG[e.type]?.label||e.type}</span></div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:21px;font-weight:400;font-style:italic;margin-bottom:13px;color:var(--white)">${esc(e.name)}</h2>
+    ${df('Description',e.description)}${df('Implications',e.implications)}${df('Examples',e.examples)}${df('Counter-examples',e.counterExamples)}${strat}
+    ${connOut||connIn?`<div style="font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--b1)">Connections</div>${connOut}${connIn}`:''}
+  `;
+  document.getElementById('siaDetail').classList.add('on');
+}
+function siaDeleteFromDetail(){if(_cur&&confirm('Delete?')){sDel(_cur.id);closeModal('siaDetail');}}
+function siaEditFromDetail(){closeModal('siaDetail');siaOpenForm(_cur);}
+function sNavTo(id){
+  closeModal('siaDetail');closeModal('siaFlashcard');
+  const n=snodes().find(x=>x.id===id);if(!n)return;
+  _cur=n;if(_sng){const nd=_sng.data().find(d=>d.id===id);if(nd)sHL(nd);}
+  if(n.type==='company')sFC(n);else sDet(n);
+}
+
+/* ── Collapse / Zoom ── */
+function sTogCol(id){const n=snodes().find(d=>d.id===id);if(!n)return;n.collapsed=!n.collapsed;siaSave();siaRenderGraph();}
+function siaExpandAll(){snodes().filter(d=>d.type==='force').forEach(d=>d.collapsed=false);siaSave();siaRenderGraph();}
+function siaCollapseAll(){snodes().filter(d=>d.type==='force').forEach(d=>d.collapsed=true);siaSave();siaRenderGraph();}
+function siaZoom(d){if(!_sv||!_sz)return;_sv.transition().duration(200).call(_sz.scaleBy,1+d);}
+function siaResetZoom(){if(_sv&&_sz)_sv.transition().duration(400).call(_sz.transform,d3.zoomIdentity);}
+
+/* ── Form ── */
+function siaOpenForm(entry,defType){
+  _sfm=entry?JSON.parse(JSON.stringify(entry)):{type:defType||'force',links:[]};
+  if(!_sfm.links)_sfm.links=[];
+  document.getElementById('siaEditId').value=_sfm.id||'';
+  document.getElementById('siaModalTitle').innerHTML=entry?`Edit <em>${SCFG[_sfm.type]?.label||''}</em>`:`Add <em>${SCFG[defType]?.label||'Node'}</em>`;
+  document.getElementById('siaDelBtn').style.display=entry?'inline-flex':'none';
+  document.getElementById('siaSaveBtn').textContent='Save '+(SCFG[_sfm.type]?.label||'Node');
+  document.getElementById('siaName').value=_sfm.name||'';
+  document.getElementById('siaDesc').value=_sfm.description||'';
+  sRenderExtra();sRenderConn();
+  document.getElementById('siaNodeModal').classList.add('on');
+  setTimeout(()=>document.getElementById('siaName').focus(),60);
+}
+function sRenderExtra(){
+  const xf={
+    force:[['implications','Strategic Implications'],['examples','Industry Examples']],
+    strategy:[['corePhilosophy','Core Philosophy'],['howToExecute','How to Execute'],['forcesCountered','Forces Countered'],['flywheel','Flywheel'],['commitments','Commitments'],['risks','Key Risks'],['tradeoffs','Trade-offs'],['whenToUse','When to Use']],
+    company:[['industry','Industry'],['outcome','Outcome (Success / Failure)'],['whatHappened','What Happened'],['lessons','Key Lesson']],
+    concept:[['examples','Examples'],['counterExamples','Counter-examples']],
+  };
+  document.getElementById('siaExtraFields').innerHTML=(xf[_sfm.type]||[]).map(([id,label])=>{
+    const v=_sfm[id]||'';
+    if(id==='industry'||id==='outcome')return`<div class="fg"><label>${label}</label><input class="fi-in" type="text" id="sfe-${id}" value="${esc(v)}" placeholder="${label}…"></div>`;
+    return`<div class="fg"><label>${label}</label><textarea class="fta" id="sfe-${id}" rows="2" placeholder="${label}…">${esc(v)}</textarea></div>`;
+  }).join('');
+}
+function sRenderConn(sq=''){
+  const others=snodes().filter(n=>n.id!==_sfm.id);
+  const filtered=sq?others.filter(n=>(n.name||'').toLowerCase().includes(sq.toLowerCase())):others;
+  document.getElementById('siaConnPicker').innerHTML=filtered.map(n=>{
+    const pk=(_sfm.links||[]).some(l=>l.targetId===n.id);
+    return`<div style="display:flex;align-items:center;gap:7px;padding:6px 10px;cursor:pointer;font-size:10px;color:${pk?'var(--gold)':'var(--muted)'};background:${pk?'rgba(200,168,74,.08)':'transparent'}" onclick="sTogFL('${n.id}')"><span style="width:6px;height:6px;border-radius:50%;background:${sC(n)};flex-shrink:0"></span><span style="flex:1">${esc(n.name)}</span><span style="font-family:'DM Mono',monospace;font-size:8.5px;color:var(--dim)">${SCFG[n.type]?.label||n.type}</span></div>`;
+  }).join('');
+  document.getElementById('siaConnList').innerHTML=(_sfm.links||[]).map(l=>{
+    const t=snodes().find(x=>x.id===l.targetId);if(!t)return'';
+    return`<div style="display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid var(--b1)"><span style="width:5px;height:5px;border-radius:50%;background:${sC(t)};flex-shrink:0"></span><span style="font-size:10px;flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${esc(t.name)}</span><select style="background:var(--s2);border:1px solid var(--b2);color:var(--muted);padding:2px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:8.5px;outline:none;flex-shrink:0" onchange="sULR('${l.targetId}',this.value)">${SRELS.map(r=>`<option${l.rel===r?' selected':''}>${r}</option>`).join('')}</select><input style="background:var(--s2);border:1px solid var(--b2);color:var(--muted);padding:2px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:8.5px;outline:none;min-width:0;flex:1" placeholder="label…" value="${esc(l.label||'')}" oninput="sULL('${l.targetId}',this.value)"><button style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:11px;padding:0 3px;flex-shrink:0" onclick="sTogFL('${l.targetId}')">✕</button></div>`;
+  }).join('');
+}
+function siaFilterConn(v){sRenderConn(v);}
+function sTogFL(id){if(!_sfm.links)_sfm.links=[];const i=_sfm.links.findIndex(l=>l.targetId===id);if(i>-1)_sfm.links.splice(i,1);else _sfm.links.push({targetId:id,rel:'related_to',label:''});sRenderConn(document.getElementById('siaConnSearch').value||'');}
+function sULR(id,v){const l=_sfm.links?.find(x=>x.targetId===id);if(l)l.rel=v;}
+function sULL(id,v){const l=_sfm.links?.find(x=>x.targetId===id);if(l)l.label=v;}
+
+function siaSaveNode(){
+  SFLDS.forEach(f=>{const el=document.getElementById('sfe-'+f);if(el)_sfm[f]=el.value;});
+  _sfm.name=(document.getElementById('siaName').value||'').trim();
+  _sfm.description=(document.getElementById('siaDesc').value||'').trim();
+  if(!_sfm.name){toast('Name required');document.getElementById('siaName').focus();return;}
+  const eid=document.getElementById('siaEditId').value;
+  if(eid){const i=STATE.sia.nodes.findIndex(x=>x.id===eid);if(i>-1)STATE.sia.nodes[i]={...STATE.sia.nodes[i],..._sfm};else STATE.sia.nodes.push({..._sfm});}
+  else{_sfm.id='n'+Date.now();STATE.sia.nodes.push({..._sfm});}
+  siaSave();closeModal('siaNodeModal');siaRenderGraph();toast('✓ '+(eid?'Updated':'Added')+': '+_sfm.name);
+}
+function siaDeleteNode(){const id=_cur?.id||document.getElementById('siaEditId').value;sDel(id);}
+function sDel(id){
+  if(!id||!confirm('Delete this node?'))return;
+  STATE.sia.nodes=STATE.sia.nodes.filter(x=>x.id!==id);
+  STATE.sia.nodes.forEach(n=>n.links=(n.links||[]).filter(l=>l.targetId!==id));
+  siaSave();siaRenderGraph();closeModal('siaNodeModal');toast('Deleted');
+}
+
+/* ── Stickies ── */
+function siaAddSticky(){document.getElementById('siaStickyId').value='';document.getElementById('siaStickyTitle').value='';document.getElementById('siaStickyContent').value='';document.getElementById('siaStickyModal').classList.add('on');setTimeout(()=>document.getElementById('siaStickyTitle').focus(),60);}
+function siaSaveSticky(){
+  const title=document.getElementById('siaStickyTitle').value.trim();
+  const content=document.getElementById('siaStickyContent').value.trim();
+  if(!title&&!content){closeModal('siaStickyModal');return;}
+  if(!STATE.sia.stickies)STATE.sia.stickies=[];
+  const eid=document.getElementById('siaStickyId').value;
+  if(eid){const i=STATE.sia.stickies.findIndex(x=>x.id===eid);if(i>-1){STATE.sia.stickies[i].title=title;STATE.sia.stickies[i].content=content;}}
+  else STATE.sia.stickies.push({id:'sk'+Date.now(),title:title||'Note',content,collapsed:false});
+  siaSave();siaRenderStickies();closeModal('siaStickyModal');
+}
+function siaRenderStickies(){
+  const w=document.getElementById('sia-stickies');if(!w)return;
+  w.innerHTML=sstick().map(s=>`<div style="background:var(--s2);border:1px solid var(--b3);border-left:3px solid var(--gold);border-radius:6px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;gap:6px;padding:7px 10px;cursor:default;${s.collapsed?'':'border-bottom:1px solid var(--b2)'}">
+      <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;flex:1">${esc(s.title)}</span>
+      <button style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:9px;font-family:'DM Mono',monospace;padding:0 2px" onclick="siaTSticky('${s.id}')">${s.collapsed?'▶':'▼'}</button>
+      <button style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:10px;padding:0 2px" onclick="siaESticky('${s.id}')">✎</button>
+      <button style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:10px;padding:0 2px" onclick="siaDSticky('${s.id}')">✕</button>
+    </div>
+    ${s.collapsed||!s.content?'':` <div style="padding:8px 10px;font-family:'EB Garamond',serif;font-size:12.5px;color:var(--text2);line-height:1.75;white-space:pre-wrap">${esc(s.content)}</div>`}
+  </div>`).join('');
+}
+function siaTSticky(id){const s=sstick().find(x=>x.id===id);if(s){s.collapsed=!s.collapsed;siaSave();siaRenderStickies();}}
+function siaDSticky(id){if(!confirm('Delete sticky?'))return;STATE.sia.stickies=sstick().filter(x=>x.id!==id);siaSave();siaRenderStickies();}
+function siaESticky(id){const s=sstick().find(x=>x.id===id);if(!s)return;document.getElementById('siaStickyId').value=id;document.getElementById('siaStickyTitle').value=s.title||'';document.getElementById('siaStickyContent').value=s.content||'';document.getElementById('siaStickyModal').classList.add('on');}
+
+/* ── SIA Seed Data ── */
+const SIA_SEED=[
+  {id:'f1',type:'force',name:'Threat of New Entrants',forceColor:'#9870D0',collapsed:false,
+   description:'Risk that profitable markets attract new competitors, eroding market share. Determined by the height of barriers to entry.',
+   implications:'High barriers = sustained profitability. Cost Leadership (economies of scale) and Differentiation (brand loyalty) can convert this force into a moat you own.',
+   examples:'Semiconductor fabs ($10B+ barrier), banking (regulatory), pharma (patent + approval), telecom (spectrum licenses), airlines (fleet capital)',links:[]},
+  {id:'f2',type:'force',name:'Supplier Power',forceColor:'#E87272',collapsed:false,
+   description:'Ability of input providers to raise prices or cut quality, squeezing industry margins. High when suppliers are concentrated or inputs are unique.',
+   implications:'Cost Leadership neutralizes via low-cost flexibility. Vertical integration eliminates it. TSMC, ASML, NVIDIA show what maximum supplier power looks like.',
+   examples:'TSMC (90%+ leading-edge chips), ASML (only EUV machine maker), NVIDIA H100s (no substitute for AI training), rare earth metals, cobalt',links:[]},
+  {id:'f3',type:'force',name:'Buyer Power',forceColor:'#6B9FE4',collapsed:false,
+   description:'Ability of customers to drive prices down or demand higher quality. High when buyers are few and large, products are undifferentiated, or switching costs are low.',
+   implications:'Differentiation and high switching costs reduce buyer power dramatically. Building ecosystem lock-in is the Differentiation strategy applied to buyer power.',
+   examples:'Walmart vs CPG brands (30%+ revenue dependence), government procurement, insurance comparison sites, B2B commodity bulk purchases',links:[]},
+  {id:'f4',type:'force',name:'Threat of Substitutes',forceColor:'#5BC98A',collapsed:false,
+   description:'Alternative products fulfilling the same customer need — sets a price ceiling on what incumbents can charge.',
+   implications:'Differentiation is the primary defense. If your product is unique enough, no substitute feels equivalent. Cost Leadership helps by matching substitute pricing speed.',
+   examples:'Streaming vs cable TV (Netflix/Blockbuster), EVs vs ICE on total cost, VoIP vs landlines, digital cameras vs film (killed Kodak), AI coding tools vs developers',links:[]},
+  {id:'f5',type:'force',name:'Competitive Rivalry',forceColor:'#E8A05A',collapsed:false,
+   description:'Intensity of competition among existing players. Determines how much value gets competed away via price wars, marketing spend, and product races.',
+   implications:'Brand loyalty (Differentiation), niche dominance (Focus), and structural cost advantage (Cost Leadership) are the three generic defenses. Worst when: many equal players, slow growth, high fixed costs, low differentiation.',
+   examples:'Indian telecom post-Jio (3 survivors from 12), global airline industry (chronic low margins), commodity cloud storage, generic pharmaceuticals',links:[]},
+  {id:'s1',type:'strategy',name:'Cost Leadership',
+   description:'Operating at lower cost than any competitor. Being cheapest — not best.',
+   corePhilosophy:'Capture markets with "low cost" position, reinvest margins to maintain. Not the best product — lowest cost structure. Makes you most liquid, flexible, dangerous in a price war. Self-feeding machine: lower cost → higher margin → reinvest → more scale → lower cost.',
+   howToExecute:'1. Efficient scale facilities. 2. Tight cost and overhead control. 3. Reduce MS&A aggressively. 4. Aggressive pricing to gain share. 5. Reinvest profits into cost reduction. 6. Commit to up-front capital + aggressive pricing as the path to scale.',
+   forcesCountered:'BUYER POWER → Can always undercut, neutralized. SUPPLIER POWER → Low-cost structure = flexibility, suppliers become "a lost piece." NEW ENTRANTS → Economies of scale become entry barriers you own. RIVALRY → Cost advantage wins price wars while competitors bleed. SUBSTITUTES → More liquid and faster to adopt the substitute yourself before being disrupted.',
+   flywheel:'Entry → Market Share → Low Cost (from scale) → High Margins → Reinvested → More Scale → Even Lower Cost → Repeat.',
+   commitments:'Reinvest profits for modern requirements. Scrap obsolete assets. Avoid product line proliferation — complexity kills cost efficiency. Stay alert to technological change.',
+   risks:'Technology change nullifying leadership. Low-cost learning by newcomers starting fresh. Inflation eroding the advantage. Inability to see product or marketing evolution.',
+   tradeoffs:'Not the best product. Sacrifices premium positioning. Hard to pivot to differentiation once entrenched. Requires relentless discipline — any overhead addition undermines the model.',
+   whenToUse:'Commodity industries. Price-sensitive buyers. High economies of scale available. When you can be structurally 20-30% cheaper than anyone — not just marginally cheaper.',
+   links:[{targetId:'f1',rel:'counters',label:'Economies of scale become entry barriers you own'},{targetId:'f2',rel:'counters',label:'Low-cost structure — suppliers become "a lost piece"'},{targetId:'f3',rel:'counters',label:'Can always undercut — buyer price pressure neutralized'},{targetId:'f5',rel:'counters',label:'Cost advantage wins rivalry; margin reinvested'}]},
+  {id:'s2',type:'strategy',name:'Differentiation',
+   description:'Being "unique" in ways buyers value — across design, brand, technology, features, service, dealer network. Commands premium prices.',
+   corePhilosophy:'Brand loyalty insulates you from every competitive force. Accept higher costs in exchange for the ability to charge higher prices. "Brand loyalty = less price sensitive." Choose WHERE you can truly be unique: Design (Apple), Brand (LVMH), Technology (NVIDIA), Features (Salesforce), Service (Zappos).',
+   howToExecute:'Invest in design, brand, technology, features, customer service, dealer networks. Build emotional and rational loyalty. Accept higher costs as the structural price of uniqueness. Avoid cost pressures that erode what makes you unique.',
+   forcesCountered:'RIVALRY → Brand loyalty means rivalry does not affect you. BUYER POWER → Loyal buyers are less price-sensitive. NEW ENTRANTS → Brand loyalty is a strong entry barrier. SUBSTITUTES → Unique positioning makes substitution less attractive — buyers feel no substitute is equivalent.',
+   flywheel:'Uniqueness → Brand Loyalty → Less Price Sensitivity → Premium Margins → Fund More Differentiation → Wider Moat → More Loyalty.',
+   commitments:'Sustained R&D and brand investment. Maintain perceived difference — never let quality slip. Resist cost pressures even under margin pressure. Avoid the temptation to commoditize for volume.',
+   risks:'Imitation narrows perceived difference. Buyers stop valuing the differentiating factor. Cost differential becomes too great for loyalty to justify. Market commoditizes around you.',
+   tradeoffs:'Higher cost structure than cost leaders. Hard to pull off — too many differentiators = free market. Cannot compete on pure price. May lose price-sensitive segments permanently.',
+   whenToUse:'Where buyers genuinely value uniqueness and pay a premium. Where brand loyalty is buildable. Where R&D or design creates lasting advantage. NOT in pure commodity markets.',
+   links:[{targetId:'f1',rel:'creates',label:'Brand loyalty = strong entry barrier'},{targetId:'f3',rel:'counters',label:'Loyal buyers are less price-sensitive'},{targetId:'f4',rel:'counters',label:'Unique positioning reduces substitution threat'},{targetId:'f5',rel:'counters',label:'Brand loyalty — rivalry does not affect you'}]},
+  {id:'s3',type:'strategy',name:'Focus / Niche',
+   description:'Choosing a specific market, segment, or geography and serving it better than anyone who tries to serve everyone.',
+   corePhilosophy:'Be the best for your niche — not the best overall. "NVIDIA began capturing needs of Gamers, later turned itself into low cost for the whole. But focus is about capturing a niche." Can achieve either low cost OR differentiation within the niche — pick one, commit.',
+   howToExecute:'Choose focus: Buyers (niche customer type), Segment (product line), or Geography. Filter every decision through "does this serve our niche?" Get rid of SG&A on non-niche activities. This makes you lean.',
+   forcesCountered:'RIVALRY → Niche insulation reduces direct rivalry — broad players not optimized for your segment. SUBSTITUTES → Deep niche understanding reduces substitution risk. SUPPLIER/BUYER POWER → Niche loyalty can reduce power of both if you are the only expert server of that segment.',
+   flywheel:'Niche Focus → Deep Understanding → Superior Product for Segment → Loyalty → Niche Dominance → Lean Cost Structure (from focused SG&A) → Reinvest → Deeper Expertise → Harder to Dislodge.',
+   commitments:'Resist premature expansion. Stay disciplined to the chosen segment. Build deep expertise broad players cannot match. Accept smaller total addressable market as the price of depth.',
+   risks:'Competitors find and enter the niche. Cost/differential between broad and narrow markets disappears. Niche itself disappears. Must avoid "stuck in the middle" within the focus.',
+   tradeoffs:'Smaller TAM. Vulnerable if niche disappears. Harder to scale. Focus can become a prison if the niche fails to grow.',
+   whenToUse:'When a niche has unique needs not served by broad players. When you can serve it at structurally lower cost or higher differentiation. Large enough to be profitable, small enough that big players ignore it.',
+   links:[{targetId:'f1',rel:'creates',label:'Niche specialization = effective entry barrier'},{targetId:'f4',rel:'counters',label:'Deep niche understanding reduces substitution risk'},{targetId:'f5',rel:'counters',label:'Niche insulation reduces direct rivalry exposure'}]},
+  {id:'co1',type:'company',name:'Reliance Jio',industry:'Telecom · India',outcome:'Success',
+   description:'Weaponized $30B capital to build India\'s first pan-India 4G LTE network before commercial launch. Free data launch September 2016.',
+   whatHappened:'Built network secretly over 4 years. On launch day, 6 months free data collapsed incumbents. 3 players survived from 12 within 18 months. Strategy: use capital requirement as weapon, price at near-zero marginal cost, platform monetization follows via JioCinema, JioFiber, payments.',
+   lessons:'Capital is not just a barrier — it is a weapon when deployed aggressively. Greenfield network = no legacy cost = undercut everyone\'s viable floor. Cheap data is not the business; cheap data IS the platform.',
+   links:[{targetId:'f1',rel:'overcame',label:'$30B turned capital barrier into entry weapon'},{targetId:'f5',rel:'disrupted',label:'Collapsed market from 12 to 3 players in 18 months'},{targetId:'s1',rel:'illustrates',label:'Classic cost leadership: scale → margins → reinvest'}]},
+  {id:'co2',type:'company',name:'Nokia',industry:'Technology · Mobile',outcome:'Failure',
+   description:'40% global handset market share in 2007. Failed to recognize iPhone as a platform shift. Sold mobile division to Microsoft 2013.',
+   whatHappened:'Dismissed iPhone as "too expensive." Symbian OS was architecturally unmaintainable (millions of incompatible C++ lines). Software engineers had no organizational power vs hardware teams. Internal memos from 2005-2007 warned Symbian had a ceiling. By 2011: 3% smartphone market share.',
+   lessons:'Platform beats product — evaluate the ecosystem, not just the device. Nokia had better hardware; Apple had the App Store. Software capability cannot be acquired quickly — requires culture change, not just hiring.',
+   links:[{targetId:'f4',rel:'ignored',label:'Dismissed iPhone as not functionally equivalent — it was'},{targetId:'f5',rel:'lost',label:'Differentiation collapsed when platform mattered more than hardware'}]},
+  {id:'co3',type:'company',name:'Netflix',industry:'Media · Streaming',outcome:'Success',
+   description:'Started DVD-by-mail 1997. Proactively cannibalized its own business with streaming. 260M+ subscribers globally.',
+   whatHappened:'Identified Blockbuster\'s late fees as primary pain point AND primary revenue line. Eliminated them. Moved to streaming when broadband crossed threshold. Created originals (House of Cards 2013) to build switching costs catalog content could never provide. Originals = proprietary = cannot be streamed elsewhere.',
+   lessons:'Self-cannibalization is the strongest strategic weapon. Originals create lock-in that catalog content cannot. Eliminate the incumbent\'s primary revenue source as your entry strategy.',
+   links:[{targetId:'f4',rel:'used',label:'Streaming was cheaper + more convenient substitute to cable'},{targetId:'f3',rel:'created',label:'Exclusive originals create buyer lock-in unavailable elsewhere'},{targetId:'s2',rel:'illustrates',label:'Differentiation through original content portfolio'}]},
+  {id:'co4',type:'company',name:'Kodak',industry:'Technology · Imaging',outcome:'Failure',
+   description:'Invented the digital camera in 1975. Shelved it to protect 60%+ gross margin film business. Filed Chapter 11 January 2012.',
+   whatHappened:'Film was 60-70% gross margin. No internal incentive structure rewarded anyone for cannibalizing those margins. Digital shelved for 20 years while Sony, Canon, and Olympus built the market Kodak had discovered. By 2000, digital was mainstream. Film volume declined every year from 1999 to 2012.',
+   lessons:'Owning the patent on the future does not guarantee profiting from it. Margin protection = innovation suppression. No rational manager kills a 60% gross margin product — that is the trap.',
+   links:[{targetId:'f4',rel:'ignored',label:'Digital photography = functionally equivalent substitute — denied for 20 years'}]},
+  {id:'co5',type:'company',name:'Apple',industry:'Technology · Consumer',outcome:'Success',
+   description:'iPhone + App Store + iCloud + M-series chips = near-impenetrable ecosystem moat. ~40-45% gross margins on 1.2B active iPhones.',
+   whatHappened:'Built App Store ecosystem (2008) creating compounding switching costs. 2M+ apps exclusively for iOS. Each additional product (AirPods, Watch, TV) deepened lock-in. M-series chips (2020) eliminated Intel supplier dependency entirely. Each additional product deepens switching costs — the moat compounds.',
+   lessons:'Ecosystem switching costs compound over time. Vertical integration on key inputs removes supplier leverage and improves product quality simultaneously. Platform economics: App Store takes 30% with near-zero incremental cost.',
+   links:[{targetId:'f1',rel:'created',label:'iCloud + App ecosystem = entry barrier through switching costs'},{targetId:'f3',rel:'maximized',label:'Every product added increases buyer switching cost'},{targetId:'s2',rel:'illustrates',label:'Differentiation through ecosystem — not any single product feature'}]},
+  {id:'co6',type:'company',name:'WeWork',industry:'Real Estate · Coworking',outcome:'Failure',
+   description:'Claimed tech platform economics on a real estate sub-lease business. $47B peak valuation. Filed Chapter 11 November 2023.',
+   whatHappened:'Model: sign 10-15 year leases, subdivide into co-working spaces, rent short-term. 2019 IPO S-1 revealed $47B lease liabilities vs $2.4B revenue. CEO extracted $700M. No network effects existed. COVID eliminated demand. Long-term leases = catastrophic exit barriers.',
+   lessons:'Tech premium requires demonstrated network effects. Invented metrics ("Community-Adjusted EBITDA") conceal structural problems. Exit barriers are fatal when demand collapses.',
+   links:[{targetId:'f5',rel:'lost',label:'Commodity office space — no defensible product differentiation'},{targetId:'f3',rel:'exposed',label:'Corporate buyers highly price-sensitive, zero switching costs on real estate'}]},
+  {id:'co7',type:'company',name:'Amazon',industry:'Technology · Retail',outcome:'Success',
+   description:'Built the most powerful distribution moat in retail. AWS profits cross-subsidize retail. Each business creates advantages for the others.',
+   whatHappened:'Bookstore → own fulfillment network → 2-day delivery (Prime 2005) → AWS from internal infrastructure (2006) → each unit subsidizes another. Backward integrated on every cost line: logistics, data centers, chips, content, healthcare.',
+   lessons:'Distribution IS the moat — stores express it, not create it. Cross-subsidize market entry with cash-cow business profits. Every cost line can become a business if you scale it enough.',
+   links:[{targetId:'f1',rel:'built',label:'Own logistics makes distribution barrier insurmountable'},{targetId:'f3',rel:'executed',label:'Backward integration across logistics, cloud, chips, content'},{targetId:'s1',rel:'illustrates',label:'Cost leadership at scale → cross-subsidize expansion into new markets'}]},
+  {id:'co8',type:'company',name:'NVIDIA',industry:'Technology · Semiconductors',outcome:'Success',
+   description:'Started as niche GPU maker for gamers 1993. Became the critical infrastructure of AI. CUDA ecosystem = near-total switching costs.',
+   whatHappened:'15 years focused on gamers. CUDA programming platform (2006) built for game development. AlexNet (2012) proved GPUs perfect for deep learning. CUDA ecosystem — 15 years of developer investment — prevented AMD/Intel from stealing AI market despite equivalent hardware. Now: 90%+ AI training chip market share.',
+   lessons:'Build deep niche expertise — it can have unexpected applications. Platform lock-in (CUDA) is worth more than hardware superiority. Start niche, capture the world when the niche becomes mainstream.',
+   links:[{targetId:'f2',rel:'became',label:'CUDA + H100 = unique input with no viable substitute for AI'},{targetId:'f3',rel:'maximized',label:'CUDA ecosystem = near-infinite switching cost after 15 years'},{targetId:'s3',rel:'illustrates',label:'Focus on gamers → expertise → captured whole AI market'}]},
+  {id:'co9',type:'company',name:'Blockbuster',industry:'Media · Retail',outcome:'Failure',
+   description:'9,000 stores at peak. 60M members. $800M/year in late fees = 16% of revenue. Filed Chapter 11 September 2010.',
+   whatHappened:'Late fees were simultaneously their biggest customer pain point AND most critical profit line. Netflix eliminated them with subscription (1997). CEO proposed eliminating late fees in 2004 — board refused. Netflix streaming launched 2007. 9,000 store leases became catastrophic exit barriers.',
+   lessons:'The incumbent\'s greatest strength (9,000 stores) became its greatest liability (exit barriers). Subscription models that eliminate friction displace transaction models. Board governance failure can prevent strategic adaptation even when the threat is clearly visible.',
+   links:[{targetId:'f4',rel:'ignored',label:'Streaming was cheaper and more convenient — ignored until too late'},{targetId:'f5',rel:'trapped',label:'9,000 store leases = catastrophic exit barriers in streaming era'}]},
+  {id:'co10',type:'company',name:'Stripe',industry:'Fintech · Payments',outcome:'Success',
+   description:'API-first payments infrastructure. Developer experience as moat — became infrastructure so embedded that switching is practically impossible.',
+   whatHappened:'Reduced payment integration from weeks to 7 lines of code. Every startup chose Stripe not for price but for developer experience. Each additional product (Radar, Billing, Atlas, Issuing) deepened integration. Now $1T+ annually. Switching means rebuilding entire payment infrastructure — years of engineering work.',
+   lessons:'Developer experience is a strategic weapon — if you make developers\' lives radically easier, they choose you regardless of price. Become infrastructure. Every additional product deepens switching cost: land with a hook, expand to become load-bearing.',
+   links:[{targetId:'f1',rel:'created',label:'Deep API integrations become switching-cost entry barrier'},{targetId:'f3',rel:'maximized',label:'Rebuilding payment infrastructure = years of engineering = total lock-in'},{targetId:'s2',rel:'illustrates',label:'Differentiation through radical developer experience — not price'}]},
+  {id:'cn1',type:'concept',name:"Innovator's Dilemma",
+   description:'Incumbents focus on sustaining innovations for existing customers, ignoring disruptive tech that initially underperforms but eventually displaces them. The logic of good management leads to strategic failure.',
+   examples:'Kodak (invented digital 1975, shelved it), Nokia (dismissed iPhone), Blockbuster (protected late fees), Hard drive makers (each size transition led by new entrants)',
+   counterExamples:'Netflix (proactively cannibalized DVD with streaming), Amazon (cannibalized retail with AWS), Apple (cannibalized iPod with iPhone)',
+   links:[{targetId:'f4',rel:'illustrates',label:'Substitute dismissed as inferior — classic disruptive entry pattern'}]},
+  {id:'cn2',type:'concept',name:'Stuck in the Middle',
+   description:'A firm failing to commit to any generic strategy. Not cost leader, not differentiated, not focused. Almost guaranteed low profitability — Porter\'s most important warning.',
+   examples:'Loses high-volume customers demanding low prices (go to cost leader) AND premium customers demanding quality (go to differentiator). Capital investments produce no returns without strategic commitment.',
+   counterExamples:'Samsung: moved from cost leadership to differentiation over 30 years. Toyota: cost to quality over decades. Transition is possible with deliberate commitment.',
+   links:[{targetId:'s1',rel:'related_to',label:'Failure mode: incomplete cost leadership commitment'},{targetId:'s2',rel:'related_to',label:'Failure mode: incomplete differentiation commitment'},{targetId:'s3',rel:'related_to',label:'Failure mode: no niche discipline'}]},
+  {id:'cn3',type:'concept',name:'Network Effects',
+   description:'Each additional user increases product value for all existing users. The strongest moat in digital markets — compounding defensibility that makes displacement nearly impossible.',
+   examples:'Visa/Mastercard (merchant + cardholder sides), WhatsApp (2B user network), Uber (more drivers → faster pickups → more riders), LinkedIn, stock exchanges (liquidity attracts liquidity)',
+   counterExamples:'Netflix: value does not increase with more subscribers. Dropbox: mostly individual storage. Most SaaS tools have no real network effects.',
+   links:[{targetId:'f1',rel:'creates',label:'Network effects make switching enormously costly'},{targetId:'f5',rel:'reduces',label:'Network effects reduce rivalry by creating natural monopolies'}]},
+];
+    </script>
+    </body>
+    </html>
